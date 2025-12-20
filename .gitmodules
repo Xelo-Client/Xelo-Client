@@ -1,0 +1,3 @@
+[submodule "app/src/main/cpp/Preloader"]
+	path = app/src/main/cpp/Preloader
+	url = https://github.com/Viablecobra/Preloader.git
