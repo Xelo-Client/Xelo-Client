@@ -19,6 +19,7 @@ import android.widget.ImageButton;
 
 import com.origin.launcher.R;
 import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModManager;
+import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModSizeStore;
 
 public abstract class BaseOverlayButton {
 
@@ -169,7 +170,13 @@ public abstract class BaseOverlayButton {
                 return true;
             case MotionEvent.ACTION_UP:
                 long elapsed = SystemClock.uptimeMillis() - touchDownTime;
-                if (!isDragging && elapsed < TAP_TIMEOUT) {
+                if (isDragging) {
+                    if (InbuiltModSizeStore.getInstance().isLocked(getModId())) {
+                        InbuiltModSizeStore store = InbuiltModSizeStore.getInstance();
+                        store.setPositionX(getModId(), wmParams.x);
+                        store.setPositionY(getModId(), wmParams.y);
+                    }
+                } else if (elapsed < TAP_TIMEOUT) {
                     handler.post(this::onButtonClick);
                 }
                 isDragging = false;
@@ -210,7 +217,13 @@ public abstract class BaseOverlayButton {
                 return true;
             case MotionEvent.ACTION_UP:
                 long elapsed = SystemClock.uptimeMillis() - touchDownTime;
-                if (!isDragging && elapsed < TAP_TIMEOUT) {
+                if (isDragging) {
+                    if (InbuiltModSizeStore.getInstance().isLocked(getModId())) {
+                        InbuiltModSizeStore store = InbuiltModSizeStore.getInstance();
+                        store.setPositionX(getModId(), params.leftMargin);
+                        store.setPositionY(getModId(), params.topMargin);
+                    }
+                } else if (elapsed < TAP_TIMEOUT) {
                     handler.post(this::onButtonClick);
                 }
                 isDragging = false;
