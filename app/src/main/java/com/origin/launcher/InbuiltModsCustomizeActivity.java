@@ -14,6 +14,7 @@ import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 
+import com.google.android.material.materialswitch.MaterialSwitch;
 import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModManager;
 import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModSizeStore;
 import com.origin.launcher.Launcher.inbuilt.model.ModIds;
@@ -75,11 +76,18 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity {
         Button doneButton = findViewById(R.id.done_button);
         Button sizeButton = findViewById(R.id.size_button);
         Button opacityButton = findViewById(R.id.opacity_button);
-        Button lockButton = findViewById(R.id.lock_button);
+        MaterialSwitch lockSwitch = findViewById(R.id.lock_button);
         FrameLayout grid = findViewById(R.id.inbuilt_buttons_grid);
         sliderContainer = findViewById(R.id.slider_container);
         sizeSeekBar = findViewById(R.id.size_seekbar);
         sliderLabel = findViewById(R.id.slider_label);
+
+        ThemeUtils.applyThemeToSwitch(lockSwitch, this);
+        lockSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (lastSelectedId != null) {
+                InbuiltModSizeStore.getInstance().setLocked(lastSelectedId, isChecked);
+            }
+        });
 
         sizeSeekBar.setMax(100);
 
@@ -204,17 +212,6 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity {
                 int range = MAX_OPACITY - MIN_OPACITY;
                 sizeSeekBar.setMax(range);
                 sizeSeekBar.setProgress(opacity - MIN_OPACITY);
-                sliderContainer.setVisibility(View.VISIBLE);
-            }
-        });
-
-        lockButton.setOnClickListener(v -> {
-            currentMode = SliderMode.LOCK;
-            sliderLabel.setText("Lock");
-            if (lastSelectedId != null) {
-                boolean isLocked = InbuiltModSizeStore.getInstance().isLocked(lastSelectedId);
-                sizeSeekBar.setMax(1);
-                sizeSeekBar.setProgress(isLocked ? 1 : 0);
                 sliderContainer.setVisibility(View.VISIBLE);
             }
         });
