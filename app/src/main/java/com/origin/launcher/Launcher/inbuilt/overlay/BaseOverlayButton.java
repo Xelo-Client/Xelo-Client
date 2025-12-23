@@ -60,9 +60,6 @@ public abstract class BaseOverlayButton {
 
     public void show(int startX, int startY) {
         if (isShowing) return;
-        if (InbuiltModSizeStore.getInstance().isLocked(getModId())) {
-            return;
-        }
         handler.postDelayed(() -> showInternal(startX, startY), 500);
     }
 
@@ -104,9 +101,6 @@ public abstract class BaseOverlayButton {
 
     private void showFallback(int startX, int startY) {
         if (isShowing) return;
-        if (InbuiltModSizeStore.getInstance().isLocked(getModId())) {
-            return;
-        }
         ViewGroup rootView = activity.findViewById(android.R.id.content);
         if (rootView == null) return;
 
@@ -155,9 +149,6 @@ public abstract class BaseOverlayButton {
     private boolean handleTouch(View v, MotionEvent event) {
         switch (event.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
-                if (InbuiltModSizeStore.getInstance().isLocked(getModId())) {
-                    return false;
-                }
                 initialX = wmParams.x;
                 initialY = wmParams.y;
                 initialTouchX = event.getRawX();
@@ -183,12 +174,10 @@ public abstract class BaseOverlayButton {
                 return true;
             case MotionEvent.ACTION_UP:
                 long elapsed = SystemClock.uptimeMillis() - touchDownTime;
-                if (isDragging) {
-                    if (InbuiltModSizeStore.getInstance().isLocked(getModId())) {
-                        InbuiltModSizeStore store = InbuiltModSizeStore.getInstance();
-                        store.setPositionX(getModId(), wmParams.x);
-                        store.setPositionY(getModId(), wmParams.y);
-                    }
+                if (isDragging && InbuiltModSizeStore.getInstance().isLocked(getModId())) {
+                    InbuiltModSizeStore store = InbuiltModSizeStore.getInstance();
+                    store.setPositionX(getModId(), wmParams.x);
+                    store.setPositionY(getModId(), wmParams.y);
                 } else if (elapsed < TAP_TIMEOUT) {
                     handler.post(this::onButtonClick);
                 }
@@ -208,9 +197,6 @@ public abstract class BaseOverlayButton {
         FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) overlayView.getLayoutParams();
         switch (event.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
-                if (InbuiltModSizeStore.getInstance().isLocked(getModId())) {
-                    return false;
-                }
                 initialX = params.leftMargin;
                 initialY = params.topMargin;
                 initialTouchX = event.getRawX();
@@ -236,12 +222,10 @@ public abstract class BaseOverlayButton {
                 return true;
             case MotionEvent.ACTION_UP:
                 long elapsed = SystemClock.uptimeMillis() - touchDownTime;
-                if (isDragging) {
-                    if (InbuiltModSizeStore.getInstance().isLocked(getModId())) {
-                        InbuiltModSizeStore store = InbuiltModSizeStore.getInstance();
-                        store.setPositionX(getModId(), params.leftMargin);
-                        store.setPositionY(getModId(), params.topMargin);
-                    }
+                if (isDragging && InbuiltModSizeStore.getInstance().isLocked(getModId())) {
+                    InbuiltModSizeStore store = InbuiltModSizeStore.getInstance();
+                    store.setPositionX(getModId(), params.leftMargin);
+                    store.setPositionY(getModId(), params.topMargin);
                 } else if (elapsed < TAP_TIMEOUT) {
                     handler.post(this::onButtonClick);
                 }
