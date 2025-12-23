@@ -121,8 +121,8 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity {
             }
         }
 
-        if (lastSelectedId != null && lockSwitch != null) {
-            lockSwitch.setChecked(InbuiltModSizeStore.getInstance().isLocked(lastSelectedId));
+        if (lockSwitch != null) {
+            lockSwitch.setChecked(false);
         }
 
         for (Map.Entry<String, Integer> e : modSizes.entrySet()) {
