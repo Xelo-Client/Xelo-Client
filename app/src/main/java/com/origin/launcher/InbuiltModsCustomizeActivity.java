@@ -156,6 +156,7 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity {
                     result.putExtra("posx_" + id, x);
                     result.putExtra("posy_" + id, y);
                 }
+                boolean locked = InbuiltModSizeStore.getInstance().isLocked(id);
             }
             for (Map.Entry<String, Integer> e : modOpacity.entrySet()) {
                 String id = e.getKey();

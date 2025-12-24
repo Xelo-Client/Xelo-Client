@@ -150,10 +150,10 @@ public class InbuiltModSizeStore {
         return false;
     }
 
-    public void setLocked(String modId, boolean locked) {
-        locks.put(modId, locked);
+    public void setLocked(String id, boolean locked) {
+        locks.put(id, locked);
         if (prefs != null) {
-            prefs.edit().putBoolean("lock_" + modId, locked).apply();
+            prefs.edit().putBoolean("lock_" + id, locked).apply();
         }
     }
 }
