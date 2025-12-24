@@ -25,8 +25,7 @@
                 android:layout_height="48dp"
                 android:src="@drawable/ic_arrow_back"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:scaleType="centerInside"
-                android:contentDescription="@string/back" />
+                android:scaleType="centerInside" />
 
             <TextView
                 android:layout_width="0dp"
