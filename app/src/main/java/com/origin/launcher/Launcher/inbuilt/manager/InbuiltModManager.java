@@ -147,4 +147,8 @@ public class InbuiltModManager {
     private void savePrefs() {
         prefs.edit().putStringSet(KEY_ADDED_MODS, new HashSet<>(addedMods)).apply();
     }
+    
+    public void setOverlayButtonLocked(String modId, boolean locked) {
+    prefs.edit().putBoolean("lock_" + modId, locked).apply();
+   }
 }

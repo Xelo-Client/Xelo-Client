@@ -19,6 +19,7 @@ import android.widget.ImageButton;
 
 import com.origin.launcher.R;
 import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModManager;
+import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModSizeStore;
 
 public abstract class BaseOverlayButton {
 
@@ -41,6 +42,7 @@ public abstract class BaseOverlayButton {
     public BaseOverlayButton(Activity activity) {
         this.activity = activity;
         this.windowManager = (WindowManager) activity.getSystemService(Context.WINDOW_SERVICE);
+        InbuiltModSizeStore.getInstance().init(activity.getApplicationContext());
     }
 
     protected int getButtonSizePx() {
@@ -156,6 +158,9 @@ public abstract class BaseOverlayButton {
                 v.getParent().requestDisallowInterceptTouchEvent(true);
                 return true;
             case MotionEvent.ACTION_MOVE:
+                if (InbuiltModSizeStore.getInstance().isLocked(getModId())) {
+                    return true;
+                }
                 float dx = event.getRawX() - initialTouchX;
                 float dy = event.getRawY() - initialTouchY;
                 if (Math.abs(dx) > DRAG_THRESHOLD || Math.abs(dy) > DRAG_THRESHOLD) {
@@ -169,7 +174,11 @@ public abstract class BaseOverlayButton {
                 return true;
             case MotionEvent.ACTION_UP:
                 long elapsed = SystemClock.uptimeMillis() - touchDownTime;
-                if (!isDragging && elapsed < TAP_TIMEOUT) {
+                if (isDragging && InbuiltModSizeStore.getInstance().isLocked(getModId())) {
+                    InbuiltModSizeStore store = InbuiltModSizeStore.getInstance();
+                    store.setPositionX(getModId(), wmParams.x);
+                    store.setPositionY(getModId(), wmParams.y);
+                } else if (elapsed < TAP_TIMEOUT) {
                     handler.post(this::onButtonClick);
                 }
                 isDragging = false;
@@ -197,6 +206,9 @@ public abstract class BaseOverlayButton {
                 v.getParent().requestDisallowInterceptTouchEvent(true);
                 return true;
             case MotionEvent.ACTION_MOVE:
+                if (InbuiltModSizeStore.getInstance().isLocked(getModId())) {
+                    return true;
+                }
                 float dx = event.getRawX() - initialTouchX;
                 float dy = event.getRawY() - initialTouchY;
                 if (Math.abs(dx) > DRAG_THRESHOLD || Math.abs(dy) > DRAG_THRESHOLD) {
@@ -210,7 +222,11 @@ public abstract class BaseOverlayButton {
                 return true;
             case MotionEvent.ACTION_UP:
                 long elapsed = SystemClock.uptimeMillis() - touchDownTime;
-                if (!isDragging && elapsed < TAP_TIMEOUT) {
+                if (isDragging && InbuiltModSizeStore.getInstance().isLocked(getModId())) {
+                    InbuiltModSizeStore store = InbuiltModSizeStore.getInstance();
+                    store.setPositionX(getModId(), params.leftMargin);
+                    store.setPositionY(getModId(), params.topMargin);
+                } else if (elapsed < TAP_TIMEOUT) {
                     handler.post(this::onButtonClick);
                 }
                 isDragging = false;

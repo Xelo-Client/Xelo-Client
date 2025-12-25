@@ -1,5 +1,6 @@
 package com.origin.launcher;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -7,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.Switch;
@@ -34,10 +36,10 @@ public class ConfigurationFragment extends BaseThemedFragment {
         View view = inflater.inflate(R.layout.fragment_configuration, container, false);
 
         DynamicAnim.applyPressScaleRecursively(view);
-
+        
         ImageButton backButton = view.findViewById(R.id.back_button);
         if (backButton != null) {
-            backButton.setOnClickListener(v -> requireActivity().finish());
+            backButton.setOnClickListener(v -> requireActivity().getSupportFragmentManager().popBackStack());
         }
 
         settingsRecyclerView = view.findViewById(R.id.settings_recycler);
@@ -111,6 +113,19 @@ public class ConfigurationFragment extends BaseThemedFragment {
         btn.setText(buttonText);
         btn.setOnClickListener(listener);
         settingsItemsContainer.addView(ll);
+    }
+    
+    @Override
+    protected void onApplyTheme() {
+        View rootView = getView();
+        if (rootView == null) return;
+        
+        rootView.setBackgroundColor(ThemeManager.getInstance().getColor("background"));
+        
+        ImageButton backButton = rootView.findViewById(R.id.back_button);
+        if (backButton != null) {
+            backButton.setColorFilter(ThemeManager.getInstance().getColor("onBackground"));
+        }
     }
 
     @Override

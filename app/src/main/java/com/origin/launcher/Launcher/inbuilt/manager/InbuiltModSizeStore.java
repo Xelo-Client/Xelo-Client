@@ -17,6 +17,7 @@ public class InbuiltModSizeStore {
     private final Map<String, Integer> sizes = new HashMap<>();
     private final Map<String, Float> posX = new HashMap<>();
     private final Map<String, Float> posY = new HashMap<>();
+    private final Map<String, Boolean> locks = new HashMap<>();
 
     private InbuiltModSizeStore() { }
 
@@ -57,6 +58,10 @@ public class InbuiltModSizeStore {
             } else if (value instanceof Integer) {
                 if (key.startsWith("size_")) {
                     sizes.put(key.substring("size_".length()), (Integer) value);
+                }
+            } else if (value instanceof Boolean) {
+                if (key.startsWith("lock_")) {
+                    locks.put(key.substring("lock_".length()), (Boolean) value);
                 }
             }
         }
@@ -132,5 +137,23 @@ public class InbuiltModSizeStore {
             return stored;
         }
         return -1f;
+    }
+
+    public boolean isLocked(String id) {
+        Boolean v = locks.get(id);
+        if (v != null) return v;
+        if (prefs != null && prefs.contains("lock_" + id)) {
+            boolean stored = prefs.getBoolean("lock_" + id, false);
+            locks.put(id, stored);
+            return stored;
+        }
+        return false;
+    }
+
+    public void setLocked(String id, boolean locked) {
+        locks.put(id, locked);
+        if (prefs != null) {
+            prefs.edit().putBoolean("lock_" + id, locked).apply();
+        }
     }
 }

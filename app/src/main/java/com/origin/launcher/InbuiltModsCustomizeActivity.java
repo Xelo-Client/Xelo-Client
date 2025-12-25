@@ -14,6 +14,7 @@ import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 
+import com.google.android.material.materialswitch.MaterialSwitch;
 import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModManager;
 import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModSizeStore;
 import com.origin.launcher.Launcher.inbuilt.model.ModIds;
@@ -30,6 +31,7 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity {
     private View sliderContainer;
     private SeekBar sizeSeekBar;
     private TextView sliderLabel;
+    private MaterialSwitch lockSwitch;
     private final Map<String, Integer> modSizes = new HashMap<>();
     private final Map<String, Integer> modOpacity = new HashMap<>();
     private final Map<String, View> modButtons = new HashMap<>();
@@ -75,10 +77,18 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity {
         Button doneButton = findViewById(R.id.done_button);
         Button sizeButton = findViewById(R.id.size_button);
         Button opacityButton = findViewById(R.id.opacity_button);
+        lockSwitch = findViewById(R.id.lock_button);
         FrameLayout grid = findViewById(R.id.inbuilt_buttons_grid);
         sliderContainer = findViewById(R.id.slider_container);
         sizeSeekBar = findViewById(R.id.size_seekbar);
         sliderLabel = findViewById(R.id.slider_label);
+
+        ThemeUtils.applyThemeToSwitch(lockSwitch, this);
+        lockSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (lastSelectedId != null) {
+                InbuiltModSizeStore.getInstance().setLocked(lastSelectedId, isChecked);
+            }
+        });
 
         sizeSeekBar.setMax(100);
 
@@ -91,14 +101,14 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity {
             }
             return false;
         });
-
         InbuiltModSizeStore.getInstance().init(getApplicationContext());
+
 
         addModButton(grid, R.drawable.ic_sprint, ModIds.AUTO_SPRINT);
         addModButton(grid, R.drawable.ic_quick_drop, ModIds.QUICK_DROP);
         addModButton(grid, R.drawable.ic_hud, ModIds.TOGGLE_HUD);
         addModButton(grid, R.drawable.ic_camera, ModIds.CAMERA_PERSPECTIVE);
-
+        
         InbuiltModSizeStore sizeStore = InbuiltModSizeStore.getInstance();
         for (Map.Entry<String, View> e : modButtons.entrySet()) {
             String id = e.getKey();
@@ -146,6 +156,7 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity {
                     result.putExtra("posx_" + id, x);
                     result.putExtra("posy_" + id, y);
                 }
+                boolean locked = InbuiltModSizeStore.getInstance().isLocked(id);
             }
             for (Map.Entry<String, Integer> e : modOpacity.entrySet()) {
                 String id = e.getKey();
@@ -169,7 +180,7 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity {
                     lp.height = sizePx;
                     lastSelectedButton.setLayoutParams(lp);
                     modSizes.put(lastSelectedId, sizeDp);
-                } else {
+                } else if (currentMode == SliderMode.OPACITY) {
                     int opacity = clampOpacity(MIN_OPACITY + progress);
                     lastSelectedButton.setAlpha(opacity / 100f);
                     modOpacity.put(lastSelectedId, opacity);
@@ -238,6 +249,9 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity {
         btn.setOnClickListener(v -> {
             lastSelectedButton = v;
             lastSelectedId = id;
+            if (lockSwitch != null) {
+                lockSwitch.setChecked(InbuiltModSizeStore.getInstance().isLocked(id));
+            }
 
             int sizeDp = modSizes.getOrDefault(id, DEFAULT_SIZE_DP);
             sizeDp = clampSize(sizeDp);
@@ -252,7 +266,7 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity {
                 sliderLabel.setText("Size");
                 sizeSeekBar.setMax(100);
                 sizeSeekBar.setProgress(sizeToProgress(sizeDp));
-            } else {
+            } else if (currentMode == SliderMode.OPACITY) {
                 sliderLabel.setText("Opacity");
                 int opacity = modOpacity.getOrDefault(id, DEFAULT_OPACITY);
                 opacity = clampOpacity(opacity);

@@ -11,14 +11,13 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.origin.launcher.R;
 import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModManager;
+import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModSizeStore;
 import com.origin.launcher.Launcher.inbuilt.model.InbuiltMod;
 import com.origin.launcher.Adapter.InbuiltModsAdapter;
 import com.origin.launcher.animation.DynamicAnim;
 import android.content.Intent;
 
 import java.util.List;
-
-import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModSizeStore;
 
 public class InbuiltModsActivity extends BaseThemedActivity {
 
@@ -39,6 +38,7 @@ public class InbuiltModsActivity extends BaseThemedActivity {
         }
 
         modManager = InbuiltModManager.getInstance(this);
+        InbuiltModSizeStore.getInstance().init(getApplicationContext());
         setupViews();
         loadMods();
     }
@@ -48,11 +48,11 @@ public class InbuiltModsActivity extends BaseThemedActivity {
         closeButton.setOnClickListener(v -> finish());
         DynamicAnim.applyPressScale(closeButton);
         ImageButton customiseButton = findViewById(R.id.customise_inbuilt_mod_button);
-customiseButton.setOnClickListener(v -> {
-    Intent intent = new Intent(this, InbuiltModsCustomizeActivity.class);
-    startActivityForResult(intent, REQ_CUSTOMIZE_INBUILT);
-});
-DynamicAnim.applyPressScale(customiseButton);
+        customiseButton.setOnClickListener(v -> {
+            Intent intent = new Intent(this, InbuiltModsCustomizeActivity.class);
+            startActivityForResult(intent, REQ_CUSTOMIZE_INBUILT);
+        });
+        DynamicAnim.applyPressScale(customiseButton);
 
         recyclerView = findViewById(R.id.inbuilt_mods_recycler);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -86,29 +86,29 @@ DynamicAnim.applyPressScale(customiseButton);
     }
     
     @Override
-protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-    super.onActivityResult(requestCode, resultCode, data);
-    if (requestCode != REQ_CUSTOMIZE_INBUILT || resultCode != RESULT_OK || data == null) {
-        return;
-    }
-
-    List<InbuiltMod> mods = modManager.getAllMods(this);
-    InbuiltModSizeStore sizeStore = InbuiltModSizeStore.getInstance();
-
-    for (InbuiltMod mod : mods) {
-        String id = mod.getId();
-
-        int opacity = data.getIntExtra("opacity_" + id, -1);
-        if (opacity > 0) {
-            InbuiltModManager.getInstance(this).setOverlayButtonOpacity(id, opacity);
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode != REQ_CUSTOMIZE_INBUILT || resultCode != RESULT_OK || data == null) {
+            return;
         }
 
-        float x = data.getFloatExtra("posx_" + id, -1f);
-        float y = data.getFloatExtra("posy_" + id, -1f);
-        if (x >= 0f && y >= 0f) {
-            sizeStore.setPositionX(id, x);
-            sizeStore.setPositionY(id, y);
-         }
-      }
-   }
+        List<InbuiltMod> mods = modManager.getAllMods(this);
+        InbuiltModSizeStore sizeStore = InbuiltModSizeStore.getInstance();
+
+        for (InbuiltMod mod : mods) {
+            String id = mod.getId();
+
+            int opacity = data.getIntExtra("opacity_" + id, -1);
+            if (opacity > 0) {
+                InbuiltModManager.getInstance(this).setOverlayButtonOpacity(id, opacity);
+            }
+
+            float x = data.getFloatExtra("posx_" + id, -1f);
+            float y = data.getFloatExtra("posy_" + id, -1f);
+            if (x >= 0f && y >= 0f) {
+                sizeStore.setPositionX(id, x);
+                sizeStore.setPositionY(id, y);
+            }
+        }
+    }
 }
