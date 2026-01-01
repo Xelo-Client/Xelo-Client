@@ -179,7 +179,7 @@ private void checkFirstLaunch() {
             return;
         }
         
-        showFirstLaunchDialog(prefs, disclaimerShown, creditsShown);
+        showFirstLaunchDialog(prefs, disclaimerShown, themesDialogShown, creditsShown);
         prefs.edit().putBoolean(KEY_FIRST_LAUNCH, false).apply();
     } else if (!storageAsked) {
         ensureStorageAccess(prefs);
