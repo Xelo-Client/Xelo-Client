@@ -230,7 +230,7 @@ private void continueFirstLaunchFlow(SharedPreferences prefs) {
     } else if (!creditsShown) {
         showThanksDialog(prefs);
     } else if (!themesDialogShown) {
-        showThemesDialog(prefs, true);
+        
     }
 }
 
@@ -249,7 +249,7 @@ private void showFirstLaunchDialog(SharedPreferences prefs,
                 } else if (!creditsShown) {
                     showThanksDialog(prefs);
                 } else if (!themesDialogShown) {
-                    showThemesDialog(prefs, true);
+                    
                 }
             })
             .setCancelable(false)
@@ -274,7 +274,7 @@ private void showDisclaimerDialog(SharedPreferences prefs) {
                 if (!creditsShown) {
                     showThanksDialog(prefs);
                 } else if (!themesDialogShown) {
-                    showThemesDialog(prefs, true);
+                    
                 }
             })
             .setCancelable(false)
@@ -342,7 +342,7 @@ private void showThanksDialog(SharedPreferences prefs) {
             .setPositiveButton("Continue", (dialog, which) -> {
                 dialog.dismiss();
                 prefs.edit().putBoolean(KEY_CREDITS_SHOWN, true).apply();
-                showThemesDialog(prefs, true);
+                
             })
             .setCancelable(false)
             .show();
