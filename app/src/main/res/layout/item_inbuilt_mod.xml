@@ -26,7 +26,7 @@
                 android:textColor="@color/white"
                 android:textSize="16sp"
                 android:textStyle="bold"
-                android:fontFamily="@font/mojangles" />
+                android:fontFamily="sans-serif-light" />
 
             <TextView
                 android:id="@+id/inbuilt_mod_description"
@@ -34,7 +34,7 @@
                 android:layout_height="wrap_content"
                 android:textColor="@color/white"
                 android:textSize="13sp"
-                android:fontFamily="@font/mojangles"
+                android:fontFamily="sans-serif-light"
                 android:alpha="0.7"
                 android:layout_marginTop="4dp" />
 
@@ -50,7 +50,7 @@
             android:textColor="@color/onPrimary"
             android:paddingHorizontal="16dp"
             android:textSize="14sp"
-            android:fontFamily="@font/mojangles" />
+            android:fontFamily="sans-serif-light" />
 
     </LinearLayout>
 
@@ -70,7 +70,7 @@
             android:text="@string/autosprint_key_label"
             android:textSize="13sp"
             android:textColor="@color/onSurface"
-            android:fontFamily="@font/mojangles" />
+            android:fontFamily="sans-serif-light" />
 
         <Spinner
             android:id="@+id/config_spinner"

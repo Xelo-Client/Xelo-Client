@@ -35,7 +35,7 @@
                 android:text="TEST NAME"
                 android:textSize="16sp"
                 android:textColor="@color/white"
-                android:fontFamily="@font/mojangles" />
+                android:fontFamily="sans-serif-light" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -47,7 +47,7 @@
                 android:paddingHorizontal="6dp"
                 android:paddingVertical="2dp"
                 android:layout_marginStart="8dp"
-                android:fontFamily="@font/mojangles" />
+                android:fontFamily="sans-serif-light" />
         </LinearLayout>
 
         <TextView
@@ -58,7 +58,7 @@
             android:textSize="12sp"
             android:textColor="@color/white"
             android:alpha="0.6"
-            android:fontFamily="@font/mojangles"
+            android:fontFamily="sans-serif-light"
             android:layout_marginTop="2dp" />
     </LinearLayout>
 

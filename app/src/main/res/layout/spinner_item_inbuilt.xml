@@ -7,5 +7,5 @@
     android:textSize="12sp"
     android:paddingHorizontal="6dp"
     android:paddingVertical="4dp"
-    android:fontFamily="@font/mojangles"
+    android:fontFamily="sans-serif-light"
     android:singleLine="true" />

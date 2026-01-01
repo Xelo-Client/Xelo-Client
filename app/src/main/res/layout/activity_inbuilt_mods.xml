@@ -30,6 +30,7 @@
             android:layout_marginEnd="12dp"
             android:text="@string/inbuilt_mods_title"
             android:textColor="@color/onSurface"
+            android:fontFamily="sans-serif-light"
             android:textSize="24sp"
             android:textStyle="bold" />
 
