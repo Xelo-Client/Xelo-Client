@@ -6,8 +6,6 @@ import android.os.Build;
 import android.provider.Settings;
 import org.jetbrains.annotations.NotNull;
 
-
-
 public class DeviceInfo {
     public static String GetOsVersion() {
         return Build.VERSION.RELEASE;
