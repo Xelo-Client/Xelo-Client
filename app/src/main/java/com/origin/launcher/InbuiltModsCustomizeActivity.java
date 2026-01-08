@@ -151,9 +151,11 @@ adapterContainer.setBackground(panelBg);
 
         ViewGroup rootContainer = (ViewGroup) findViewById(android.R.id.content);
         rootContainer.addView(adapterContainer);
-        adapterContainer.post(() -> {
-            float w = adapterContainer.getWidth();
-        });
+        adapterContainer.measure(
+    View.MeasureSpec.makeMeasureSpec(dpToPx(280), View.MeasureSpec.EXACTLY),
+    View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+);
+adapterContainer.layout(0, 0, adapterContainer.getMeasuredWidth(), adapterContainer.getMeasuredHeight());
 
         ThemeUtils.applyThemeToSwitch(lockSwitch, this);
         lockSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
@@ -222,7 +224,7 @@ adapterContainer.setBackground(panelBg);
                     adapterContainer.setTranslationX(panelW);
                     adapterContainer.animate().translationX(0f).setDuration(duration).start();
 
-                                        float slide = panelW;
+                                        float slide = panelW - dpToPx(40);
 bottomButtons.animate().translationX(-slide).setDuration(duration).start();
                     bottomButtons.animate().translationX(-slide).setDuration(duration).start();
                 } else {
