@@ -82,6 +82,8 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity implements 
         lockSwitch = findViewById(R.id.lock_button);
         FrameLayout grid = findViewById(R.id.inbuilt_buttons_grid);
 
+        View bottomButtons = findViewById(R.id.bottom_buttons_container);
+
         customizeButton.setText("Customize");
 
         GradientDrawable blackBg = new GradientDrawable();
@@ -109,14 +111,16 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity implements 
         );
 
         adapterContainer = new FrameLayout(this);
+        GradientDrawable panelBg = new GradientDrawable();
+panelBg.setShape(GradientDrawable.RECTANGLE);
+panelBg.setColor(Color.argb(220, 0, 0, 0));
+panelBg.setCornerRadius(dpToPx(16));
+adapterContainer.setBackground(panelBg);
         FrameLayout.LayoutParams containerParams = new FrameLayout.LayoutParams(
-                dpToPx(240),
-                FrameLayout.LayoutParams.MATCH_PARENT
+                dpToPx(280),
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                Gravity.END
         );
-        containerParams.gravity = Gravity.END | Gravity.CENTER_VERTICAL;
-        containerParams.rightMargin = dpToPx(16);
-        containerParams.topMargin = dpToPx(16);
-        containerParams.bottomMargin = dpToPx(96);
         adapterContainer.setLayoutParams(containerParams);
         adapterContainer.setVisibility(View.GONE);
 
@@ -145,13 +149,8 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity implements 
         adapterContainer.addView(adapterRecyclerView);
         adapterContainer.addView(emptyAdapterText);
 
-        View bg = findViewById(R.id.customize_background);
-        if (bg instanceof ViewGroup) {
-            ((ViewGroup) bg).addView(adapterContainer);
-        } else {
-            View root = findViewById(android.R.id.content);
-            if (root instanceof ViewGroup) ((ViewGroup) root).addView(adapterContainer);
-        }
+        ViewGroup rootContainer = (ViewGroup) findViewById(android.R.id.content);
+        rootContainer.addView(adapterContainer);
 
         ThemeUtils.applyThemeToSwitch(lockSwitch, this);
         lockSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
@@ -204,14 +203,31 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity implements 
         adapter.submitList(getEnabledMods());
 
         customizeButton.setOnClickListener(v -> {
-            isAdapterVisible = !isAdapterVisible;
-            adapterContainer.setVisibility(isAdapterVisible ? View.VISIBLE : View.GONE);
-            
-            boolean isEmpty = adapter.getItemCount() == 0;
-            if (isAdapterVisible) {
-                adapterRecyclerView.setVisibility(isEmpty ? View.GONE : View.VISIBLE);
-                emptyAdapterText.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
-            }
+            boolean show = !isAdapterVisible;
+            isAdapterVisible = show;
+
+            adapterContainer.post(() -> {
+                float panelW = adapterContainer.getWidth();
+                int duration = 200;
+
+                if (show) {
+                    boolean isEmpty = adapter.getItemCount() == 0;
+                    adapterRecyclerView.setVisibility(isEmpty ? View.GONE : View.VISIBLE);
+                    emptyAdapterText.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
+
+                    adapterContainer.setVisibility(View.VISIBLE);
+                    adapterContainer.setTranslationX(panelW);
+                    adapterContainer.animate().translationX(0f).setDuration(duration).start();
+
+                    bottomButtons.animate().translationX(-panelW).setDuration(duration).start();
+                } else {
+                    adapterContainer.animate().translationX(panelW).setDuration(duration).withEndAction(() -> {
+                        adapterContainer.setVisibility(View.GONE);
+                    }).start();
+
+                    bottomButtons.animate().translationX(0f).setDuration(duration).start();
+                }
+            });
         });
 
         resetButton.setOnClickListener(v -> {
