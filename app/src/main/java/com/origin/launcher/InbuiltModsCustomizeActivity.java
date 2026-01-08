@@ -1,6 +1,8 @@
 package com.origin.launcher;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -10,6 +12,7 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -52,6 +55,8 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity implements 
     private RecyclerView adapterRecyclerView;
     private InbuiltCustomizeAdapter adapter;
     private boolean isAdapterVisible = false;
+    private FrameLayout adapterContainer;
+    private TextView emptyAdapterText;
 
     private int clampSize(int s) {
         return Math.max(MIN_SIZE_DP, Math.min(s, MAX_SIZE_DP));
@@ -79,6 +84,23 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity implements 
 
         customizeButton.setText("Customize");
 
+        GradientDrawable blackBg = new GradientDrawable();
+        blackBg.setShape(GradientDrawable.RECTANGLE);
+        blackBg.setColor(Color.BLACK);
+        blackBg.setCornerRadius(dpToPx(12));
+
+        resetButton.setBackground(blackBg);
+        customizeButton.setBackground(blackBg);
+        doneButton.setBackground(blackBg);
+
+        int padding8dp = dpToPx(8);
+        int padding16dp = dpToPx(16);
+        int padding24dp = dpToPx(24);
+
+        resetButton.setPadding(padding24dp, padding8dp, padding24dp, padding8dp);
+        customizeButton.setPadding(padding16dp, padding8dp, padding16dp, padding8dp);
+        doneButton.setPadding(padding24dp, padding8dp, padding24dp, padding8dp);
+
         adapter = new InbuiltCustomizeAdapter(
                 this,
                 MIN_SIZE_DP, MAX_SIZE_DP,
@@ -86,26 +108,52 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity implements 
                 SEEKBAR_MAX
         );
 
-        adapterRecyclerView = new RecyclerView(this);
-        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+        adapterContainer = new FrameLayout(this);
+        FrameLayout.LayoutParams containerParams = new FrameLayout.LayoutParams(
                 dpToPx(240),
                 FrameLayout.LayoutParams.MATCH_PARENT
         );
-        params.gravity = Gravity.END | Gravity.CENTER_VERTICAL;
-        params.rightMargin = dpToPx(16);
-        params.topMargin = dpToPx(16);
-        params.bottomMargin = dpToPx(96);
-        adapterRecyclerView.setLayoutParams(params);
+        containerParams.gravity = Gravity.END | Gravity.CENTER_VERTICAL;
+        containerParams.rightMargin = dpToPx(16);
+        containerParams.topMargin = dpToPx(16);
+        containerParams.bottomMargin = dpToPx(96);
+        adapterContainer.setLayoutParams(containerParams);
+        adapterContainer.setVisibility(View.GONE);
+
+        adapterRecyclerView = new RecyclerView(this);
+        FrameLayout.LayoutParams recyclerParams = new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT
+        );
+        adapterRecyclerView.setLayoutParams(recyclerParams);
         adapterRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         adapterRecyclerView.setAdapter(adapter);
-        adapterRecyclerView.setVisibility(View.GONE);
+
+        emptyAdapterText = new TextView(this);
+        emptyAdapterText.setText("No mods enabled
+
+Add mods from the
+main menu first");
+        emptyAdapterText.setTextSize(16);
+        emptyAdapterText.setTextColor(Color.WHITE);
+        emptyAdapterText.setGravity(Gravity.CENTER);
+        emptyAdapterText.setPadding(dpToPx(24), dpToPx(24), dpToPx(24), dpToPx(24));
+        FrameLayout.LayoutParams emptyParams = new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT
+        );
+        emptyAdapterText.setLayoutParams(emptyParams);
+        emptyAdapterText.setVisibility(View.GONE);
+
+        adapterContainer.addView(adapterRecyclerView);
+        adapterContainer.addView(emptyAdapterText);
 
         View bg = findViewById(R.id.customize_background);
         if (bg instanceof ViewGroup) {
-            ((ViewGroup) bg).addView(adapterRecyclerView);
+            ((ViewGroup) bg).addView(adapterContainer);
         } else {
             View root = findViewById(android.R.id.content);
-            if (root instanceof ViewGroup) ((ViewGroup) root).addView(adapterRecyclerView);
+            if (root instanceof ViewGroup) ((ViewGroup) root).addView(adapterContainer);
         }
 
         ThemeUtils.applyThemeToSwitch(lockSwitch, this);
@@ -160,7 +208,13 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity implements 
 
         customizeButton.setOnClickListener(v -> {
             isAdapterVisible = !isAdapterVisible;
-            adapterRecyclerView.setVisibility(isAdapterVisible ? View.VISIBLE : View.GONE);
+            adapterContainer.setVisibility(isAdapterVisible ? View.VISIBLE : View.GONE);
+            
+            boolean isEmpty = adapter.getItemCount() == 0;
+            if (isAdapterVisible) {
+                adapterRecyclerView.setVisibility(isEmpty ? View.GONE : View.VISIBLE);
+                emptyAdapterText.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
+            }
         });
 
         resetButton.setOnClickListener(v -> {
@@ -197,21 +251,21 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity implements 
     }
 
     @NonNull
-private List<InbuiltCustomizeAdapter.Item> getEnabledMods() {
-    List<InbuiltCustomizeAdapter.Item> list = new ArrayList<>();
-    InbuiltModManager manager = InbuiltModManager.getInstance(this);
-    
-    if (manager.isModAdded(ModIds.AUTO_SPRINT))
-        list.add(new InbuiltCustomizeAdapter.Item(ModIds.AUTO_SPRINT, R.drawable.ic_sprint));
-    if (manager.isModAdded(ModIds.QUICK_DROP))
-        list.add(new InbuiltCustomizeAdapter.Item(ModIds.QUICK_DROP, R.drawable.ic_quick_drop));
-    if (manager.isModAdded(ModIds.TOGGLE_HUD))
-        list.add(new InbuiltCustomizeAdapter.Item(ModIds.TOGGLE_HUD, R.drawable.ic_hud));
-    if (manager.isModAdded(ModIds.CAMERA_PERSPECTIVE))
-        list.add(new InbuiltCustomizeAdapter.Item(ModIds.CAMERA_PERSPECTIVE, R.drawable.ic_camera));
-    
-    return list;
-}
+    private List<InbuiltCustomizeAdapter.Item> getEnabledMods() {
+        List<InbuiltCustomizeAdapter.Item> list = new ArrayList<>();
+        InbuiltModManager manager = InbuiltModManager.getInstance(this);
+        
+        if (manager.isModAdded(ModIds.AUTO_SPRINT))
+            list.add(new InbuiltCustomizeAdapter.Item(ModIds.AUTO_SPRINT, R.drawable.ic_sprint));
+        if (manager.isModAdded(ModIds.QUICK_DROP))
+            list.add(new InbuiltCustomizeAdapter.Item(ModIds.QUICK_DROP, R.drawable.ic_quick_drop));
+        if (manager.isModAdded(ModIds.TOGGLE_HUD))
+            list.add(new InbuiltCustomizeAdapter.Item(ModIds.TOGGLE_HUD, R.drawable.ic_hud));
+        if (manager.isModAdded(ModIds.CAMERA_PERSPECTIVE))
+            list.add(new InbuiltCustomizeAdapter.Item(ModIds.CAMERA_PERSPECTIVE, R.drawable.ic_camera));
+        
+        return list;
+    }
 
     @Override
     public int getSizeDp(String id) {
@@ -365,6 +419,6 @@ private List<InbuiltCustomizeAdapter.Item> getEnabledMods() {
         lockSwitch.setChecked(false);
 
         isAdapterVisible = false;
-        adapterRecyclerView.setVisibility(View.GONE);
+        adapterContainer.setVisibility(View.GONE);
     }
 }
