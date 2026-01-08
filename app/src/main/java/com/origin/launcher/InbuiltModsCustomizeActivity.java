@@ -151,6 +151,9 @@ adapterContainer.setBackground(panelBg);
 
         ViewGroup rootContainer = (ViewGroup) findViewById(android.R.id.content);
         rootContainer.addView(adapterContainer);
+        adapterContainer.post(() -> {
+            float w = adapterContainer.getWidth();
+        });
 
         ThemeUtils.applyThemeToSwitch(lockSwitch, this);
         lockSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
@@ -219,7 +222,8 @@ adapterContainer.setBackground(panelBg);
                     adapterContainer.setTranslationX(panelW);
                     adapterContainer.animate().translationX(0f).setDuration(duration).start();
 
-                    bottomButtons.animate().translationX(-panelW).setDuration(duration).start();
+                                        float slide = panelW - dpToPx(16);
+                    bottomButtons.animate().translationX(-slide).setDuration(duration).start();
                 } else {
                     adapterContainer.animate().translationX(panelW).setDuration(duration).withEndAction(() -> {
                         adapterContainer.setVisibility(View.GONE);

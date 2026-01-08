@@ -38,11 +38,13 @@
 
         <LinearLayout
             android:id="@+id/bottom_buttons_container"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="center"
-            android:paddingTop="12dp">
+            android:gravity="center_vertical"
+            android:paddingTop="12dp"
+            android:layout_gravity="start"
+            android:paddingStart="16dp">
 
             <Button
                 android:id="@+id/opacity_button"
