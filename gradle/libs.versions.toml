@@ -4,7 +4,7 @@ coreKtx = "1.10.1"
 espressoCore = "3.6.1"          # from test (newer than 3.5.1 in og)
 appcompat = "1.7.0"             # from test (newer than 1.6.1 in og)
 annotation = "1.9.1"
-activityKtx = "1.11.0"
+activityKtx = "1.12.2"
 apkParser = "2.6.10"
 browser = "1.9.0"
 conscryptAndroid = "2.5.3"
@@ -20,7 +20,7 @@ gson = "2.13.2"
 httpclient = "4.5.14"
 junit = "4.13.2"
 junitVersion = "1.3.0"          # from og (newer than 1.2.1 in test)
-kotlin = "2.2.20"               # from og (newer than 1.9.22 in test)
+kotlin = "2.3.0"               # from og (newer than 1.9.22 in test)
 lifecycle = "2.9.4"
 material = "1.13.0"
 okhttp = "5.1.0"
@@ -30,12 +30,12 @@ preference-ktx = "1.2.1"
 roomRuntime = "2.8.1"
 shadowhook = "2.0.0"
 simpleXml = "2.7.1"
-billing = "8.0.0"
 sqliteFramework = "2.6.1"
 activityCompose = "1.10.1"
 composeBom = "2024.09.00"
 materialIconsExtended = "1.7.8"
 lifecycleProcess = "2.9.3"
+billing = "8.3.0"
 
 [libraries]
 appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }

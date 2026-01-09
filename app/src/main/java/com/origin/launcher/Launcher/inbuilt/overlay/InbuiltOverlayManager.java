@@ -74,6 +74,20 @@ public class InbuiltOverlayManager {
             overlays.add(overlay);
             nextY += SPACING;
         }
+        if (manager.isModAdded(ModIds.FPS_DISPLAY)) {
+            int[] pos = getStartPosition(ModIds.FPS_DISPLAY, START_X, nextY);
+            FpsDisplayOverlay overlay = new FpsDisplayOverlay(activity);
+            overlay.show(pos[0], pos[1]);
+            overlays.add(overlay);
+            nextY += SPACING;
+        }
+        if (manager.isModAdded(ModIds.CPS_DISPLAY)) {
+            int[] pos = getStartPosition(ModIds.CPS_DISPLAY, START_X, nextY);
+            CpsDisplayOverlay overlay = new CpsDisplayOverlay(activity);
+            overlay.show(pos[0], pos[1]);
+            overlays.add(overlay);
+            nextY += SPACING;
+        }
     }
 
     public void hideAllOverlays() {

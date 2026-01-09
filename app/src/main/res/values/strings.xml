@@ -67,6 +67,10 @@
     <string name="configure">Configure</string>
     <string name="inbuilt_mod_zoom">Zoom</string>
     <string name="inbuilt_mod_zoom_desc">Hold to zoom in, like OptiFine zoom</string>
+    <string name="inbuilt_mod_fps_display">FPS Display</string>
+    <string name="inbuilt_mod_fps_display_desc">Shows current frames per second</string>
+    <string name="inbuilt_mod_cps_display">CPS Display</string>
+    <string name="inbuilt_mod_cps_display_desc">Shows clicks per second</string>
 
 <!-- ResourcepackHandler -->
 <string name="resourcepack_detected_title">Resource Pack Detected</string>
