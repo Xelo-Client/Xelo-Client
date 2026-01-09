@@ -5,6 +5,8 @@ import android.app.Activity;
 import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModManager;
 import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModSizeStore;
 import com.origin.launcher.Launcher.inbuilt.model.ModIds;
+import com.origin.launcher.Launcher.inbuilt.overlay.FpsDisplayOverlay;
+import com.origin.launcher.Launcher.inbuilt.overlay.CpsDisplayOverlay;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +18,8 @@ public class InbuiltOverlayManager {
     private int nextY = 150;
     private static final int SPACING = 70;
     private static final int START_X = 50;
+    private FpsDisplayOverlay fpsDisplayOverlay;
+    private CpsDisplayOverlay cpsDisplayOverlay;
 
     public InbuiltOverlayManager(Activity activity) {
         this.activity = activity;
@@ -75,17 +79,13 @@ public class InbuiltOverlayManager {
             nextY += SPACING;
         }
         if (manager.isModAdded(ModIds.FPS_DISPLAY)) {
-            int[] pos = getStartPosition(ModIds.FPS_DISPLAY, START_X, nextY);
-            FpsDisplayOverlay overlay = new FpsDisplayOverlay(activity);
-            overlay.show(pos[0], pos[1]);
-            overlays.add(overlay);
+            fpsDisplayOverlay = new FpsDisplayOverlay(activity);
+            fpsDisplayOverlay.show(START_X, nextY);
             nextY += SPACING;
         }
         if (manager.isModAdded(ModIds.CPS_DISPLAY)) {
-            int[] pos = getStartPosition(ModIds.CPS_DISPLAY, START_X, nextY);
-            CpsDisplayOverlay overlay = new CpsDisplayOverlay(activity);
-            overlay.show(pos[0], pos[1]);
-            overlays.add(overlay);
+            cpsDisplayOverlay = new CpsDisplayOverlay(activity);
+            cpsDisplayOverlay.show(START_X, nextY);
             nextY += SPACING;
         }
     }
