@@ -181,8 +181,8 @@ adapterContainer.layout(0, 0, adapterContainer.getMeasuredWidth(), adapterContai
         addModButton(grid, R.drawable.ic_hud, ModIds.TOGGLE_HUD);
         addModButton(grid, R.drawable.ic_camera, ModIds.CAMERA_PERSPECTIVE);
         addModButton(grid, R.drawable.ic_zoom, ModIds.ZOOM);
-        addModButton(grid, R.drawable.overlay_stats_display, ModIds.FPS_DISPLAY);
-        addModButton(grid, R.drawable.overlay_stats_display, ModIds.CPS_DISPLAY);
+        addModButton(grid, R.layout.overlay_stats_display, ModIds.FPS_DISPLAY);
+        addModButton(grid, R.layout.overlay_stats_display, ModIds.CPS_DISPLAY);
 
         InbuiltModSizeStore sizeStore = InbuiltModSizeStore.getInstance();
         for (Map.Entry<String, View> e : modButtons.entrySet()) {
@@ -289,9 +289,9 @@ bottomButtons.animate().translationX(-slide).setDuration(duration).start();
         if (manager.isModAdded(ModIds.ZOOM))
             list.add(new InbuiltCustomizeAdapter.Item(ModIds.ZOOM, R.drawable.ic_zoom));
         if (manager.isModAdded(ModIds.FPS_DISPLAY))
-            list.add(new InbuiltCustomizeAdapter.Item(ModIds.FPS_DISPLAY, R.drawable.overlay_stats_display));
+            list.add(new InbuiltCustomizeAdapter.Item(ModIds.FPS_DISPLAY, R.layout.overlay_stats_display));
         if (manager.isModAdded(ModIds.CPS_DISPLAY))
-            list.add(new InbuiltCustomizeAdapter.Item(ModIds.CPS_DISPLAY, R.drawable.overlay_stats_display));
+            list.add(new InbuiltCustomizeAdapter.Item(ModIds.CPS_DISPLAY, R.layout.overlay_stats_display));
         
         return list;
     }

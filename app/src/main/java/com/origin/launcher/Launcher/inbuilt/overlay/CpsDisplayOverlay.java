@@ -57,7 +57,7 @@ public class CpsDisplayOverlay {
 
     public CpsDisplayOverlay(Activity activity) {
         this.activity = activity;
-        this.windowManager = (WindowManager) activity.getSystemService(WindowManager.WINDOW_SERVICE);
+        this.windowManager = (WindowManager) activity.getSystemService(Context.WINDOW_SERVICE);
         this.sizeStore = InbuiltModSizeStore.getInstance();
         sizeStore.init(activity.getApplicationContext());
         setupGameInputListener();
