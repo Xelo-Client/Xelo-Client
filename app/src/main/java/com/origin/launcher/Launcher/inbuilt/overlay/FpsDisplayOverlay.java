@@ -1,7 +1,6 @@
 package com.origin.launcher.Launcher.inbuilt.overlay;
 
 import android.app.Activity;
-import android.content.Context;
 import android.graphics.PixelFormat;
 import android.os.Handler;
 import android.os.Looper;
@@ -16,20 +15,18 @@ import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
-import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModSizeStore;
-import com.origin.launcher.Launcher.inbuilt.model.ModIds;
-import com.origin.launcher.Launcher.inbuilt.XeloOverlay.nativemod.FpsMod;
 import com.origin.launcher.R;
+import com.origin.launcher.Launcher.inbuilt.model.ModIds;
+import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModManager;
+import com.origin.launcher.Launcher.inbuilt.XeloOverlay.nativemod.FpsMod;
 
 public class FpsDisplayOverlay {
-    private static final String MOD_ID = ModIds.FPS_DISPLAY;
     private static final String TAG = "FpsDisplayOverlay";
     private static final int UPDATE_INTERVAL = 250;
     private static final float DRAG_THRESHOLD = 10f;
 
     private final Activity activity;
     private final WindowManager windowManager;
-    private final InbuiltModSizeStore sizeStore;
     private final Handler handler = new Handler(Looper.getMainLooper());
 
     private View overlayView;
@@ -55,9 +52,7 @@ public class FpsDisplayOverlay {
 
     public FpsDisplayOverlay(Activity activity) {
         this.activity = activity;
-        this.windowManager = (WindowManager) activity.getSystemService(Context.WINDOW_SERVICE);
-        this.sizeStore = InbuiltModSizeStore.getInstance();
-        sizeStore.init(activity.getApplicationContext());
+        this.windowManager = (WindowManager) activity.getSystemService(Activity.WINDOW_SERVICE);
     }
 
     public void show(int startX, int startY) {
@@ -80,10 +75,6 @@ public class FpsDisplayOverlay {
         }, 1000);
     }
 
-    private int dpToPx(int dp) {
-        return (int) (dp * activity.getResources().getDisplayMetrics().density);
-    }
-
     private void showInternal(int startX, int startY) {
         pendingShowRunnable = null;
         if (isShowing || activity.isFinishing() || activity.isDestroyed()) return;
@@ -97,14 +88,9 @@ public class FpsDisplayOverlay {
             statsText = overlayView.findViewById(R.id.stats_text);
             statsText.setText("FPS: --");
 
-            int sizeDp = sizeStore.getSize(MOD_ID);
-            float scale = sizeStore.getScale(MOD_ID);
-            int widthPx = dpToPx(sizeDp);
-            int heightPx = dpToPx((int) (sizeDp * 0.6f));
-
             wmParams = new WindowManager.LayoutParams(
-                (int) (widthPx * scale),
-                (int) (heightPx * scale),
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.TYPE_APPLICATION_PANEL,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
                     | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
@@ -112,14 +98,10 @@ public class FpsDisplayOverlay {
                 PixelFormat.TRANSLUCENT
             );
             wmParams.gravity = Gravity.TOP | Gravity.START;
-
-            float savedX = sizeStore.getPositionX(MOD_ID);
-            float savedY = sizeStore.getPositionY(MOD_ID);
-            wmParams.x = savedX >= 0 ? (int) savedX : startX;
-            wmParams.y = savedY >= 0 ? (int) savedY : startY;
+            wmParams.x = startX;
+            wmParams.y = startY;
             wmParams.token = activity.getWindow().getDecorView().getWindowToken();
 
-            overlayView.setAlpha(sizeStore.getOpacity(MOD_ID) / 100f);
             overlayView.setOnTouchListener(this::handleTouch);
             windowManager.addView(overlayView, wmParams);
             isShowing = true;
@@ -139,23 +121,14 @@ public class FpsDisplayOverlay {
         statsText = overlayView.findViewById(R.id.stats_text);
         statsText.setText("FPS: --");
 
-        int sizeDp = sizeStore.getSize(MOD_ID);
-        float scale = sizeStore.getScale(MOD_ID);
-        int widthPx = dpToPx(sizeDp);
-        int heightPx = dpToPx((int) (sizeDp * 0.6f));
-
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
-            (int) (widthPx * scale),
-            (int) (heightPx * scale)
+            FrameLayout.LayoutParams.WRAP_CONTENT,
+            FrameLayout.LayoutParams.WRAP_CONTENT
         );
         params.gravity = Gravity.TOP | Gravity.START;
+        params.leftMargin = startX;
+        params.topMargin = startY;
 
-        float savedX = sizeStore.getPositionX(MOD_ID);
-        float savedY = sizeStore.getPositionY(MOD_ID);
-        params.leftMargin = savedX >= 0 ? (int) savedX : startX;
-        params.topMargin = savedY >= 0 ? (int) savedY : startY;
-
-        overlayView.setAlpha(sizeStore.getOpacity(MOD_ID) / 100f);
         overlayView.setOnTouchListener(this::handleTouchFallback);
         rootView.addView(overlayView, params);
         isShowing = true;
@@ -176,8 +149,6 @@ public class FpsDisplayOverlay {
     }
 
     private boolean handleTouch(View v, MotionEvent event) {
-        if (sizeStore.isLocked(MOD_ID)) return true;
-
         switch (event.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
                 initialX = wmParams.x;
@@ -201,10 +172,6 @@ public class FpsDisplayOverlay {
                 return true;
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
-                if (isDragging) {
-                    sizeStore.setPositionX(MOD_ID, (float) wmParams.x);
-                    sizeStore.setPositionY(MOD_ID, (float) wmParams.y);
-                }
                 isDragging = false;
                 return true;
         }
@@ -212,8 +179,6 @@ public class FpsDisplayOverlay {
     }
 
     private boolean handleTouchFallback(View v, MotionEvent event) {
-        if (sizeStore.isLocked(MOD_ID)) return true;
-
         FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) overlayView.getLayoutParams();
         switch (event.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
@@ -238,10 +203,6 @@ public class FpsDisplayOverlay {
                 return true;
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
-                if (isDragging) {
-                    sizeStore.setPositionX(MOD_ID, (float) params.leftMargin);
-                    sizeStore.setPositionY(MOD_ID, (float) params.topMargin);
-                }
                 isDragging = false;
                 return true;
         }
@@ -265,7 +226,7 @@ public class FpsDisplayOverlay {
                     rootView.removeView(overlayView);
                 }
             }
-        } catch (Exception e) {}
+        } catch (Exception ignored) {}
         overlayView = null;
         statsText = null;
     }
