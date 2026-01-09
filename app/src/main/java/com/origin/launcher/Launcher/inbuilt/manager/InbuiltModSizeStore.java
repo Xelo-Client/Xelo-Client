@@ -18,6 +18,7 @@ public class InbuiltModSizeStore {
     private final Map<String, Float> posX = new HashMap<>();
     private final Map<String, Float> posY = new HashMap<>();
     private final Map<String, Boolean> locks = new HashMap<>();
+    private final Map<String, Integer> opacities = new HashMap<>();
 
     private InbuiltModSizeStore() { }
 
@@ -58,6 +59,8 @@ public class InbuiltModSizeStore {
             } else if (value instanceof Integer) {
                 if (key.startsWith("size_")) {
                     sizes.put(key.substring("size_".length()), (Integer) value);
+                } else if (key.startsWith("_opacity")) {
+                    opacities.put(key.substring(0, key.length() - "_opacity".length()), (Integer) value);
                 }
             } else if (value instanceof Boolean) {
                 if (key.startsWith("lock_")) {
@@ -154,6 +157,24 @@ public class InbuiltModSizeStore {
         locks.put(id, locked);
         if (prefs != null) {
             prefs.edit().putBoolean("lock_" + id, locked).apply();
+        }
+    }
+
+    public int getOpacity(String id) {
+        Integer v = opacities.get(id);
+        if (v != null) return v;
+        if (prefs != null) {
+            int stored = prefs.getInt(id + "_opacity", 100);
+            opacities.put(id, stored);
+            return stored;
+        }
+        return 100;
+    }
+
+    public void setOpacity(String id, int opacity) {
+        opacities.put(id, opacity);
+        if (prefs != null) {
+            prefs.edit().putInt(id + "_opacity", opacity).apply();
         }
     }
 }
