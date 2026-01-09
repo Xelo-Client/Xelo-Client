@@ -107,7 +107,6 @@ public class FpsDisplayOverlay {
             isShowing = true;
 
             handler.post(updateRunnable);
-            applyOpacity();
         } catch (Exception e) {
             showFallback(startX, startY);
         }
@@ -136,7 +135,6 @@ public class FpsDisplayOverlay {
         wmParams = null;
 
         handler.post(updateRunnable);
-        applyOpacity();
     }
 
     private void updateDisplay() {
@@ -147,13 +145,6 @@ public class FpsDisplayOverlay {
             } else {
                 statsText.setText("FPS: --");
             }
-        }
-    }
-
-    private void applyOpacity() {
-        if (overlayView != null) {
-            int opacity = InbuiltModManager.getInstance(activity).getOverlayOpacity(ModIds.FPS_DISPLAY);
-            overlayView.setAlpha(opacity / 100f);
         }
     }
 

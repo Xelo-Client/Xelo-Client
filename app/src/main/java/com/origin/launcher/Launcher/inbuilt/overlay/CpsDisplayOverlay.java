@@ -133,7 +133,6 @@ public class CpsDisplayOverlay {
             isShowing = true;
 
             handler.post(updateRunnable);
-            applyOpacity();
         } catch (Exception e) {
             showFallback(startX, startY);
         }
@@ -162,19 +161,11 @@ public class CpsDisplayOverlay {
         wmParams = null;
 
         handler.post(updateRunnable);
-        applyOpacity();
     }
 
     private void updateDisplay() {
         if (statsText != null) {
             statsText.setText("CPS: " + getCps());
-        }
-    }
-
-    private void applyOpacity() {
-        if (overlayView != null) {
-            int opacity = InbuiltModManager.getInstance(activity).getOverlayOpacity(ModIds.CPS_DISPLAY);
-            overlayView.setAlpha(opacity / 100f);
         }
     }
 
