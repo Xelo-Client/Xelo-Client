@@ -1,14 +1,29 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="48dp"
+    android:width="32dp"
     android:height="24dp"
-    android:viewportWidth="48"
+    android:viewportWidth="32"
     android:viewportHeight="24">
-  <path android:fillColor="#CC000000"
-        android:pathData="M4,2 Q2,2 2,4 L2,20 Q2,22 4,22 L44,22 Q46,22 46,20 L46,4 Q46,2 44,2 Z"/>
-  <text android:x="6"
-        android:y="17"
-        android:textSize="10"
-        android:fontFamily="monospace"
+
+    <!-- Background rounded rectangle -->
+    <path
+        android:fillColor="#000000"
+        android:pathData="M4,0 H28 A4,4 0 0 1 32,4 V20 A4,4 0 0 1 28,24 H4 A4,4 0 0 1 0,20 V4 A4,4 0 0 1 4,0 Z"/>
+
+    <!-- C letter -->
+    <path
         android:fillColor="#FFFFFF"
-        android:text="CPS:5"/>
+        android:pathData="M12,6 H6 V18 H12 V16 H8 V8 H12 Z"/>
+
+    <!-- P letter -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M13.5,6 H18.5 A2.5,2.5 0 0 1 21,8.5 V10.5 A2.5,2.5 0 0 1 18.5,13 H15.5 V18 H13.5 Z M15.5,8 V11 H18.3 A1,1 0 0 0 19.3,10 V9 A1,1 0 0 0 18.3,8 Z"/>
+
+    <!-- S letter -->
+    <path android:fillColor="#FFFFFF" android:pathData="M22,6 H28 V8 H22 Z"/>
+    <path android:fillColor="#FFFFFF" android:pathData="M22,6 H24 V12.37 H22 Z"/>
+    <path android:fillColor="#FFFFFF" android:pathData="M22,11 H28 V13 H22 Z"/>
+    <path android:fillColor="#FFFFFF" android:pathData="M26,13 H28 V17 H26 Z"/>
+    <path android:fillColor="#FFFFFF" android:pathData="M22,16 H28 V18 H22 Z"/>
+
 </vector>
