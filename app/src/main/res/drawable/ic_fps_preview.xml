@@ -5,10 +5,6 @@
     android:viewportHeight="24">
   <path android:fillColor="#CC000000"
         android:pathData="M4,2 Q2,2 2,4 L2,20 Q2,22 4,22 L44,22 Q46,22 46,20 L46,4 Q46,2 44,2 Z"/>
-  <text android:x="6"
-        android:y="17"
-        android:textSize="10"
-        android:fontFamily="monospace"
-        android:fillColor="#FFFFFF"
-        android:text="FPS:60"/>
+  <path android:fillColor="#FFFFFF"
+        android:pathData="M6,8 L6,15 M8,8 L8,15 M10,8 L10,15 M12,8 L12,15 M14,8 L14,15 M16,8 L16,15 M18,8 L18,15 M20,8 L20,15 M22,8 L22,15 M24,8 L24,15 M26,8 L26,15 M28,8 L28,15 M30,8 L30,15 M32,8 L32,15 M34,8 L34,15 M36,8 L36,15 M38,8 L38,15 M40,8 L40,15"/>
 </vector>
