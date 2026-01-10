@@ -1,7 +1,7 @@
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:width="25dp"
+        android:width="60dp"
         android:drawable="@color/glow_cyan"/>
 
     <item
