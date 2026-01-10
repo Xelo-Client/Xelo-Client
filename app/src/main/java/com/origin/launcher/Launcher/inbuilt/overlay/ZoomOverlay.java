@@ -9,7 +9,7 @@ import android.widget.ImageButton;
 import com.origin.launcher.R;
 import com.origin.launcher.Launcher.inbuilt.model.ModIds;
 import com.origin.launcher.Launcher.inbuilt.XeloOverlay.nativemod.ZoomMod;
-import com.origin.launcher.Launcher.inbuilt.manager;com.origin.launcher.Launcher.inbuilt.manager.InbuiltModManager;
+import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModManager;
 
 public class ZoomOverlay extends BaseOverlayButton {
     private static final String TAG = "ZoomOverlay";
