@@ -2,11 +2,10 @@
 
     <item
         android:gravity="center_vertical|right"
-        android:drawable="@drawable/overlay_stats_background" />
+        android:drawable="@drawable/overlay_stats_background"/>
 
     <item
         android:gravity="center_vertical|left"
-        android:drawable="@drawable/ic_xelo_vector"
-        android:left="-8dp"/>
-        
+        android:drawable="@drawable/ic_xelo_vector_inset"/>
+
 </layer-list>
