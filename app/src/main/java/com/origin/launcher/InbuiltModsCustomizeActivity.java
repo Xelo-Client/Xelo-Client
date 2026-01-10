@@ -298,7 +298,7 @@ bottomButtons.animate().translationX(-slide).setDuration(duration).start();
             if (savedZoom > 0) {
                 modZoomLevels.put(ModIds.ZOOM, savedZoom);
             } else {
-                modZoomLevels.put(ModIds.ZOOM, 100);
+                modZoomLevels.put(ModIds.ZOOM, 50);
             }
         }
 
@@ -343,7 +343,7 @@ bottomButtons.animate().translationX(-slide).setDuration(duration).start();
     
     @Override
     public int getZoomLevel(String id) {
-    return modZoomLevels.getOrDefault(id, 100);
+    return modZoomLevels.getOrDefault(id, 50);
     }
     
     @Override
@@ -469,6 +469,6 @@ bottomButtons.animate().translationX(-slide).setDuration(duration).start();
         isAdapterVisible = false;
         adapterContainer.setVisibility(View.GONE);
         modZoomLevels.clear();
-        modZoomLevels.put(ModIds.ZOOM, 100);
+        modZoomLevels.put(ModIds.ZOOM, 50);
     }
 }
