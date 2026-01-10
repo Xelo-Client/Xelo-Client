@@ -49,6 +49,7 @@ import com.google.androidgamesdk.GameActivity;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.mojang.android.StringValue;
+import com.mojang.minecraftpe.platforms.Platform;
 
 import org.conscrypt.BuildConfig;
 import org.fmod.FMOD;
@@ -67,7 +68,6 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-
 @SuppressWarnings("JavaJniMissingFunction")
 public class MainActivity extends GameActivity implements View.OnKeyListener, FilePickerManagerHandler {
     static final int MSG_CORRELATION_CHECK = 672;
@@ -78,7 +78,7 @@ public class MainActivity extends GameActivity implements View.OnKeyListener, Fi
     static final int SAVE_FILE_RESULT_CODE = 4;
     private static final int STORAGE_PERMISSION_ID = 1;
     private static boolean _isPowerVr;
-    private static boolean mHasStoragePermission;
+    private static boolean mHasStoragePermission ;
     private static boolean mHasReadMediaImagesPermission;
     public static MainActivity mInstance;
     Class SystemProperties;
@@ -115,6 +115,7 @@ public class MainActivity extends GameActivity implements View.OnKeyListener, Fi
     private WifiManager.MulticastLock mMulticastLock = null;
     private AppExitInfoHelper mAppExitInfoHelper = null;
     private BrazeManager mBrazeManager = null;
+    Platform platform;
 
     Messenger mService = null;
     MessageConnectionStatus mBound = MessageConnectionStatus.NOTSET;
@@ -445,10 +446,12 @@ public class MainActivity extends GameActivity implements View.OnKeyListener, Fi
                 mBrazeManager.requestPushPermission();
             }
         }
+        platform = Platform.createPlatform(true);
         setVolumeControlStream(3);
         FMOD.init(this);
         headsetConnectionReceiver = new HeadsetConnectionReceiver();
         mNetworkMonitor = new NetworkMonitor(getApplicationContext());
+        platform.onAppStart(getWindow().getDecorView());
         mHasStoragePermission = checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, Process.myPid(), Process.myUid()) == 0;
         mHasReadMediaImagesPermission = Build.VERSION.SDK_INT < 33 || checkPermission("android.permission.READ_MEDIA_IMAGES", Process.myPid(), Process.myUid()) == 0;
         nativeSetHeadphonesConnected(((AudioManager) getSystemService(Context.AUDIO_SERVICE)).isWiredHeadsetOn());
@@ -554,6 +557,7 @@ public class MainActivity extends GameActivity implements View.OnKeyListener, Fi
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             View rootView = findViewById(android.R.id.content).getRootView();
             mCursorLocked = true;
+            rootView.setPointerIcon(PointerIcon.getSystemIcon(getApplicationContext(), 0));
             rootView.requestPointerCapture();
         }
     }
@@ -586,9 +590,14 @@ public class MainActivity extends GameActivity implements View.OnKeyListener, Fi
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
         if (keyCode == 25 || keyCode == 24) {
-         //   platform.onVolumePressed();
+            platform.onVolumePressed();
         }
         return super.onKeyUp(keyCode, event);
+    }
+
+    @Override
+    public boolean onTrackballEvent(MotionEvent motionEvent) {
+        return dispatchGenericMotionEvent(motionEvent);
     }
 
     public void setTextToSpeechEnabled(boolean enabled) {
@@ -671,9 +680,8 @@ public class MainActivity extends GameActivity implements View.OnKeyListener, Fi
         });
     }
 
-
     public boolean hasWriteExternalStoragePermission() {
-        final boolean hasStoragePermission = checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, Process.myPid(), Process.myUid()) == PackageManager.PERMISSION_GRANTED;
+        final boolean hasStoragePermission = Build.VERSION.SDK_INT >= 33 || checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, Process.myPid(), Process.myUid()) == PackageManager.PERMISSION_GRANTED;
         mHasStoragePermission = hasStoragePermission;
         return hasStoragePermission;
     }
@@ -681,8 +689,6 @@ public class MainActivity extends GameActivity implements View.OnKeyListener, Fi
     public boolean hasHardwareKeyboard() {
         return getResources().getConfiguration().keyboard == Configuration.KEYBOARD_QWERTY;
     }
-
-
 
     public static class CustomEditText extends androidx.appcompat.widget.AppCompatEditText {
 
@@ -697,7 +703,7 @@ public class MainActivity extends GameActivity implements View.OnKeyListener, Fi
         public boolean onKeyPreIme(int keyCode, KeyEvent event) {
             if (keyCode == KeyEvent.KEYCODE_BACK) {
                 activity.hideKeyboard();
-                // activity.nativeBackPressed();
+                activity.nativeBackPressed();
                 return true;
             }
 
@@ -739,7 +745,6 @@ public class MainActivity extends GameActivity implements View.OnKeyListener, Fi
 
         @Override
         public void draw(Canvas canvas) {
-            //
             super.draw(canvas);
         }
     }
@@ -820,7 +825,6 @@ public class MainActivity extends GameActivity implements View.OnKeyListener, Fi
         });
     }
 
-
     public void showKeyboard(String text, int maxLen, boolean limitInput, boolean onlyNumbers) {
         showKeyboard(text, maxLen, limitInput, onlyNumbers, false);
     }
@@ -892,6 +896,7 @@ public class MainActivity extends GameActivity implements View.OnKeyListener, Fi
             lockCursor();
         }
         super.onWindowFocusChanged(hasFocus);
+        platform.onViewFocusChanged(hasFocus);
     }
 
     @Override
@@ -1449,8 +1454,6 @@ public class MainActivity extends GameActivity implements View.OnKeyListener, Fi
         }
     }
 
-
-
     public String getTextBoxBackend() {
         return cachedText;
     }
@@ -1511,7 +1514,6 @@ public class MainActivity extends GameActivity implements View.OnKeyListener, Fi
         mInstance = null;
         nativeOnDestroy();
         super.onDestroy();
-        System.exit(0);
     }
 
     @Override

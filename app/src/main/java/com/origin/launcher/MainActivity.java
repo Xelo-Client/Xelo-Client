@@ -216,6 +216,21 @@ private void ensureStorageAccess(SharedPreferences prefs) {
     continueFirstLaunchFlow(prefs);
 }
 
+private void createNoMediaFile() {
+        try {
+            java.io.File baseDir = new java.io.File(android.os.Environment.getExternalStorageDirectory(), "games/xelo_client");
+            if (!baseDir.exists()) {
+                baseDir.mkdirs();
+            }
+            java.io.File noMediaFile = new java.io.File(baseDir, ".nomedia");
+            if (!noMediaFile.exists()) {
+                noMediaFile.createNewFile();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 private void continueFirstLaunchFlow(SharedPreferences prefs) {
     boolean isFirstLaunch = prefs.getBoolean(KEY_FIRST_LAUNCH, true);
     boolean disclaimerShown = prefs.getBoolean(KEY_DISCLAIMER_SHOWN, false);
@@ -467,6 +482,7 @@ private void showThemesDialog(SharedPreferences prefs, boolean disclaimerShown) 
               
         if (requestCode == REQ_STORAGE_PERMS) {
         SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+createNoMediaFile();
         prefs.edit().putBoolean(KEY_STORAGE_PERMS_ASKED, true).apply();
         continueFirstLaunchFlow(prefs);
         return;

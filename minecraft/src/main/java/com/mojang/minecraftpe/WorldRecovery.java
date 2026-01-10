@@ -42,10 +42,6 @@ public class WorldRecovery {
 
     private static native void nativeUpdate(String status, int filesTotal, int filesCompleted, long bytesTotal, long bytesCompleted);
 
-
-
-
-
     public static String readFile(String path) throws IOException {
         File file = new File(path);
         try (InputStream inputStream = new FileInputStream(file);

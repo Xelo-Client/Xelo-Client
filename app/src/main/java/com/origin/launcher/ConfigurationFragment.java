@@ -18,6 +18,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import com.google.android.material.materialswitch.MaterialSwitch;
 
 import com.origin.launcher.animation.DynamicAnim;
 import com.origin.launcher.Adapter.SettingsAdapter;
@@ -79,8 +80,9 @@ public class ConfigurationFragment extends BaseThemedFragment {
         View ll = LayoutInflater.from(requireContext())
                 .inflate(R.layout.item_settings_switch, settingsItemsContainer, false);
         ((TextView) ll.findViewById(R.id.tv_title)).setText(label);
-        Switch sw = ll.findViewById(R.id.switch_value);
+        MaterialSwitch sw = ll.findViewById(R.id.switch_value);
         sw.setChecked(defChecked);
+        ThemeUtils.applyThemeToSwitch(sw, requireContext());
         if (listener != null) sw.setOnCheckedChangeListener(listener);
         settingsItemsContainer.addView(ll);
     }

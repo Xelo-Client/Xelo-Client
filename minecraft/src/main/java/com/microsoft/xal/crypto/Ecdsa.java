@@ -3,6 +3,8 @@ package com.microsoft.xal.crypto;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Base64;
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import org.jetbrains.annotations.Contract;
@@ -30,9 +32,23 @@ public class Ecdsa {
     private KeyPair keyPair;
     private String uniqueId;
 
+    private static SharedPreferences getCryptoPrefs(@NonNull Context context) {
+        boolean takeover = false;
+        try {
+            SharedPreferences sp = context.getSharedPreferences("feature_settings", 0);
+            String json = sp.getString("settings_json", null);
+            if (json != null) {
+                org.json.JSONObject obj = new org.json.JSONObject(json);
+                takeover = obj.optBoolean("launcherManagedMcLoginEnabled", false);
+            }
+        } catch (Throwable ignored) {}
+        String name = takeover ? "org.levimc.xal.crypto" : "com.microsoft.xal.crypto";
+        return context.getSharedPreferences(name, 0);
+   }
+
     @Nullable
     public static Ecdsa restoreKeyAndId(@NonNull Context context) throws ClassCastException, IllegalArgumentException, NoSuchProviderException, NoSuchAlgorithmException, InvalidKeySpecException {
-        SharedPreferences sharedPreferences = context.getSharedPreferences("com.microsoft.xal.crypto", 0);
+        SharedPreferences sharedPreferences = getCryptoPrefs(context);
         if (!sharedPreferences.contains("id") || !sharedPreferences.contains("public") || !sharedPreferences.contains("private")) {
             SharedPreferences.Editor edit = sharedPreferences.edit();
             edit.clear();
@@ -87,7 +103,7 @@ public class Ecdsa {
     }
 
     public boolean storeKeyPairAndId(@NonNull Context context, String str) {
-        SharedPreferences.Editor edit = context.getSharedPreferences("com.microsoft.xal.crypto", 0).edit();
+        SharedPreferences.Editor edit = getCryptoPrefs(context).edit();
         edit.putString("id", str);
         edit.putString("public", getBase64StringFromBytes(this.keyPair.getPublic().getEncoded()));
         edit.putString("private", getBase64StringFromBytes(this.keyPair.getPrivate().getEncoded()));

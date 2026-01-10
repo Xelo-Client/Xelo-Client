@@ -120,28 +120,29 @@ public class MinecraftLauncher {
                 sourceIntent.putExtra("MODS_ENABLED", modsEnabled);
                 sourceIntent.putExtra("MINECRAFT_VERSION", version.versionCode);
                 sourceIntent.putExtra("MINECRAFT_VERSION_DIR", version.directoryName);
-                boolean customHttpClientLoaded = false;
                 if (shouldLoadHttpClient(version)) {
-                    try {
-                        System.loadLibrary("HttpClient.Android");
-                        Log.d(TAG, "Loaded custom libHttpClient.Android.so");
-                        customHttpClientLoaded = true;
-                    } catch (UnsatisfiedLinkError e) {
-                        Log.w(TAG, "Custom libHttpClient.Android.so not available: " + e.getMessage());
-                        if (gameManager.loadLibrary("HttpClient.Android")) {
-                            Log.d(TAG, "Loaded Minecraft's libHttpClient.Android.so");
-                            customHttpClientLoaded = true;
-                        }
+                    gameManager.loadLibrary("c++_shared");
+                    if (gameManager.loadLibrary("HttpClient.Android")) {
+                        Log.d(TAG, "Loaded Minecraft's libHttpClient.Android.so");
+                    } else {
+                        Log.w(TAG, "HttpClient.Android not found in extracted libs");
                     }
                 }
 
                 if (shouldLoadMaesdk(version)) {
-                    java.util.Set<String> excludeLibs = customHttpClientLoaded ? 
-                        java.util.Collections.singleton("HttpClient.Android") : 
-                        java.util.Collections.emptySet();
+                    java.util.Set<String> excludeLibs = new java.util.HashSet<>();
+                    if (shouldLoadHttpClient(version)) {
+                        excludeLibs.add("c++_shared");
+                        excludeLibs.add("HttpClient.Android");
+                    }
+if (!shouldLoadPlayFab(version)) {
+                        excludeLibs.add("PlayFabMultiplayer");
+                    }
                     gameManager.loadAllLibraries(excludeLibs);
                 } else {
-                    gameManager.loadLibrary("c++_shared");
+                    if (!shouldLoadHttpClient(version)) {
+                        gameManager.loadLibrary("c++_shared");
+                    }
                     gameManager.loadLibrary("fmod");
                     gameManager.loadLibrary("MediaDecoders_Android");
                     gameManager.loadLibrary("minecraftpe");
@@ -172,8 +173,17 @@ public class MinecraftLauncher {
         String targetVersion = versionCode.contains("beta") ? "1.21.110.22" : "1.21.110";
         return isVersionAtLeast(versionCode, targetVersion);
     }
-    
+
     private boolean shouldLoadHttpClient(GameVersion version) {
+        if (version == null || version.versionCode == null) {
+            return false;
+        }
+        String versionCode = version.versionCode;
+        String targetVersion = versionCode.contains("beta") ? "1.21.130.20" : "1.21.130";
+        return isVersionAtLeast(versionCode, targetVersion);
+    }
+
+private boolean shouldLoadPlayFab(GameVersion version) {
         if (version == null || version.versionCode == null) {
             return false;
         }

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -16,15 +17,15 @@
         android:layout_height="match_parent" />
 
     <com.google.android.material.materialswitch.MaterialSwitch
-    android:id="@+id/lock_button"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_gravity="top|end"
-    android:layout_margin="16dp"
-    android:checked="false"
-    android:text="Lock"
-    android:clickable="true"
-    android:focusable="true" />
+        android:id="@+id/lock_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|end"
+        android:layout_margin="16dp"
+        android:checked="false"
+        android:text="Lock"
+        android:clickable="true"
+        android:focusable="true" />
 
     <LinearLayout
         android:id="@+id/bottom_panel"
@@ -36,33 +37,6 @@
         android:gravity="center_horizontal">
 
         <LinearLayout
-            android:id="@+id/slider_container"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:padding="12dp"
-            android:background="@drawable/rounded_card_background"
-            android:visibility="gone">
-
-            <TextView
-                android:id="@+id/slider_label"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Size"
-                android:textColor="@android:color/white" />
-
-            <SeekBar
-                android:id="@+id/size_seekbar"
-                android:layout_width="200dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:max="200"
-                android:thumbTint="@android:color/white"
-                android:progressTint="@android:color/white" />
-        </LinearLayout>
-
-        <LinearLayout
             android:id="@+id/bottom_buttons_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -71,25 +45,14 @@
             android:paddingTop="12dp">
 
             <Button
-                android:id="@+id/size_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Size"
-                android:background="@drawable/rounded_card_background"
-                android:textColor="@android:color/white"
-                android:paddingLeft="16dp"
-                android:paddingRight="16dp"
-                android:paddingTop="8dp"
-                android:paddingBottom="8dp"
-                android:layout_marginEnd="8dp" />
-
-            <Button
                 android:id="@+id/opacity_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Opacity"
+                android:text="Customize"
+                android:textColor="@android:color/black"
                 android:background="@drawable/rounded_card_background"
-                android:textColor="@android:color/white"
+                android:backgroundTint="@android:color/white"
+                app:backgroundTint="@android:color/white"
                 android:paddingLeft="16dp"
                 android:paddingRight="16dp"
                 android:paddingTop="8dp"
@@ -101,8 +64,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Reset"
+                android:textColor="@android:color/black"
                 android:background="@drawable/rounded_card_background"
-                android:textColor="@android:color/white"
+                android:backgroundTint="@android:color/white"
+                app:backgroundTint="@android:color/white"
                 android:paddingLeft="24dp"
                 android:paddingRight="24dp"
                 android:paddingTop="8dp"
@@ -114,12 +79,15 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Done"
+                android:textColor="@android:color/black"
                 android:background="@drawable/rounded_card_background"
-                android:textColor="@android:color/white"
+                android:backgroundTint="@android:color/white"
+                app:backgroundTint="@android:color/white"
                 android:paddingLeft="24dp"
                 android:paddingRight="24dp"
                 android:paddingTop="8dp"
                 android:paddingBottom="8dp" />
+
         </LinearLayout>
     </LinearLayout>
 

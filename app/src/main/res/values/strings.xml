@@ -3,7 +3,7 @@
     <string name="xal_token">ms-xal-0000000048183522</string>
 	<string name="default_string">Hello moron!</string>
 	<string name="buildinfo">Release Build</string>
-	<string name="xeloversion">Xelo Client v1.5</string>
+	<string name="xeloversion">Xelo Client v1.5.1</string>
 	<string name="welcome">Xelo Client - Minecraft Bedrock Client</string>
 	<string name="mc_pkgname">minecraft package id:</string>
 <string name="thank_you_support">Thank you for your support</string>
@@ -65,6 +65,13 @@
     <string name="autosprint_key_shift">Shift</string>
     <string name="autosprint_key_label">Sprint Key:</string>
     <string name="configure">Configure</string>
+    <string name="inbuilt_mod_zoom">Zoom</string>
+    <string name="inbuilt_mod_zoom_desc">Hold to zoom in, like OptiFine zoom</string>
+    <string name="zoom_level_label">Zoom Level:</string>
+    <string name="inbuilt_mod_fps_display">FPS Display</string>
+    <string name="inbuilt_mod_fps_display_desc">Shows current frames per second</string>
+    <string name="inbuilt_mod_cps_display">CPS Display</string>
+    <string name="inbuilt_mod_cps_display_desc">Shows clicks per second</string>
 
 <!-- ResourcepackHandler -->
 <string name="resourcepack_detected_title">Resource Pack Detected</string>
@@ -82,5 +89,9 @@
 <string name="dialog_negative_cancel">Cancel</string>
 <string name="dialog_title_launch_failed">Launch Failed</string>
 <string name="dialog_message_launch_failed">Error: %1$s</string>
+<string name="no_mods_enabled">No mods enabled
+
+Add mods from the
+main menu first</string>
 
 </resources>
