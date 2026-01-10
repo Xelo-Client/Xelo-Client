@@ -9,6 +9,7 @@ import android.widget.ImageButton;
 import com.origin.launcher.R;
 import com.origin.launcher.Launcher.inbuilt.model.ModIds;
 import com.origin.launcher.Launcher.inbuilt.XeloOverlay.nativemod.ZoomMod;
+import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModManager;
 
 public class ZoomOverlay extends BaseOverlayButton {
     private static final String TAG = "ZoomOverlay";
@@ -37,20 +38,60 @@ public class ZoomOverlay extends BaseOverlayButton {
         }
         super.show(startX, startY);
     }
+    
+    public void initializeForKeyboard() {
+        if (!initialized) {
+            initializeNative();
+        }
+    }
 
     private void initializeNative() {
         handler.postDelayed(() -> {
             if (ZoomMod.init()) {
                 initialized = true;
+                applyZoomLevel();
                 Log.i(TAG, "Zoom native initialized successfully");
             } else {
                 Log.e(TAG, "Failed to initialize zoom native");
             }
         }, 1000);
     }
+    
+    private void applyZoomLevel() {
+        int zoomPercent = InbuiltModManager.getInstance(activity).getZoomLevel();
+        long normalFov = 5360000000L;
+        long maxZoomFov = 5310000000L;
+        long zoomLevel = normalFov - (long)((normalFov - maxZoomFov) * zoomPercent / 100.0);
+        ZoomMod.nativeSetZoomLevel(zoomLevel);
+    }
 
     @Override
     protected void onButtonClick() {
+        toggleZoom();
+    }
+
+    public void onKeyDown() {
+        if (!initialized) {
+            Log.w(TAG, "Zoom not initialized yet");
+            return;
+        }
+        if (isZooming) return;
+        
+        isZooming = true;
+        applyZoomLevel();
+        ZoomMod.nativeOnKeyDown();
+        updateButtonState(true);
+    }
+
+    public void onKeyUp() {
+        if (!initialized || !isZooming) return;
+        
+        isZooming = false;
+        ZoomMod.nativeOnKeyUp();
+        updateButtonState(false);
+    }
+
+    private void toggleZoom() {
         if (!initialized) {
             Log.w(TAG, "Zoom not initialized yet");
             return;
@@ -59,6 +100,7 @@ public class ZoomOverlay extends BaseOverlayButton {
         isZooming = !isZooming;
 
         if (isZooming) {
+            applyZoomLevel();
             ZoomMod.nativeOnKeyDown();
             updateButtonState(true);
         } else {
@@ -92,5 +134,9 @@ public class ZoomOverlay extends BaseOverlayButton {
 
     public boolean isZooming() {
         return isZooming;
+    }
+    
+    public boolean isInitialized() {
+        return initialized;
     }
 }

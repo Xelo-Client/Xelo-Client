@@ -101,6 +101,50 @@
 
             </LinearLayout>
 
+            <LinearLayout
+                android:id="@+id/config_zoom_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Zoom"
+                        android:textSize="14sp"
+                        android:layout_marginEnd="8dp"
+                        android:textColor="@android:color/white"
+                        android:alpha="0.8" />
+
+                    <TextView
+                        android:id="@+id/text_zoom_level"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="100%"
+                        android:textSize="14sp"
+                        android:textColor="@android:color/white"
+                        android:layout_gravity="center_vertical" />
+
+                    <SeekBar
+                        android:id="@+id/seekbar_zoom_level"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="8dp"
+                        android:max="200"
+                        android:thumbTint="@android:color/white"
+                        android:progressTint="@android:color/white" />
+
+                </LinearLayout>
+            </LinearLayout>
+
         </LinearLayout>
 
     </com.google.android.material.card.MaterialCardView>

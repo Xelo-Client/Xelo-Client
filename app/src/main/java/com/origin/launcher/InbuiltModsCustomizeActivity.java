@@ -52,6 +52,8 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity implements 
     private static final int DEFAULT_OPACITY = 100;
 
     private static final int SEEKBAR_MAX = 100;
+    
+    private final Map<String, Integer> modZoomLevels = new HashMap<>();
 
     private RecyclerView adapterRecyclerView;
     private InbuiltCustomizeAdapter adapter;
@@ -266,6 +268,10 @@ bottomButtons.animate().translationX(-slide).setDuration(duration).start();
                 int opacity = e.getValue();
                 result.putExtra("opacity_" + id, opacity);
             }
+            
+            if (modZoomLevels.containsKey(ModIds.ZOOM)) {
+                manager.setZoomLevel(modZoomLevels.get(ModIds.ZOOM));
+            }
 
             setResult(RESULT_OK, result);
             finish();
@@ -287,7 +293,15 @@ bottomButtons.animate().translationX(-slide).setDuration(duration).start();
             list.add(new InbuiltCustomizeAdapter.Item(ModIds.CAMERA_PERSPECTIVE, R.drawable.ic_camera));
         if (manager.isModAdded(ModIds.ZOOM))
             list.add(new InbuiltCustomizeAdapter.Item(ModIds.ZOOM, R.drawable.ic_zoom));
-        
+            if (manager.isModAdded(ModIds.ZOOM)) {
+            int savedZoom = manager.getZoomLevel();
+            if (savedZoom > 0) {
+                modZoomLevels.put(ModIds.ZOOM, savedZoom);
+            } else {
+                modZoomLevels.put(ModIds.ZOOM, 50);
+            }
+        }
+
         return list;
     }
 
@@ -325,6 +339,16 @@ bottomButtons.animate().translationX(-slide).setDuration(duration).start();
         if (btn != null) {
             btn.setAlpha(clamped / 100f);
         }
+    }
+    
+    @Override
+    public int getZoomLevel(String id) {
+    return modZoomLevels.getOrDefault(id, 50);
+    }
+    
+    @Override
+    public void onZoomChanged(String id, int zoomLevel) {
+    modZoomLevels.put(id, zoomLevel);
     }
 
     @Override
@@ -444,5 +468,7 @@ bottomButtons.animate().translationX(-slide).setDuration(duration).start();
 
         isAdapterVisible = false;
         adapterContainer.setVisibility(View.GONE);
+        modZoomLevels.clear();
+        modZoomLevels.put(ModIds.ZOOM, 50);
     }
 }

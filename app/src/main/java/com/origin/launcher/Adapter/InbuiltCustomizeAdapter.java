@@ -6,11 +6,13 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.origin.launcher.R;
+import com.origin.launcher.Launcher.inbuilt.model.ModIds;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +34,8 @@ public class InbuiltCustomizeAdapter extends RecyclerView.Adapter<InbuiltCustomi
         void onSizeChanged(String id, int sizeDp);
         void onOpacityChanged(String id, int opacity);
         void onItemClicked(String id);
+        int getZoomLevel(String id);
+        void onZoomChanged(String id, int zoomLevel);
     }
 
     private final List<Item> items = new ArrayList<>();
@@ -113,6 +117,33 @@ public class InbuiltCustomizeAdapter extends RecyclerView.Adapter<InbuiltCustomi
             @Override public void onStartTrackingTouch(SeekBar seekBar) {}
             @Override public void onStopTrackingTouch(SeekBar seekBar) {}
         });
+        
+        LinearLayout zoomContainer = h.itemView.findViewById(R.id.config_zoom_container);
+SeekBar seekBarZoom = h.itemView.findViewById(R.id.seekbar_zoom_level);
+TextView textZoom = h.itemView.findViewById(R.id.text_zoom_level);
+
+if (item.id.equals(ModIds.ZOOM)) {
+    zoomContainer.setVisibility(View.VISIBLE);
+    int currentZoom = callback.getZoomLevel(item.id);
+    seekBarZoom.setProgress(currentZoom);
+    textZoom.setText(currentZoom + "%");
+
+    seekBarZoom.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        @Override
+        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+            textZoom.setText(progress + "%");
+            if (fromUser) {
+                callback.onZoomChanged(item.id, progress);
+            }
+        }
+        @Override
+        public void onStartTrackingTouch(SeekBar seekBar) {}
+        @Override
+        public void onStopTrackingTouch(SeekBar seekBar) {}
+    });
+} else {
+    zoomContainer.setVisibility(View.GONE);
+}
     }
 
     @Override
@@ -145,6 +176,9 @@ public class InbuiltCustomizeAdapter extends RecyclerView.Adapter<InbuiltCustomi
         final ImageButton icon;
         final SeekBar sizeSeek;
         final SeekBar opacitySeek;
+        final LinearLayout zoomContainer;
+        final SeekBar zoomSeek;
+        final TextView zoomText;
 
         VH(@NonNull View itemView) {
             super(itemView);
@@ -152,6 +186,9 @@ public class InbuiltCustomizeAdapter extends RecyclerView.Adapter<InbuiltCustomi
             icon = itemView.findViewById(R.id.mod_icon);
             sizeSeek = itemView.findViewById(R.id.size_seek);
             opacitySeek = itemView.findViewById(R.id.opacity_seek);
+            zoomContainer = itemView.findViewById(R.id.config_zoom_container);
+            zoomSeek = itemView.findViewById(R.id.seekbar_zoom_level);
+            zoomText = itemView.findViewById(R.id.text_zoom_level);
         }
     }
 }
