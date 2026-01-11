@@ -1,12 +1,13 @@
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:gravity="center_vertical|right"
-        android:drawable="@drawable/overlay_stats_background"/>
-    
+        android:width="30dp"
+        android:drawable="@color/transparent"/>
+
     <item
-        android:width="100dp"
-        android:drawable="@color/glow_cyan"/>
+        android:gravity="center_vertical|right"
+        android:left="16dp"
+        android:drawable="@drawable/overlay_stats_background"/>
 
     <item
         android:gravity="center_vertical|left"
