@@ -21,6 +21,7 @@ public class InbuiltModManager {
     private static final String KEY_OVERLAY_BUTTON_SIZE_GLOBAL = "overlay_button_size";
     private static final String KEY_OVERLAY_BUTTON_OPACITY_PREFIX = "overlay_button_opacity_";
     private static final String KEY_ZOOM_LEVEL = "zoom_level";
+    private static final String KEY_ZOOM_KEYBIND = "zoom_keybind";
     private static final int DEFAULT_OVERLAY_BUTTON_SIZE = 48;
     private static final int DEFAULT_OVERLAY_BUTTON_OPACITY = 100;
     private static final int DEFAULT_ZOOM_LEVEL = 50;
@@ -142,6 +143,14 @@ public class InbuiltModManager {
 
     public void setZoomLevel(int level) {
         prefs.edit().putInt(KEY_ZOOM_LEVEL, Math.max(10, Math.min(100, level))).apply();
+    }
+    
+    public int getZoomKeybind() {
+        return prefs.getInt(KEY_ZOOM_KEYBIND, KeyEvent.KEYCODE_C);
+    }
+
+    public void setZoomKeybind(int keyCode) {
+        prefs.edit().putInt(KEY_ZOOM_KEYBIND, keyCode).apply();
     }
 
     public int getOverlayButtonSize() {

@@ -1,6 +1,7 @@
 package com.origin.launcher.Launcher.inbuilt.overlay;
 
 import android.app.Activity;
+import android.view.MotionEvent;
 import android.view.KeyEvent;
 
 import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModManager;
@@ -29,13 +30,15 @@ public class InbuiltOverlayManager {
     }
     
     public boolean handleKeyEvent(int keyCode, int action) {
-    boolean zoomEnabled = InbuiltModManager.getInstance(activity).isModAdded(ModIds.ZOOM);
+        InbuiltModManager manager = InbuiltModManager.getInstance(activity);
+    boolean zoomEnabled = manager.isModAdded(ModIds.ZOOM);
     
     if (!zoomEnabled || zoomOverlay == null) {
         return false;
     }
 
-    if (keyCode == android.view.KeyEvent.KEYCODE_C) {
+    int zoomKeybind = manager.getZoomKeybind();
+        if (keyCode == zoomKeybind) {
         if (action == android.view.KeyEvent.ACTION_DOWN) {
             zoomOverlay.onKeyDown();
             return true;
@@ -54,6 +57,20 @@ public boolean handleScrollEvent(float scrollDelta) {
     }
     return false;
 }
+
+public boolean handleTouchEvent(MotionEvent event) {
+        if (cpsDisplayOverlay != null) {
+            return cpsDisplayOverlay.handleTouchEvent(event);
+        }
+        return false;
+    }
+
+    public boolean handleMouseEvent(MotionEvent event) {
+        if (cpsDisplayOverlay != null) {
+            return cpsDisplayOverlay.handleMouseEvent(event);
+        }
+        return false;
+    }
 
 public ZoomOverlay getZoomOverlay() {
     return zoomOverlay;

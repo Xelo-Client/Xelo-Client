@@ -141,6 +141,32 @@
                         android:max="200"
                         android:thumbTint="@android:color/white"
                         android:progressTint="@android:color/white" />
+                
+                <TextView
+    android:id="@+id/tv_keybind_label"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="Keybind:"
+    android:textSize="14sp"
+    android:layout_marginTop="12dp" />
+
+<TextView
+    android:id="@+id/tv_keybind"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="C"
+    android:textSize="16sp"
+    android:textStyle="bold"
+    android:layout_marginTop="2dp" />
+
+<Button
+    android:id="@+id/btn_change_keybind"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="@string/zoom_keybind_tap_to_change"
+    android:textSize="12sp"
+    android:layout_marginTop="4dp"
+    android:layout_marginStart="8dp" />
 
                 </LinearLayout>
             </LinearLayout>

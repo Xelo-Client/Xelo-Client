@@ -6,6 +6,7 @@ import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.MotionEvent;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.LayoutInflater;
@@ -19,6 +20,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.appcompat.app.AlertDialog;
 
 import com.google.android.material.materialswitch.MaterialSwitch;
 import com.origin.launcher.Adapter.InbuiltCustomizeAdapter;
@@ -41,6 +43,7 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity implements 
     private final Map<String, Integer> modSizes = new HashMap<>();
     private final Map<String, Integer> modOpacity = new HashMap<>();
     private final Map<String, View> modButtons = new HashMap<>();
+    private final Map<String, Integer> modZoomKeybinds = new HashMap<>();
     private String lastSelectedId = null;
 
     private static final int MIN_SIZE_DP = 32;
@@ -272,6 +275,10 @@ bottomButtons.animate().translationX(-slide).setDuration(duration).start();
             if (modZoomLevels.containsKey(ModIds.ZOOM)) {
                 manager.setZoomLevel(modZoomLevels.get(ModIds.ZOOM));
             }
+            
+            if (modZoomKeybinds.containsKey(ModIds.ZOOM)) {
+                manager.setZoomKeybind(modZoomKeybinds.get(ModIds.ZOOM));
+            }
 
             setResult(RESULT_OK, result);
             finish();
@@ -291,16 +298,14 @@ bottomButtons.animate().translationX(-slide).setDuration(duration).start();
             list.add(new InbuiltCustomizeAdapter.Item(ModIds.TOGGLE_HUD, R.drawable.ic_hud));
         if (manager.isModAdded(ModIds.CAMERA_PERSPECTIVE))
             list.add(new InbuiltCustomizeAdapter.Item(ModIds.CAMERA_PERSPECTIVE, R.drawable.ic_camera));
-        if (manager.isModAdded(ModIds.ZOOM))
-            list.add(new InbuiltCustomizeAdapter.Item(ModIds.ZOOM, R.drawable.ic_zoom));
-            if (manager.isModAdded(ModIds.ZOOM)) {
-            int savedZoom = manager.getZoomLevel();
-            if (savedZoom > 0) {
-                modZoomLevels.put(ModIds.ZOOM, savedZoom);
-            } else {
-                modZoomLevels.put(ModIds.ZOOM, 50);
-            }
-        }
+        if (manager.isModAdded(ModIds.ZOOM)) {
+    InbuiltCustomizeAdapter.Item zoomItem = new InbuiltCustomizeAdapter.Item(ModIds.ZOOM, R.drawable.ic_zoom);
+    int savedZoom = manager.getZoomLevel();
+    int savedKeybind = manager.getZoomKeybind();
+    list.add(zoomItem);
+    modZoomLevels.put(ModIds.ZOOM, savedZoom > 0 ? savedZoom : 50);
+    modZoomKeybinds.put(ModIds.ZOOM, savedKeybind > 0 ? savedKeybind : KeyEvent.KEYCODE_C);
+}
 
         return list;
     }
@@ -356,6 +361,42 @@ bottomButtons.animate().translationX(-slide).setDuration(duration).start();
         View btn = modButtons.get(id);
         if (btn != null) btn.performClick();
     }
+    
+    @Override
+public String getKeyName(int keybind) {
+    if (keybind == KeyEvent.KEYCODE_C) return "C";
+    String label = KeyEvent.keyCodeToString(keybind);
+    return label.startsWith("KEYCODE_") ? label.substring(8) : label;
+}
+
+@Override
+public void showKeybindDialog(String modId) {
+    int currentKeybind = modZoomKeybinds.getOrDefault(modId, KeyEvent.KEYCODE_C);
+    final int[] pendingKeybind = {currentKeybind};
+    
+    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+    builder.setTitle(R.string.zoom_keybind_label);
+    builder.setMessage(R.string.zoom_keybind_press);
+    builder.setCancelable(true);
+    builder.setNegativeButton(R.string.dialog_negative_cancel, null);
+
+    AlertDialog dialog = builder.create();
+    dialog.setOnKeyListener((d, keyCode, event) -> {
+    if (event.getAction() == KeyEvent.ACTION_DOWN) {
+        if (!isKeyboardKey(keyCode)) return true;
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            dialog.dismiss();
+            return true;
+        }
+        modZoomKeybinds.put(modId, keyCode);
+        adapter.notifyDataSetChanged();
+        dialog.dismiss();
+        return true;
+    }
+    return false;
+});
+    dialog.show();
+}
 
     private void addModButton(FrameLayout grid, int iconResId, String id) {
         ImageButton btn = new ImageButton(this);
@@ -470,5 +511,18 @@ bottomButtons.animate().translationX(-slide).setDuration(duration).start();
         adapterContainer.setVisibility(View.GONE);
         modZoomLevels.clear();
         modZoomLevels.put(ModIds.ZOOM, 50);
+        modZoomKeybinds.clear();
+        modZoomKeybinds.put(ModIds.ZOOM, KeyEvent.KEYCODE_C);
+    }
+
+    private boolean isKeyboardKey(int keyCode) {
+    return (keyCode >= KeyEvent.KEYCODE_A && keyCode <= KeyEvent.KEYCODE_Z) ||
+           (keyCode >= KeyEvent.KEYCODE_0 && keyCode <= KeyEvent.KEYCODE_9) ||
+           keyCode == KeyEvent.KEYCODE_SPACE || keyCode == KeyEvent.KEYCODE_ENTER;
+    }
+    private String getKeyName(int keyCode) {
+    if (keyCode == KeyEvent.KEYCODE_C) return "C";
+    String label = KeyEvent.keyCodeToString(keyCode);
+    return label.startsWith("KEYCODE_") ? label.substring(8) : label;
     }
 }

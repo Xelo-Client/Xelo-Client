@@ -1,8 +1,10 @@
 package com.origin.launcher.Adapter;
 
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -22,6 +24,7 @@ public class InbuiltCustomizeAdapter extends RecyclerView.Adapter<InbuiltCustomi
     public static class Item {
         public final String id;
         public final int iconRes;
+        public int keybind = KeyEvent.KEYCODE_C;
         public Item(String id, int iconRes) {
             this.id = id;
             this.iconRes = iconRes;
@@ -36,17 +39,16 @@ public class InbuiltCustomizeAdapter extends RecyclerView.Adapter<InbuiltCustomi
         void onItemClicked(String id);
         int getZoomLevel(String id);
         void onZoomChanged(String id, int zoomLevel);
+        String getKeyName(int keybind);
+        void showKeybindDialog(String id);
     }
 
     private final List<Item> items = new ArrayList<>();
     private final Callback callback;
-
     private final int minSizeDp;
     private final int maxSizeDp;
-
     private final int minOpacity;
     private final int maxOpacity;
-
     private final int seekMax;
 
     public InbuiltCustomizeAdapter(
@@ -117,33 +119,39 @@ public class InbuiltCustomizeAdapter extends RecyclerView.Adapter<InbuiltCustomi
             @Override public void onStartTrackingTouch(SeekBar seekBar) {}
             @Override public void onStopTrackingTouch(SeekBar seekBar) {}
         });
-        
-        LinearLayout zoomContainer = h.itemView.findViewById(R.id.config_zoom_container);
-SeekBar seekBarZoom = h.itemView.findViewById(R.id.seekbar_zoom_level);
-TextView textZoom = h.itemView.findViewById(R.id.text_zoom_level);
 
-if (item.id.equals(ModIds.ZOOM)) {
-    zoomContainer.setVisibility(View.VISIBLE);
-    int currentZoom = callback.getZoomLevel(item.id);
-    seekBarZoom.setProgress(currentZoom);
-    textZoom.setText(currentZoom + "%");
+        if (item.id.equals(ModIds.ZOOM)) {
+            h.zoomContainer.setVisibility(View.VISIBLE);
+            int currentZoom = callback.getZoomLevel(item.id);
+            h.zoomSeek.setProgress(currentZoom);
+            h.zoomText.setText(currentZoom + "%");
 
-    seekBarZoom.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-        @Override
-        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-            textZoom.setText(progress + "%");
-            if (fromUser) {
-                callback.onZoomChanged(item.id, progress);
-            }
+            h.zoomSeek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                    h.zoomText.setText(progress + "%");
+                    if (fromUser) {
+                        callback.onZoomChanged(item.id, progress);
+                    }
+                }
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) {}
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) {}
+            });
+
+            h.tvKeybindLabel.setVisibility(View.VISIBLE);
+            h.tvKeybind.setVisibility(View.VISIBLE);
+            h.btnChangeKeybind.setVisibility(View.VISIBLE);
+            
+            h.tvKeybind.setText(callback.getKeyName(item.keybind));
+            h.btnChangeKeybind.setOnClickListener(v -> callback.showKeybindDialog(item.id));
+        } else {
+            h.zoomContainer.setVisibility(View.GONE);
+            h.tvKeybindLabel.setVisibility(View.GONE);
+            h.tvKeybind.setVisibility(View.GONE);
+            h.btnChangeKeybind.setVisibility(View.GONE);
         }
-        @Override
-        public void onStartTrackingTouch(SeekBar seekBar) {}
-        @Override
-        public void onStopTrackingTouch(SeekBar seekBar) {}
-    });
-} else {
-    zoomContainer.setVisibility(View.GONE);
-}
     }
 
     @Override
@@ -179,6 +187,8 @@ if (item.id.equals(ModIds.ZOOM)) {
         final LinearLayout zoomContainer;
         final SeekBar zoomSeek;
         final TextView zoomText;
+        TextView tvKeybindLabel, tvKeybind;
+        Button btnChangeKeybind;
 
         VH(@NonNull View itemView) {
             super(itemView);
@@ -189,6 +199,9 @@ if (item.id.equals(ModIds.ZOOM)) {
             zoomContainer = itemView.findViewById(R.id.config_zoom_container);
             zoomSeek = itemView.findViewById(R.id.seekbar_zoom_level);
             zoomText = itemView.findViewById(R.id.text_zoom_level);
+            tvKeybindLabel = itemView.findViewById(R.id.tv_keybind_label);
+            tvKeybind = itemView.findViewById(R.id.tv_keybind);
+            btnChangeKeybind = itemView.findViewById(R.id.btn_change_keybind);
         }
     }
 }
