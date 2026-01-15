@@ -401,6 +401,14 @@ public void showKeybindDialog(String modId) {
     return false;
 });
     dialog.show();
+    
+    dialog.setOnShowListener(dialogInterface -> {
+        TextView titleView = ((TextView) dialog.getWindow().findViewById(getResources().getIdentifier("alertTitle", "id", "android")));
+        if (titleView != null) titleView.setTextColor(getResources().getColor(R.color.onBackground, null));
+        
+        TextView messageView = ((TextView) dialog.getWindow().findViewById(android.R.id.message));
+        if (messageView != null) messageView.setTextColor(getResources().getColor(R.color.onBackground, null));
+    });
 }
 
     private void addModButton(FrameLayout grid, int iconResId, String id) {
