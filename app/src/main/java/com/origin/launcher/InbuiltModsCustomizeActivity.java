@@ -363,7 +363,8 @@ bottomButtons.animate().translationX(-slide).setDuration(duration).start();
     }
     
     @Override
-public String getKeyName(int keybind) {
+public String getKeyName(String id) {
+    int keybind = modZoomKeybinds.getOrDefault(id, KeyEvent.KEYCODE_C);
     if (keybind == KeyEvent.KEYCODE_C) return "C";
     String label = KeyEvent.keyCodeToString(keybind);
     return label.startsWith("KEYCODE_") ? label.substring(8) : label;
@@ -371,8 +372,6 @@ public String getKeyName(int keybind) {
 
 @Override
 public void showKeybindDialog(String modId) {
-    int currentKeybind = modZoomKeybinds.getOrDefault(modId, KeyEvent.KEYCODE_C);
-    final int[] pendingKeybind = {currentKeybind};
     
     AlertDialog.Builder builder = new AlertDialog.Builder(this);
     builder.setTitle(R.string.zoom_keybind_label);

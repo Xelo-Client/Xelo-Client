@@ -24,7 +24,6 @@ public class InbuiltCustomizeAdapter extends RecyclerView.Adapter<InbuiltCustomi
     public static class Item {
         public final String id;
         public final int iconRes;
-        public int keybind = KeyEvent.KEYCODE_C;
         public Item(String id, int iconRes) {
             this.id = id;
             this.iconRes = iconRes;
@@ -39,7 +38,7 @@ public class InbuiltCustomizeAdapter extends RecyclerView.Adapter<InbuiltCustomi
         void onItemClicked(String id);
         int getZoomLevel(String id);
         void onZoomChanged(String id, int zoomLevel);
-        String getKeyName(int keybind);
+        String getKeyName(String id);
         void showKeybindDialog(String id);
     }
 
@@ -144,7 +143,7 @@ public class InbuiltCustomizeAdapter extends RecyclerView.Adapter<InbuiltCustomi
             h.tvKeybind.setVisibility(View.VISIBLE);
             h.btnChangeKeybind.setVisibility(View.VISIBLE);
             
-            h.tvKeybind.setText(callback.getKeyName(item.keybind));
+            h.tvKeybind.setText(callback.getKeyName(item.id));
             h.btnChangeKeybind.setOnClickListener(v -> callback.showKeybindDialog(item.id));
         } else {
             h.zoomContainer.setVisibility(View.GONE);
