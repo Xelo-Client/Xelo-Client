@@ -416,7 +416,7 @@ private void findAndColorTextViews(View view, int color) {
     if (view instanceof ViewGroup) {
         ViewGroup vg = (ViewGroup) view;
         for (int i = 0; i < vg.getChildCount(); i++) {
-            View child = vg.getChildView(i);
+            View child = vg.getChildAt(i);
             findAndColorTextViews(child, color);
         }
     }
