@@ -32,5 +32,13 @@
     <item name="android:gravity">center_horizontal</item>
     <item name="android:fontFamily">sans-serif</item>
 </style>
+
+<style name="ZoomKeybindDialog" parent="ThemeOverlay.Material3.Dialog.Alert">
+    <item name="colorSurface">@color/black</item>
+    <item name="android:windowBackground">@color/black</item>
+    <item name="colorOnSurface">@color/onBackground</item>
+    <item name="android:textColorPrimary">@color/onBackground</item>
+    <item name="android:textColor">@color/onBackground</item>
+</style>
   
 </resources>

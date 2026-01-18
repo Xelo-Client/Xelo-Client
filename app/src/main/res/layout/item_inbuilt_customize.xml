@@ -112,7 +112,8 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -129,8 +130,7 @@
                         android:layout_height="wrap_content"
                         android:text="100%"
                         android:textSize="14sp"
-                        android:textColor="@android:color/white"
-                        android:layout_gravity="center_vertical" />
+                        android:textColor="@android:color/white" />
 
                     <SeekBar
                         android:id="@+id/seekbar_zoom_level"
@@ -143,6 +143,45 @@
                         android:progressTint="@android:color/white" />
 
                 </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:id="@+id/tv_keybind_label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Keybind:"
+                        android:textSize="14sp"
+                        android:textColor="@android:color/white"
+                        android:alpha="0.8" />
+
+                    <TextView
+                        android:id="@+id/tv_keybind"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="C"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:layout_marginStart="8dp"
+                        android:textColor="@android:color/white" />
+
+                    <Button
+                        android:id="@+id/btn_change_keybind"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/zoom_keybind_tap_to_change"
+                        android:textSize="12sp"
+                        android:layout_marginStart="8dp"
+                        android:minHeight="32dp"
+                        android:minWidth="64dp" />
+
+                </LinearLayout>
+
             </LinearLayout>
 
         </LinearLayout>
