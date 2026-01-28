@@ -11,6 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       JAVA_HOME: /usr/lib/jvm/java-21-openjdk-amd64
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -72,56 +73,3 @@ jobs:
             app/build/test-results/
           retention-days: 7
           if-no-files-found: ignore
-
-  beta-build:
-    runs-on: ubuntu-latest
-    env:
-      JAVA_HOME: /usr/lib/jvm/java-21-openjdk-amd64
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Initialize submodules
-        run: git submodule update --init --recursive
-
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '21'
-
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Cache Gradle dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-beta-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-beta-
-            ${{ runner.os }}-gradle-
-
-      - name: Grant execute permission for gradlew
-        run: chmod +x ./gradlew
-
-      - name: Run Tests
-        run: ./gradlew testDebugUnitTest --stacktrace
-
-      - name: Build Beta Debug APK
-        run: ./gradlew assembleDebug -Pandroid.applicationIdSuffix=.beta -Pandroid.versionNameSuffix=-beta --stacktrace
-
-      - name: List Beta APK files
-        run: |
-          echo "Beta Debug APK files generated:"
-          find app/build/outputs/apk/debug -name "*.apk" -type f || echo "No APK files found"
-
-      - name: Upload Beta APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: origin-beta-apk-${{ github.run_number }}
-          path: app/build/outputs/apk/debug/*.apk
-          retention-days: 30
-          if-no-files-found: error
