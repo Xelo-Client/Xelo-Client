@@ -71,8 +71,6 @@ public abstract class BaseOverlayButton {
             btn.setImageResource(getIconResource());
 
             int buttonSize = getButtonSizePx();
-            int padding = (int) (buttonSize * 0.22f);
-            btn.setPadding(padding, padding, padding, padding);
             btn.setScaleType(ImageButton.ScaleType.FIT_CENTER);
             btn.setAlpha(getButtonAlpha());
 
@@ -109,8 +107,6 @@ public abstract class BaseOverlayButton {
         btn.setImageResource(getIconResource());
 
         int buttonSize = getButtonSizePx();
-        int padding = (int) (buttonSize * 0.22f);
-        btn.setPadding(padding, padding, padding, padding);
         btn.setScaleType(ImageButton.ScaleType.FIT_CENTER);
         btn.setAlpha(getButtonAlpha());
 

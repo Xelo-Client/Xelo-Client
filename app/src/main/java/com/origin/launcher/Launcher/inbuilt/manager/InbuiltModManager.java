@@ -22,7 +22,7 @@ public class InbuiltModManager {
     private static final String KEY_OVERLAY_BUTTON_OPACITY_PREFIX = "overlay_button_opacity_";
     private static final String KEY_ZOOM_LEVEL = "zoom_level";
     private static final String KEY_ZOOM_KEYBIND = "zoom_keybind";
-    private static final int DEFAULT_OVERLAY_BUTTON_SIZE = 48;
+    private static final int DEFAULT_OVERLAY_BUTTON_SIZE = 56;
     private static final int DEFAULT_OVERLAY_BUTTON_OPACITY = 100;
     private static final int DEFAULT_ZOOM_LEVEL = 50;
 
