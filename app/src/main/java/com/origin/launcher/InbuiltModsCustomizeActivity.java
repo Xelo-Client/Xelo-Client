@@ -329,6 +329,8 @@ public void onSizeChanged(String id, int sizeDp) {
     if (btn != null) {
         btn.setMinimumWidth(0);
         btn.setMinimumHeight(0);
+        btn.setPadding(0, 0, 0, 0);
+        btn.setPaddingRelative(0, 0, 0, 0);
         
         int px = dpToPx(clamped);
         FrameLayout.LayoutParams flp = (FrameLayout.LayoutParams) btn.getLayoutParams();
@@ -437,93 +439,94 @@ private void findAndColorTextViews(View view, int color) {
 }
 
     private void addModButton(FrameLayout grid, int iconResId, String id) {
-        ImageButton btn = new ImageButton(this);
-        btn.setImageResource(iconResId);
-        btn.setBackgroundResource(R.drawable.bg_overlay_button);
-        btn.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+    ImageButton btn = new ImageButton(this);
+    btn.setImageResource(iconResId);
+    btn.setBackgroundResource(R.drawable.bg_overlay_button);
+    
+    btn.setPadding(0, 0, 0, 0);
+    btn.setPaddingRelative(0, 0, 0, 0);
+    
+    InbuiltModManager manager = InbuiltModManager.getInstance(this);
+    int savedSizeDp = manager.getOverlayButtonSize(id);
+    if (savedSizeDp <= 0) savedSizeDp = DEFAULT_SIZE_DP;
+    savedSizeDp = clampSize(savedSizeDp);
+    int sizePx = dpToPx(savedSizeDp);
 
-        InbuiltModManager manager = InbuiltModManager.getInstance(this);
+    int savedOpacity = manager.getOverlayButtonOpacity(id);
+    if (savedOpacity <= 0) savedOpacity = DEFAULT_OPACITY;
+    savedOpacity = clampOpacity(savedOpacity);
 
-        int savedSizeDp = manager.getOverlayButtonSize(id);
-        if (savedSizeDp <= 0) savedSizeDp = DEFAULT_SIZE_DP;
-        savedSizeDp = clampSize(savedSizeDp);
-        int sizePx = dpToPx(savedSizeDp);
+    btn.setMinimumWidth(0);
+    btn.setMinimumHeight(0);
+    
+    FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(sizePx, sizePx);
+    lp.leftMargin = 0;
+    lp.topMargin = 0;
+    btn.setScaleType(ImageView.ScaleType.FIT_CENTER);
+    btn.setLayoutParams(lp);
 
-        int savedOpacity = manager.getOverlayButtonOpacity(id);
-        if (savedOpacity <= 0) savedOpacity = DEFAULT_OPACITY;
-        savedOpacity = clampOpacity(savedOpacity);
+    modSizes.put(id, savedSizeDp);
+    modOpacity.put(id, savedOpacity);
+    btn.setAlpha(savedOpacity / 100f);
 
-        btn.setMinimumWidth(0);
-        btn.setMinimumHeight(0);
-        FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(sizePx, sizePx);
-        lp.leftMargin = 0;
-        lp.topMargin = 0;
-        btn.setScaleType(ImageView.ScaleType.FIT_CENTER);
-        btn.setLayoutParams(lp);
+    btn.setX(0f);
+    btn.setY(0f);
+    modButtons.put(id, btn);
 
-        modSizes.put(id, savedSizeDp);
-        modOpacity.put(id, savedOpacity);
-        btn.setAlpha(savedOpacity / 100f);
+    btn.setOnClickListener(v -> {
+        lastSelectedButton = v;
+        lastSelectedId = id;
+        lockSwitch.setChecked(InbuiltModSizeStore.getInstance().isLocked(id));
+    });
 
-        btn.setX(0f);
-        btn.setY(0f);
+    btn.setOnTouchListener(new View.OnTouchListener() {
+        float dX, dY;
+        boolean moved;
 
-        modButtons.put(id, btn);
+        @Override
+        public boolean onTouch(View view, MotionEvent event) {
+            switch (event.getActionMasked()) {
+                case MotionEvent.ACTION_DOWN:
+                    view.bringToFront();
+                    dX = event.getRawX() - view.getX();
+                    dY = event.getRawY() - view.getY();
+                    moved = false;
+                    return true;
+                case MotionEvent.ACTION_MOVE:
+                    float newX = event.getRawX() - dX;
+                    float newY = event.getRawY() - dY;
 
-        btn.setOnClickListener(v -> {
-            lastSelectedButton = v;
-            lastSelectedId = id;
-            lockSwitch.setChecked(InbuiltModSizeStore.getInstance().isLocked(id));
-        });
+                    View bg = findViewById(R.id.customize_background);
+                    float left = 0f;
+                    float top = 0f;
+                    float right = bg.getWidth() - view.getWidth();
+                    float bottom = bg.getHeight() - view.getHeight();
 
-        btn.setOnTouchListener(new View.OnTouchListener() {
-            float dX, dY;
-            boolean moved;
+                    if (newX < left) newX = left;
+                    if (newX > right) newX = right;
+                    if (newY < top) newY = top;
+                    if (newY > bottom) newY = bottom;
 
-            @Override
-            public boolean onTouch(View view, MotionEvent event) {
-                switch (event.getActionMasked()) {
-                    case MotionEvent.ACTION_DOWN:
-                        view.bringToFront();
-                        dX = event.getRawX() - view.getX();
-                        dY = event.getRawY() - view.getY();
-                        moved = false;
-                        return true;
-                    case MotionEvent.ACTION_MOVE:
-                        float newX = event.getRawX() - dX;
-                        float newY = event.getRawY() - dY;
-
-                        View bg = findViewById(R.id.customize_background);
-                        float left = 0f;
-                        float top = 0f;
-                        float right = bg.getWidth() - view.getWidth();
-                        float bottom = bg.getHeight() - view.getHeight();
-
-                        if (newX < left) newX = left;
-                        if (newX > right) newX = right;
-                        if (newY < top) newY = top;
-                        if (newY > bottom) newY = bottom;
-
-                        view.setX(newX);
-                        view.setY(newY);
-                        moved = true;
-                        return true;
-                    case MotionEvent.ACTION_UP:
-                        if (!moved) {
-                            view.performClick();
-                        } else {
-                            InbuiltModSizeStore store = InbuiltModSizeStore.getInstance();
-                            store.setPositionX(id, view.getX());
-                            store.setPositionY(id, view.getY());
-                        }
-                        return true;
-                }
-                return false;
+                    view.setX(newX);
+                    view.setY(newY);
+                    moved = true;
+                    return true;
+                case MotionEvent.ACTION_UP:
+                    if (!moved) {
+                        view.performClick();
+                    } else {
+                        InbuiltModSizeStore store = InbuiltModSizeStore.getInstance();
+                        store.setPositionX(id, view.getX());
+                        store.setPositionY(id, view.getY());
+                    }
+                    return true;
             }
-        });
+            return false;
+        }
+    });
 
-        grid.addView(btn);
-    }
+    grid.addView(btn);
+}
 
     private void resetAll(FrameLayout grid) {
     int defaultSizeDp = clampSize(DEFAULT_SIZE_DP);
