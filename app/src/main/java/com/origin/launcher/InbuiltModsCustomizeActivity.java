@@ -331,10 +331,14 @@ public void onSizeChanged(String id, int sizeDp) {
         btn.setMinimumHeight(0);
         
         int px = dpToPx(clamped);
-        ViewGroup.LayoutParams lp = btn.getLayoutParams();
-        lp.width = px;
-        lp.height = px;
-        btn.setLayoutParams(lp);
+        FrameLayout.LayoutParams flp = (FrameLayout.LayoutParams) btn.getLayoutParams();
+        flp.width = px;
+        flp.height = px;
+        flp.leftMargin = 0;
+        flp.topMargin = 0;
+        flp.rightMargin = 0;
+        flp.bottomMargin = 0;
+        btn.setLayoutParams(flp);
         
         btn.requestLayout();
         btn.invalidate();
@@ -452,8 +456,8 @@ private void findAndColorTextViews(View view, int color) {
         btn.setMinimumWidth(0);
         btn.setMinimumHeight(0);
         FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(sizePx, sizePx);
-        lp.leftMargin = dpToPx(8);
-        lp.topMargin = dpToPx(8);
+        lp.leftMargin = 0;
+        lp.topMargin = 0;
         btn.setScaleType(ImageView.ScaleType.FIT_CENTER);
         btn.setLayoutParams(lp);
 
@@ -522,38 +526,42 @@ private void findAndColorTextViews(View view, int color) {
     }
 
     private void resetAll(FrameLayout grid) {
-        int defaultSizeDp = clampSize(DEFAULT_SIZE_DP);
-        int defaultSizePx = dpToPx(defaultSizeDp);
-        int defaultOpacity = DEFAULT_OPACITY;
+    int defaultSizeDp = clampSize(DEFAULT_SIZE_DP);
+    int defaultSizePx = dpToPx(defaultSizeDp);
+    int defaultOpacity = DEFAULT_OPACITY;
 
-        for (int i = 0; i < grid.getChildCount(); i++) {
-            View c = grid.getChildAt(i);
-            ViewGroup.LayoutParams lp = c.getLayoutParams();
-            lp.width = defaultSizePx;
-            lp.height = defaultSizePx;
-            c.setLayoutParams(lp);
-            c.setMinimumWidth(0);
-            c.setMinimumHeight(0);
-            ((ImageButton) c).setScaleType(ImageView.ScaleType.FIT_CENTER);
-            c.setX(0f);
-            c.setY(0f);
-            c.setAlpha(defaultOpacity / 100f);
-        }
-
-        for (String key : modSizes.keySet()) modSizes.put(key, defaultSizeDp);
-        for (String key : modOpacity.keySet()) modOpacity.put(key, defaultOpacity);
-
-        lastSelectedButton = null;
-        lastSelectedId = null;
-        lockSwitch.setChecked(false);
-
-        isAdapterVisible = false;
-        adapterContainer.setVisibility(View.GONE);
-        modZoomLevels.clear();
-        modZoomLevels.put(ModIds.ZOOM, 50);
-        modZoomKeybinds.clear();
-        modZoomKeybinds.put(ModIds.ZOOM, KeyEvent.KEYCODE_C);
+    for (int i = 0; i < grid.getChildCount(); i++) {
+        View c = grid.getChildAt(i);
+        FrameLayout.LayoutParams flp = (FrameLayout.LayoutParams) c.getLayoutParams();
+        flp.width = defaultSizePx;
+        flp.height = defaultSizePx;
+        flp.leftMargin = 0;
+        flp.topMargin = 0;
+        flp.rightMargin = 0;
+        flp.bottomMargin = 0;
+        c.setLayoutParams(flp);
+        c.setMinimumWidth(0);
+        c.setMinimumHeight(0);
+        ((ImageButton) c).setScaleType(ImageView.ScaleType.FIT_CENTER);
+        c.setX(0f);
+        c.setY(0f);
+        c.setAlpha(defaultOpacity / 100f);
     }
+
+    for (String key : modSizes.keySet()) modSizes.put(key, defaultSizeDp);
+    for (String key : modOpacity.keySet()) modOpacity.put(key, defaultOpacity);
+
+    lastSelectedButton = null;
+    lastSelectedId = null;
+    lockSwitch.setChecked(false);
+
+    isAdapterVisible = false;
+    adapterContainer.setVisibility(View.GONE);
+    modZoomLevels.clear();
+    modZoomLevels.put(ModIds.ZOOM, 50);
+    modZoomKeybinds.clear();
+    modZoomKeybinds.put(ModIds.ZOOM, KeyEvent.KEYCODE_C);
+}
 
     private boolean isKeyboardKey(int keyCode) {
     return (keyCode >= KeyEvent.KEYCODE_A && keyCode <= KeyEvent.KEYCODE_Z) ||
