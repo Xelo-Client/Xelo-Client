@@ -30,6 +30,7 @@ public class SettingsFragment extends BaseThemedFragment implements DiscordManag
     private LinearLayout aboutButton; 
     private LinearLayout supportButton;
     private View fragmentView;
+    private boolean isRecyclerVisible = false;
     
     // Discord components
     private com.google.android.material.button.MaterialButton discordLoginButton;
@@ -119,17 +120,25 @@ public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle sa
         });
     }
     
-    versionText.setOnClickListener(v -> {
-        versionManager.loadAllVersions();
-        versionAdapter.updateVersions(versionManager.getInstalledVersions());
-        updateVersionDisplay();
-    });
+    versionText.setOnClickListener(v -> toggleVersionList());
 }
 
 private void onVersionSelected(GameVersion version) {
     versionManager.selectVersion(version);
     updateVersionDisplay();
     versionAdapter.notifyDataSetChanged();}
+    
+    private void toggleVersionList() {
+    if (isRecyclerVisible) {
+        versionRecyclerView.setVisibility(View.GONE);
+        isRecyclerVisible = false;
+    } else {
+        versionManager.loadAllVersions();
+        versionAdapter.updateVersions(versionManager.getInstalledVersions());
+        versionRecyclerView.setVisibility(View.VISIBLE);
+        isRecyclerVisible = true;
+    }
+}
 
     private void updateVersionDisplay() {
         if (selectedVersionText == null) return;
