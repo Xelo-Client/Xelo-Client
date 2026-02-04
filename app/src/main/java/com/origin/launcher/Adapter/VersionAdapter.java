@@ -46,8 +46,8 @@ public class VersionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         versionHolder.tvVersionName.setText(version.displayName);
         versionHolder.tvPackageName.setText(version.packageName);
         
-        versionHolder.tvVersionName.setTextColor(ContextCompat.getColor(parent.getContext(), R.color.primary));
-        versionHolder.tvPackageName.setTextColor(ContextCompat.getColor(parent.getContext(), R.color.primary));
+        versionHolder.tvVersionName.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.primary));
+        versionHolder.tvPackageName.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.primary));
         
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
