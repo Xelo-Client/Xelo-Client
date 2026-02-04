@@ -321,19 +321,29 @@ bottomButtons.animate().translationX(-slide).setDuration(duration).start();
     }
 
     @Override
-    public void onSizeChanged(String id, int sizeDp) {
-        int clamped = clampSize(sizeDp);
-        modSizes.put(id, clamped);
+public void onSizeChanged(String id, int sizeDp) {
+    int clamped = clampSize(sizeDp);
+    modSizes.put(id, clamped);
 
-        View btn = modButtons.get(id);
-        if (btn != null) {
-            int px = dpToPx(clamped);
-            ViewGroup.LayoutParams lp = btn.getLayoutParams();
-            lp.width = px;
-            lp.height = px;
-            btn.setLayoutParams(lp);
+    View btn = modButtons.get(id);
+    if (btn != null) {
+        btn.setMinimumWidth(0);
+        btn.setMinimumHeight(0);
+        
+        int px = dpToPx(clamped);
+        ViewGroup.LayoutParams lp = btn.getLayoutParams();
+        lp.width = px;
+        lp.height = px;
+        btn.setLayoutParams(lp);
+        
+        btn.requestLayout();
+        btn.invalidate();
+        
+        if (btn instanceof ImageButton) {
+            ((ImageButton) btn).setScaleType(ImageView.ScaleType.FIT_CENTER);
         }
     }
+}
 
     @Override
     public void onOpacityChanged(String id, int opacity) {
@@ -439,9 +449,12 @@ private void findAndColorTextViews(View view, int color) {
         if (savedOpacity <= 0) savedOpacity = DEFAULT_OPACITY;
         savedOpacity = clampOpacity(savedOpacity);
 
+        btn.setMinimumWidth(0);
+        btn.setMinimumHeight(0);
         FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(sizePx, sizePx);
         lp.leftMargin = dpToPx(8);
         lp.topMargin = dpToPx(8);
+        btn.setScaleType(ImageView.ScaleType.FIT_CENTER);
         btn.setLayoutParams(lp);
 
         modSizes.put(id, savedSizeDp);
@@ -519,6 +532,9 @@ private void findAndColorTextViews(View view, int color) {
             lp.width = defaultSizePx;
             lp.height = defaultSizePx;
             c.setLayoutParams(lp);
+            c.setMinimumWidth(0);
+            c.setMinimumHeight(0);
+            ((ImageButton) c).setScaleType(ImageView.ScaleType.FIT_CENTER);
             c.setX(0f);
             c.setY(0f);
             c.setAlpha(defaultOpacity / 100f);
