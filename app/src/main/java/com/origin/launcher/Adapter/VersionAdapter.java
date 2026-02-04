@@ -7,6 +7,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.origin.launcher.R;
+import com.origin.launcher.versions.GameVersion;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,13 +27,13 @@ public class VersionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     
     @Override
     public int getItemViewType(int position) {
-        return R.layout.item_version;
+        return 0;
     }
     
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(viewType, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_version, parent, false);
         return new VersionViewHolder(view);
     }
     

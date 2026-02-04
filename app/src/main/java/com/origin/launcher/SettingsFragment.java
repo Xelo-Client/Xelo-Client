@@ -129,9 +129,7 @@ public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle sa
 private void onVersionSelected(GameVersion version) {
     versionManager.selectVersion(version);
     updateVersionDisplay();
-    versionAdapter.notifyDataSetChanged();
-}
-
+    versionAdapter.notifyDataSetChanged();}
 
     private void updateVersionDisplay() {
         if (selectedVersionText == null) return;
