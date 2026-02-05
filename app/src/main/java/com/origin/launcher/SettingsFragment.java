@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -19,10 +20,13 @@ import java.util.List;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.core.content.ContextCompat;
+import androidx.appcompat.app.AlertDialog;
 
 import com.origin.launcher.versions.VersionManager;
 import com.origin.launcher.versions.GameVersion;
 import com.origin.launcher.Adapter.VersionAdapter;
+import com.origin.launcher.animation.DynamicAnim;
+import com.origin.launcher.R;
 
 public class SettingsFragment extends BaseThemedFragment implements DiscordManager.DiscordLoginCallback {
 
@@ -31,7 +35,6 @@ public class SettingsFragment extends BaseThemedFragment implements DiscordManag
     private LinearLayout aboutButton; 
     private LinearLayout supportButton;
     private View fragmentView;
-    private boolean isRecyclerVisible = false;
     
     // Discord components
     private com.google.android.material.button.MaterialButton discordLoginButton;
@@ -45,8 +48,7 @@ public class SettingsFragment extends BaseThemedFragment implements DiscordManag
     
     private VersionManager versionManager;
     private TextView selectedVersionText;
-    private RecyclerView versionRecyclerView;
-    private VersionAdapter versionAdapter;
+    private AlertDialog versionDialog;
 
     @Override
 public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -104,41 +106,61 @@ public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle sa
     
     private void setupVersionSelection(Button selectButton, TextView versionText) {
     this.selectedVersionText = versionText;
-    versionRecyclerView = fragmentView.findViewById(R.id.version_recycler_view);
     versionManager = VersionManager.get(requireContext());
     versionManager.loadAllVersions();
-    
-    versionRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
-    versionAdapter = new VersionAdapter(versionManager.getInstalledVersions(), this::onVersionSelected);
-    versionRecyclerView.setAdapter(versionAdapter);
-    
     updateVersionDisplay();
     
-    if (selectButton != null) {
-        selectButton.setOnClickListener(v -> {
-            versionManager.loadAllVersions();
-            versionAdapter.updateVersions(versionManager.getInstalledVersions());
+    versionText.setOnClickListener(v -> showVersionDialog());
+}
+
+private void showVersionDialog() {
+    if (versionDialog != null && versionDialog.isShowing()) {
+        View rootView = versionDialog.findViewById(R.id.header_container);
+        DynamicAnim.animateDialogDismiss(rootView, () -> {
+            versionDialog.dismiss();
+            showVersionDialog();
         });
+        return;
     }
     
-    versionText.setOnClickListener(v -> toggleVersionList());
+    View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_versions, null);
+    RecyclerView recyclerView = dialogView.findViewById(R.id.recycler_versions);
+    
+    recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+    VersionAdapter dialogAdapter = new VersionAdapter(versionManager.getInstalledVersions(), this::onVersionSelected);
+    recyclerView.setAdapter(dialogAdapter);
+    
+    ImageButton backButton = dialogView.findViewById(R.id.back_button);
+    backButton.setOnClickListener(v -> dismissVersionDialog());
+    
+    versionDialog = new AlertDialog.Builder(requireContext())
+        .setView(dialogView)
+        .setCancelable(true)
+        .create();
+    
+    versionDialog.setOnShowListener(dialogInterface -> {
+        View rootView = dialogView.findViewById(R.id.header_container);
+        DynamicAnim.animateDialogShow(rootView);
+        DynamicAnim.staggerRecyclerChildren(recyclerView);
+    });
+    
+    versionDialog.show();
+}
+
+private void dismissVersionDialog() {
+    if (versionDialog != null && versionDialog.isShowing()) {
+        View rootView = versionDialog.findViewById(R.id.header_container);
+        DynamicAnim.animateDialogDismiss(rootView, () -> {
+            versionDialog.dismiss();
+            versionDialog = null;
+        });
+    }
 }
 
 private void onVersionSelected(GameVersion version) {
     versionManager.selectVersion(version);
     updateVersionDisplay();
-    versionAdapter.notifyDataSetChanged();}
-    
-    private void toggleVersionList() {
-    if (isRecyclerVisible) {
-        versionRecyclerView.setVisibility(View.GONE);
-        isRecyclerVisible = false;
-    } else {
-        versionManager.loadAllVersions();
-        versionAdapter.updateVersions(versionManager.getInstalledVersions());
-        versionRecyclerView.setVisibility(View.VISIBLE);
-        isRecyclerVisible = true;
-    }
+    dismissVersionDialog();
 }
 
     private void updateVersionDisplay() {

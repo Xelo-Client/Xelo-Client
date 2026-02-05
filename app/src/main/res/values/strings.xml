@@ -96,5 +96,7 @@
 
 Add mods from the
 main menu first</string>
+<string name="game_version_select_title">Select Version</string>
+<string name="back">Back</string>
 
 </resources>
