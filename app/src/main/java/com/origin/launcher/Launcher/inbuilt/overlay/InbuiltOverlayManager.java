@@ -148,4 +148,10 @@ public ZoomOverlay getZoomOverlay() {
         overlays.clear();
         instance = null;
     }
+    
+    public void tick() {
+        for (BaseOverlayButton overlay : overlays) {
+            overlay.tick();
+        }
+    }
 }

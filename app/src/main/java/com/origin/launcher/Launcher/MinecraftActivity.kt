@@ -165,6 +165,11 @@ class MinecraftActivity : MainActivity() {
             super.getFilesDir()
         }
     }
+    
+    override fun tick() {
+        super.tick()
+        overlayManager?.tick()
+    }
 
     override fun getDataDir(): File {
         val mcPath = intent.getStringExtra("MC_PATH")
