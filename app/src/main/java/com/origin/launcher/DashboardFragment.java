@@ -481,7 +481,7 @@ public class DashboardFragment extends BaseThemedFragment {
             undoStack.push(originalOptionsContent);
             
             // Show editor and disable edit button
-            optionsEditorLayout.setVisibility(View.VISIBLE);
+            optionsEditorLayout.setVisibility(View.GONE);
             editOptionsButton.setEnabled(false);
             editOptionsButton.setText("Editor Open");
             

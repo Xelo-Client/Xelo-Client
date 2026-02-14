@@ -13,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.materialswitch.MaterialSwitch;
+import com.google.android.material.button.MaterialButton;
 import org.json.JSONException;
 import org.json.JSONObject;
 import java.io.BufferedReader;
@@ -20,11 +21,17 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import android.graphics.Typeface;
 import android.view.Gravity;
 import android.content.Intent;
+import android.net.Uri;
+import android.provider.MediaStore;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 
 import com.origin.launcher.InbuiltModsActivity;
 
@@ -34,6 +41,7 @@ public class ModulesFragment extends BaseThemedFragment {
     private ScrollView modulesScrollView;
     private LinearLayout modulesContainer;
     private List<ModuleItem> moduleItems;
+    private ActivityResultLauncher<Intent> imagePickerLauncher;
     
     // Module data class
     private static class ModuleItem {
@@ -55,6 +63,24 @@ public class ModulesFragment extends BaseThemedFragment {
         public String getConfigKey() { return configKey; }
         public boolean isEnabled() { return enabled; }
         public void setEnabled(boolean enabled) { this.enabled = enabled; }
+    }
+    
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        
+        // Initialize image picker launcher
+        imagePickerLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == getActivity().RESULT_OK && result.getData() != null) {
+                    Uri imageUri = result.getData().getData();
+                    if (imageUri != null) {
+                        saveCrosshairImage(imageUri);
+                    }
+                }
+            }
+        );
     }
     
     @Override
@@ -141,6 +167,22 @@ moduleItems.add(new ModuleItem("Custom CrossHair", "lets you use your own CrossH
             View moduleView = createModuleView(module);
             modulesContainer.addView(moduleView);
             
+            // Add upload button after Custom CrossHair module
+            if (module.getConfigKey().equals("custom_cross_hair")) {
+                // Add spacing before button
+                View spacer = new View(getContext());
+                LinearLayout.LayoutParams spacerParams = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT, 
+                    (int) (12 * getResources().getDisplayMetrics().density)
+                );
+                spacer.setLayoutParams(spacerParams);
+                modulesContainer.addView(spacer);
+                
+                // Add upload button
+                MaterialButton uploadButton = createUploadButton();
+                modulesContainer.addView(uploadButton);
+            }
+            
             // Add spacing between cards
             if (i < moduleItems.size() - 1) {
                 View spacer = new View(getContext());
@@ -151,6 +193,82 @@ moduleItems.add(new ModuleItem("Custom CrossHair", "lets you use your own CrossH
                 spacer.setLayoutParams(params);
                 modulesContainer.addView(spacer);
             }
+        }
+    }
+    
+    private MaterialButton createUploadButton() {
+        MaterialButton uploadButton = new MaterialButton(requireContext());
+        
+        // Layout params
+        LinearLayout.LayoutParams buttonParams = new LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        uploadButton.setLayoutParams(buttonParams);
+        
+        // Button styling
+        uploadButton.setText("Upload crosshair");
+        uploadButton.setTextSize(16);
+        uploadButton.setAllCaps(false);
+        
+        // Apply theme colors
+        int primaryColor = ThemeManager.getInstance().getColor("primary");
+        int onPrimaryColor = ThemeManager.getInstance().getColor("onPrimary");
+        uploadButton.setBackgroundColor(primaryColor);
+        uploadButton.setTextColor(onPrimaryColor);
+        
+        // Set corner radius
+        uploadButton.setCornerRadius((int) (8 * getResources().getDisplayMetrics().density));
+        
+        // Add padding
+        int paddingVertical = (int) (12 * getResources().getDisplayMetrics().density);
+        uploadButton.setPadding(0, paddingVertical, 0, paddingVertical);
+        
+        // Set click listener
+        uploadButton.setOnClickListener(v -> openImagePicker());
+        
+        return uploadButton;
+    }
+    
+    private void openImagePicker() {
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        intent.setType("image/*");
+        imagePickerLauncher.launch(intent);
+    }
+    
+    private void saveCrosshairImage(Uri imageUri) {
+        try {
+            // Create target directory
+            File targetDir = new File("/storage/emulated/0/games/xelo_client/custom_cross_hair");
+            if (!targetDir.exists()) {
+                boolean created = targetDir.mkdirs();
+                if (!created) {
+                    Toast.makeText(requireContext(), "Failed to create crosshair directory", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+            }
+            
+            // Create target file
+            File targetFile = new File(targetDir, "cross_hair.png");
+            
+            // Copy image from URI to target file
+            InputStream inputStream = requireContext().getContentResolver().openInputStream(imageUri);
+            FileOutputStream outputStream = new FileOutputStream(targetFile);
+            
+            byte[] buffer = new byte[4096];
+            int bytesRead;
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, bytesRead);
+            }
+            
+            inputStream.close();
+            outputStream.close();
+            
+            Toast.makeText(requireContext(), "Crosshair uploaded successfully!", Toast.LENGTH_SHORT).show();
+            
+        } catch (IOException e) {
+            Toast.makeText(requireContext(), "Failed to upload crosshair: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            e.printStackTrace();
         }
     }
     
@@ -188,94 +306,103 @@ private View createModuleView(ModuleItem module) {
     LinearLayout.LayoutParams textParams = new LinearLayout.LayoutParams(
             0,
             LinearLayout.LayoutParams.WRAP_CONTENT,
-            1.0f
+            1f // Weight 1 to take remaining space
     );
     textLayout.setLayoutParams(textParams);
 
-    // Module name (EXACTLY matching ThemesFragment pattern)
-    TextView moduleNameText = new TextView(requireContext());
-    moduleNameText.setText(module.getName());
-    moduleNameText.setTextSize(16);
-    moduleNameText.setTypeface(null, android.graphics.Typeface.BOLD);
-    ThemeUtils.applyThemeToTextView(moduleNameText, "onSurface");
+    // Module name (EXACTLY matching ThemesFragment title)
+    TextView nameText = new TextView(requireContext());
+    nameText.setText(module.getName());
+    nameText.setTextSize(18);
+    nameText.setTypeface(null, Typeface.BOLD);
+    nameText.setTextColor(ThemeManager.getInstance().getColor("onSurface"));
+    textLayout.addView(nameText);
 
-    // Module description (EXACTLY matching ThemesFragment pattern)
-    TextView moduleDescriptionText = new TextView(requireContext());
-    moduleDescriptionText.setText(module.getDescription());
-    moduleDescriptionText.setTextSize(14);
-    ThemeUtils.applyThemeToTextView(moduleDescriptionText, "onSurfaceVariant");
+    // Module description (EXACTLY matching ThemesFragment description)
+    TextView descText = new TextView(requireContext());
+    descText.setText(module.getDescription());
+    descText.setTextSize(14);
+    descText.setTextColor(ThemeManager.getInstance().getColor("onSurfaceVariant"));
     LinearLayout.LayoutParams descParams = new LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.WRAP_CONTENT,
             LinearLayout.LayoutParams.WRAP_CONTENT
     );
-    descParams.topMargin = (int) (8 * getResources().getDisplayMetrics().density);
-    moduleDescriptionText.setLayoutParams(descParams);
+    descParams.topMargin = (int) (4 * getResources().getDisplayMetrics().density);
+    descText.setLayoutParams(descParams);
+    textLayout.addView(descText);
 
-    textLayout.addView(moduleNameText);
-    textLayout.addView(moduleDescriptionText);
+    mainLayout.addView(textLayout);
 
-    // Right side container for switch / open text
+    // Right container for switch/button (EXACTLY matching ThemesFragment)
     LinearLayout rightContainer = new LinearLayout(requireContext());
     rightContainer.setOrientation(LinearLayout.HORIZONTAL);
-    rightContainer.setGravity(android.view.Gravity.CENTER_VERTICAL);
+    rightContainer.setGravity(Gravity.CENTER_VERTICAL);
     LinearLayout.LayoutParams rightParams = new LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.WRAP_CONTENT,
             LinearLayout.LayoutParams.WRAP_CONTENT
     );
-    rightParams.setMarginStart((int) (16 * getResources().getDisplayMetrics().density));
     rightContainer.setLayoutParams(rightParams);
 
-    if ("inbuilt_mods_entry".equals(module.getConfigKey())) {
-        // This card opens the Inbuilt Mods screen
-        TextView openText = new TextView(requireContext());
-        openText.setText(">");
-        openText.setTextSize(14);
-        openText.setTypeface(null, android.graphics.Typeface.BOLD);
-        ThemeUtils.applyThemeToTextView(openText, "primary");
-        rightContainer.addView(openText);
-
-        moduleCard.setOnClickListener(v -> {
-            try {
-                startActivity(new android.content.Intent(
-                        requireContext(),
-                        com.origin.launcher.InbuiltModsActivity.class
-                ));
-            } catch (Exception e) {
-                Toast.makeText(requireContext(),
-                        "Failed to open in-built mods: " + e.getMessage(),
-                        Toast.LENGTH_SHORT).show();
-            }
-        });
-    } else {
-        // Module switch - PRESERVING CONFIG FUNCTIONALITY
-        MaterialSwitch moduleSwitch = new MaterialSwitch(requireContext());
-        LinearLayout.LayoutParams switchParams = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
+    // Check if this is the "Touch Modules" entry
+    if (module.getConfigKey().equals("inbuilt_mods_entry")) {
+        // Create arrow button instead of switch
+        ImageView arrowButton = new ImageView(requireContext());
+        arrowButton.setImageResource(android.R.drawable.ic_menu_more);
+        arrowButton.setColorFilter(ThemeManager.getInstance().getColor("onSurfaceVariant"));
+        
+        LinearLayout.LayoutParams arrowParams = new LinearLayout.LayoutParams(
+                (int) (24 * getResources().getDisplayMetrics().density),
+                (int) (24 * getResources().getDisplayMetrics().density)
         );
-        moduleSwitch.setLayoutParams(switchParams);
+        arrowButton.setLayoutParams(arrowParams);
+        arrowButton.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+        
+        rightContainer.addView(arrowButton);
+        
+        // Make the entire card clickable to launch InbuiltModsActivity
+        moduleCard.setOnClickListener(v -> {
+            Intent intent = new Intent(requireContext(), InbuiltModsActivity.class);
+            startActivity(intent);
+        });
+        
+    } else {
+        // Create switch (EXACTLY matching ThemesFragment pattern)
+        MaterialSwitch moduleSwitch = new MaterialSwitch(requireContext());
         moduleSwitch.setChecked(module.isEnabled());
-        moduleSwitch.setClickable(true);
-        moduleSwitch.setFocusable(true);
-
-        // Apply theme to the switch - PRESERVING CONFIG FUNCTIONALITY
-        ThemeUtils.applyThemeToSwitch(moduleSwitch, requireContext());
-
-        // PRESERVE the config editing functionality
         moduleSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             module.setEnabled(isChecked);
             onModuleToggle(module, isChecked);
         });
 
+        // Apply theme colors to the switch
+        int primaryColor = ThemeManager.getInstance().getColor("primary");
+        int surfaceColor = ThemeManager.getInstance().getColor("surface");
+        moduleSwitch.setThumbTintList(android.content.res.ColorStateList.valueOf(
+                module.isEnabled() ? primaryColor : surfaceColor
+        ));
+        moduleSwitch.setTrackTintList(android.content.res.ColorStateList.valueOf(
+                module.isEnabled() ? adjustAlpha(primaryColor, 0.5f) : adjustAlpha(surfaceColor, 0.5f)
+        ));
+
         rightContainer.addView(moduleSwitch);
+        
+        // Make card toggle the switch when clicked
+        moduleCard.setOnClickListener(v -> moduleSwitch.setChecked(!moduleSwitch.isChecked()));
     }
 
-    // Add both sides to main layout and to card
-    mainLayout.addView(textLayout);
     mainLayout.addView(rightContainer);
     moduleCard.addView(mainLayout);
 
     return moduleCard;
+}
+
+// Helper method to adjust alpha
+private int adjustAlpha(int color, float factor) {
+    int alpha = Math.round(android.graphics.Color.alpha(color) * factor);
+    int red = android.graphics.Color.red(color);
+    int green = android.graphics.Color.green(color);
+    int blue = android.graphics.Color.blue(color);
+    return android.graphics.Color.argb(alpha, red, green, blue);
 }
     
     private void onModuleToggle(ModuleItem module, boolean isEnabled) {
