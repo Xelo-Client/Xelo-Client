@@ -139,13 +139,17 @@ public class InbuiltOverlayManager {
         }
         if (modManager.isModAdded(ModIds.FPS_DISPLAY)) {
             int[] pos = getStartPosition(ModIds.FPS_DISPLAY, START_X, nextY);
-            fpsDisplayOverlay = new FpsDisplayOverlay(activity);
+            if (fpsDisplayOverlay == null) {
+    fpsDisplayOverlay = new FpsDisplayOverlay(activity);
+            }
             fpsDisplayOverlay.show(pos[0], pos[1]);
             nextY += SPACING;
         }
         if (modManager.isModAdded(ModIds.CPS_DISPLAY)) {
             int[] pos = getStartPosition(ModIds.CPS_DISPLAY, START_X, nextY);
-            cpsDisplayOverlay = new CpsDisplayOverlay(activity);
+            if (cpsDisplayOverlay == null) {
+    cpsDisplayOverlay = new CpsDisplayOverlay(activity);
+            }
             cpsDisplayOverlay.show(pos[0], pos[1]);
             nextY += SPACING;
         }
