@@ -90,6 +90,10 @@ public class InbuiltOverlayManager {
     }
 
     public void showEnabledOverlays() {
+        for (BaseOverlayButton overlay : overlays) {
+            overlay.hide();
+        }
+        overlays.clear();
         nextY = 150;
 
         ModMenuOverlay modMenu = new ModMenuOverlay(activity);
@@ -165,11 +169,6 @@ public class InbuiltOverlayManager {
         } else {
             modManager.addMod(modId);
         }
-        refreshOverlays();
-    }
-
-    public void refreshOverlays() {
-        hideAllOverlays();
         showEnabledOverlays();
     }
 
@@ -181,7 +180,7 @@ public class InbuiltOverlayManager {
         for (String id : allIds) {
             modManager.addMod(id);
         }
-        refreshOverlays();
+        showEnabledOverlays();
     }
 
     public void disableAllMods() {
@@ -192,6 +191,6 @@ public class InbuiltOverlayManager {
         for (String id : allIds) {
             modManager.removeMod(id);
         }
-        refreshOverlays();
+        showEnabledOverlays();
     }
 }

@@ -25,7 +25,7 @@ public class ModMenuOverlay extends BaseOverlayButton {
 
     @Override
     protected void onOverlayViewCreated(ImageButton btn) {
-        btn.setBackgroundResource(R.drawable.bg_mod_menu_button);
+        btn.setBackgroundResource(R.drawable.round_button_bg);
     }
 
     @Override
