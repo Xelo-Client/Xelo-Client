@@ -3,10 +3,9 @@ package com.origin.launcher;
 import android.app.Activity;
 import android.app.Dialog;
 import android.graphics.Color;
-import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.view.Window;
 
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -31,15 +30,7 @@ public class ModMenuDialog {
         dialog = new Dialog(activity);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.dialog_mod_menu);
-
-        int primaryColor = ContextCompat.getColor(activity, R.color.primary);
-        GradientDrawable bg = new GradientDrawable();
-        bg.setShape(GradientDrawable.RECTANGLE);
-        bg.setColor(Color.BLACK);
-        bg.setStroke(2, primaryColor);
-        bg.setCornerRadius(32f);
-        dialog.getWindow().setBackgroundDrawable(bg);
-
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.getWindow().setLayout(
                 (int) (activity.getResources().getDisplayMetrics().widthPixels * 0.85),
                 android.view.ViewGroup.LayoutParams.WRAP_CONTENT

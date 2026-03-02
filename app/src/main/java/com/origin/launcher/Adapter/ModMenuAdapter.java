@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 
 import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModManager;
+import com.origin.launcher.Launcher.inbuilt.overlay.InbuiltOverlayManager;
 import com.origin.launcher.R;
 
 import java.util.List;
@@ -50,10 +51,9 @@ public class ModMenuAdapter extends RecyclerView.Adapter<ModMenuAdapter.ViewHold
         holder.modSwitch.setOnCheckedChangeListener(null);
         holder.modSwitch.setChecked(modManager.isModAdded(entry.modId));
         holder.modSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (isChecked) {
-                modManager.addMod(entry.modId);
-            } else {
-                modManager.removeMod(entry.modId);
+            InbuiltOverlayManager overlayManager = InbuiltOverlayManager.getInstance();
+            if (overlayManager != null) {
+                overlayManager.toggleMod(entry.modId);
             }
             holder.modSwitch.setChecked(modManager.isModAdded(entry.modId));
         });
