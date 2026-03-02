@@ -171,14 +171,14 @@ public abstract class BaseOverlayButton {
                 }
                 return true;
             case MotionEvent.ACTION_UP:
-                long elapsed = SystemClock.uptimeMillis() - touchDownTime;
-                if (isDragging && InbuiltModSizeStore.getInstance().isLocked(getModId())) {
-                    InbuiltModSizeStore store = InbuiltModSizeStore.getInstance();
-                    store.setPositionX(getModId(), wmParams.x);
-                    store.setPositionY(getModId(), wmParams.y);
-                } else if (elapsed < TAP_TIMEOUT) {
-                    handler.post(this::onButtonClick);
-                }
+    long elapsed = SystemClock.uptimeMillis() - touchDownTime;
+    if (isDragging) {
+        InbuiltModSizeStore store = InbuiltModSizeStore.getInstance();
+        store.setPositionX(getModId(), wmParams.x);
+        store.setPositionY(getModId(), wmParams.y);
+    } else if (elapsed < TAP_TIMEOUT) {
+        handler.post(this::onButtonClick);
+    }
                 isDragging = false;
                 v.getParent().requestDisallowInterceptTouchEvent(false);
                 return true;
@@ -219,14 +219,14 @@ public abstract class BaseOverlayButton {
                 }
                 return true;
             case MotionEvent.ACTION_UP:
-                long elapsed = SystemClock.uptimeMillis() - touchDownTime;
-                if (isDragging && InbuiltModSizeStore.getInstance().isLocked(getModId())) {
-                    InbuiltModSizeStore store = InbuiltModSizeStore.getInstance();
-                    store.setPositionX(getModId(), params.leftMargin);
-                    store.setPositionY(getModId(), params.topMargin);
-                } else if (elapsed < TAP_TIMEOUT) {
-                    handler.post(this::onButtonClick);
-                }
+    long elapsed = SystemClock.uptimeMillis() - touchDownTime;
+    if (isDragging) {
+        InbuiltModSizeStore store = InbuiltModSizeStore.getInstance();
+        store.setPositionX(getModId(), params.leftMargin);
+        store.setPositionY(getModId(), params.topMargin);
+    } else if (elapsed < TAP_TIMEOUT) {
+        handler.post(this::onButtonClick);
+    }
                 isDragging = false;
                 v.getParent().requestDisallowInterceptTouchEvent(false);
                 return true;
