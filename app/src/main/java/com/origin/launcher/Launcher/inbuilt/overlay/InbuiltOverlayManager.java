@@ -167,56 +167,10 @@ public class InbuiltOverlayManager {
     public void toggleMod(String modId) {
         if (modManager.isModAdded(modId)) {
             modManager.removeMod(modId);
-            hideModOverlay(modId);
         } else {
             modManager.addMod(modId);
-            showSingleModOverlay(modId);
         }
-    }
-
-    private void hideModOverlay(String modId) {
-        BaseOverlayButton toRemove = null;
-        for (BaseOverlayButton overlay : overlays) {
-            if (modId.equals(ModIds.QUICK_DROP) && overlay instanceof QuickDropOverlay) { toRemove = overlay; break; }
-            if (modId.equals(ModIds.CAMERA_PERSPECTIVE) && overlay instanceof CameraPerspectiveOverlay) { toRemove = overlay; break; }
-            if (modId.equals(ModIds.TOGGLE_HUD) && overlay instanceof ToggleHudOverlay) { toRemove = overlay; break; }
-            if (modId.equals(ModIds.AUTO_SPRINT) && overlay instanceof AutoSprintOverlay) { toRemove = overlay; break; }
-            if (modId.equals(ModIds.ZOOM) && overlay instanceof ZoomOverlay) { zoomOverlay = null; toRemove = overlay; break; }
-            if (modId.equals(ModIds.FPS_DISPLAY)) { fpsDisplayOverlay = null; toRemove = overlay; break; }
-if (modId.equals(ModIds.CPS_DISPLAY)) { cpsDisplayOverlay = null; toRemove = overlay; break; }
-        }
-        if (toRemove != null) {
-            toRemove.hide();
-            overlays.remove(toRemove);
-        }
-    }
-
-    private void showSingleModOverlay(String modId) {
-        int defaultY = 150 + (overlays.size() * SPACING);
-        int[] pos = getStartPosition(modId, START_X, defaultY);
-        if (modId.equals(ModIds.QUICK_DROP)) {
-            QuickDropOverlay o = new QuickDropOverlay(activity);
-            o.show(pos[0], pos[1]); overlays.add(o);
-        } else if (modId.equals(ModIds.CAMERA_PERSPECTIVE)) {
-            CameraPerspectiveOverlay o = new CameraPerspectiveOverlay(activity);
-            o.show(pos[0], pos[1]); overlays.add(o);
-        } else if (modId.equals(ModIds.TOGGLE_HUD)) {
-            ToggleHudOverlay o = new ToggleHudOverlay(activity);
-            o.show(pos[0], pos[1]); overlays.add(o);
-        } else if (modId.equals(ModIds.AUTO_SPRINT)) {
-            AutoSprintOverlay o = new AutoSprintOverlay(activity, modManager.getAutoSprintKey());
-            o.show(pos[0], pos[1]); overlays.add(o);
-        } else if (modId.equals(ModIds.ZOOM)) {
-            zoomOverlay = new ZoomOverlay(activity);
-            zoomOverlay.initializeForKeyboard();
-            zoomOverlay.show(pos[0], pos[1]); overlays.add(zoomOverlay);
-        } else if (modId.equals(ModIds.FPS_DISPLAY)) {
-            fpsDisplayOverlay = new FpsDisplayOverlay(activity);
-            fpsDisplayOverlay.show(pos[0], pos[1]);
-        } else if (modId.equals(ModIds.CPS_DISPLAY)) {
-            cpsDisplayOverlay = new CpsDisplayOverlay(activity);
-            cpsDisplayOverlay.show(pos[0], pos[1]);
-        }
+        showEnabledOverlays();
     }
 
     public void enableAllMods() {
