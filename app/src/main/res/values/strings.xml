@@ -99,4 +99,9 @@ main menu first</string>
 <string name="game_version_select_title">Select Version</string>
 <string name="back">Back</string>
 
+<!-- mod menu -->
+<string name="mod_menu_title">Mod Menu</string>
+<string name="mod_menu_enable_all">Enable All</string>
+<string name="mod_menu_disable_all">Disable All</string>
+
 </resources>
