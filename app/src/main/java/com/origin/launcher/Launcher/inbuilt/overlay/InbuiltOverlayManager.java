@@ -19,7 +19,6 @@ public class InbuiltOverlayManager {
     private final Activity activity;
     private final List<BaseOverlayButton> overlays = new ArrayList<>();
     private final InbuiltModManager modManager;
-    private int nextY = 150;
     private static final int SPACING = 70;
     private static final int START_X = 50;
     private FpsDisplayOverlay fpsDisplayOverlay;
@@ -94,7 +93,7 @@ public class InbuiltOverlayManager {
             overlay.hide();
         }
         overlays.clear();
-        nextY = 150;
+        int nextY = 150;
 
         ModMenuOverlay modMenu = new ModMenuOverlay(activity);
         int[] menuPos = getStartPosition("mod_menu", START_X, 50);
@@ -139,13 +138,15 @@ public class InbuiltOverlayManager {
             nextY += SPACING;
         }
         if (modManager.isModAdded(ModIds.FPS_DISPLAY)) {
+            int[] pos = getStartPosition(ModIds.FPS_DISPLAY, START_X, nextY);
             fpsDisplayOverlay = new FpsDisplayOverlay(activity);
-            fpsDisplayOverlay.show(START_X, nextY);
+            fpsDisplayOverlay.show(pos[0], pos[1]);
             nextY += SPACING;
         }
         if (modManager.isModAdded(ModIds.CPS_DISPLAY)) {
+            int[] pos = getStartPosition(ModIds.CPS_DISPLAY, START_X, nextY);
             cpsDisplayOverlay = new CpsDisplayOverlay(activity);
-            cpsDisplayOverlay.show(START_X, nextY);
+            cpsDisplayOverlay.show(pos[0], pos[1]);
             nextY += SPACING;
         }
     }
@@ -166,10 +167,56 @@ public class InbuiltOverlayManager {
     public void toggleMod(String modId) {
         if (modManager.isModAdded(modId)) {
             modManager.removeMod(modId);
+            hideModOverlay(modId);
         } else {
             modManager.addMod(modId);
+            showSingleModOverlay(modId);
         }
-        showEnabledOverlays();
+    }
+
+    private void hideModOverlay(String modId) {
+        BaseOverlayButton toRemove = null;
+        for (BaseOverlayButton overlay : overlays) {
+            if (modId.equals(ModIds.QUICK_DROP) && overlay instanceof QuickDropOverlay) { toRemove = overlay; break; }
+            if (modId.equals(ModIds.CAMERA_PERSPECTIVE) && overlay instanceof CameraPerspectiveOverlay) { toRemove = overlay; break; }
+            if (modId.equals(ModIds.TOGGLE_HUD) && overlay instanceof ToggleHudOverlay) { toRemove = overlay; break; }
+            if (modId.equals(ModIds.AUTO_SPRINT) && overlay instanceof AutoSprintOverlay) { toRemove = overlay; break; }
+            if (modId.equals(ModIds.ZOOM) && overlay instanceof ZoomOverlay) { zoomOverlay = null; toRemove = overlay; break; }
+            if (modId.equals(ModIds.FPS_DISPLAY) && overlay instanceof FpsDisplayOverlay) { fpsDisplayOverlay = null; toRemove = overlay; break; }
+            if (modId.equals(ModIds.CPS_DISPLAY) && overlay instanceof CpsDisplayOverlay) { cpsDisplayOverlay = null; toRemove = overlay; break; }
+        }
+        if (toRemove != null) {
+            toRemove.hide();
+            overlays.remove(toRemove);
+        }
+    }
+
+    private void showSingleModOverlay(String modId) {
+        int defaultY = 150 + (overlays.size() * SPACING);
+        int[] pos = getStartPosition(modId, START_X, defaultY);
+        if (modId.equals(ModIds.QUICK_DROP)) {
+            QuickDropOverlay o = new QuickDropOverlay(activity);
+            o.show(pos[0], pos[1]); overlays.add(o);
+        } else if (modId.equals(ModIds.CAMERA_PERSPECTIVE)) {
+            CameraPerspectiveOverlay o = new CameraPerspectiveOverlay(activity);
+            o.show(pos[0], pos[1]); overlays.add(o);
+        } else if (modId.equals(ModIds.TOGGLE_HUD)) {
+            ToggleHudOverlay o = new ToggleHudOverlay(activity);
+            o.show(pos[0], pos[1]); overlays.add(o);
+        } else if (modId.equals(ModIds.AUTO_SPRINT)) {
+            AutoSprintOverlay o = new AutoSprintOverlay(activity, modManager.getAutoSprintKey());
+            o.show(pos[0], pos[1]); overlays.add(o);
+        } else if (modId.equals(ModIds.ZOOM)) {
+            zoomOverlay = new ZoomOverlay(activity);
+            zoomOverlay.initializeForKeyboard();
+            zoomOverlay.show(pos[0], pos[1]); overlays.add(zoomOverlay);
+        } else if (modId.equals(ModIds.FPS_DISPLAY)) {
+            fpsDisplayOverlay = new FpsDisplayOverlay(activity);
+            fpsDisplayOverlay.show(pos[0], pos[1]);
+        } else if (modId.equals(ModIds.CPS_DISPLAY)) {
+            cpsDisplayOverlay = new CpsDisplayOverlay(activity);
+            cpsDisplayOverlay.show(pos[0], pos[1]);
+        }
     }
 
     public void enableAllMods() {
