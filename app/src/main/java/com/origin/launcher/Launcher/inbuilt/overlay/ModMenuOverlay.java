@@ -20,7 +20,7 @@ public class ModMenuOverlay extends BaseOverlayButton {
 
     @Override
     protected int getIconResource() {
-        return R.mipmap.ic_launcher;
+        return R.drawable.ic_modmenu;
     }
 
     @Override

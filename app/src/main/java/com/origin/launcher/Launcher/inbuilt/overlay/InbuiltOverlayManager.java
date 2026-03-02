@@ -90,7 +90,7 @@ public class InbuiltOverlayManager {
     }
 
     public void showEnabledOverlays() {
-        for (BaseOverlayButton overlay : overlays) {
+        for (BaseOverlayButton overlay : new ArrayList<>(overlays)) {
             overlay.hide();
         }
         overlays.clear();
@@ -151,7 +151,7 @@ public class InbuiltOverlayManager {
     }
 
     public void hideAllOverlays() {
-        for (BaseOverlayButton overlay : overlays) {
+        for (BaseOverlayButton overlay : new ArrayList<>(overlays)) {
             overlay.hide();
         }
         overlays.clear();
