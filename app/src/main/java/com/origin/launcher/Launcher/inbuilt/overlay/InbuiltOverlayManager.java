@@ -33,6 +33,7 @@ public class InbuiltOverlayManager {
     private ZoomOverlay zoomOverlay;
     private FpsDisplayOverlay fpsDisplayOverlay;
     private CpsDisplayOverlay cpsDisplayOverlay;
+    private ModMenuOverlay modMenuOverlay;
 
     public InbuiltOverlayManager(Activity activity) {
         this.activity = activity;
@@ -104,10 +105,11 @@ public class InbuiltOverlayManager {
         overlays.clear();
         int nextY = 150;
 
-        ModMenuOverlay modMenu = new ModMenuOverlay(activity);
-        int[] menuPos = getStartPosition("mod_menu", START_X, 20);
-        modMenu.show(menuPos[0], menuPos[1]);
-        overlays.add(modMenu);
+        if (modMenuOverlay == null) modMenuOverlay = new ModMenuOverlay(activity);
+        int[] menuPos =
+        getStartPosition("mod_menu", START_X, 10);
+        modMenuOverlay.show(menuPos[0], menuPos[1]);
+        overlays.add(modMenuOverlay);
         nextY += SPACING;
 
         if (modManager.isModAdded(ModIds.QUICK_DROP)) {

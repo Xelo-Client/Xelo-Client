@@ -4,7 +4,9 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.view.View;
 import android.view.Window;
+import android.widget.ImageView;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -35,6 +37,17 @@ public class ModMenuDialog {
                 (int) (activity.getResources().getDisplayMetrics().widthPixels * 0.85),
                 android.view.ViewGroup.LayoutParams.WRAP_CONTENT
         );
+
+        ImageView btnBack = dialog.findViewById(R.id.btn_back);
+        ImageView btnWrench = dialog.findViewById(R.id.btn_wrench);
+
+        btnBack.setOnClickListener(v -> {
+            InbuiltModManager.getInstance(activity).saveMods();
+            dialog.dismiss();
+        });
+
+        btnWrench.setOnClickListener(v -> {
+        });
 
         InbuiltModManager modManager = InbuiltModManager.getInstance(activity);
 
