@@ -7,9 +7,14 @@ import android.view.KeyEvent;
 import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModManager;
 import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModSizeStore;
 import com.origin.launcher.Launcher.inbuilt.model.ModIds;
-import com.origin.launcher.Launcher.inbuilt.overlay.FpsDisplayOverlay;
+import com.origin.launcher.Launcher.inbuilt.overlay.AutoSprintOverlay;
+import com.origin.launcher.Launcher.inbuilt.overlay.CameraPerspectiveOverlay;
 import com.origin.launcher.Launcher.inbuilt.overlay.CpsDisplayOverlay;
+import com.origin.launcher.Launcher.inbuilt.overlay.FpsDisplayOverlay;
 import com.origin.launcher.Launcher.inbuilt.overlay.ModMenuOverlay;
+import com.origin.launcher.Launcher.inbuilt.overlay.QuickDropOverlay;
+import com.origin.launcher.Launcher.inbuilt.overlay.ToggleHudOverlay;
+import com.origin.launcher.Launcher.inbuilt.overlay.ZoomOverlay;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,9 +26,13 @@ public class InbuiltOverlayManager {
     private final InbuiltModManager modManager;
     private static final int SPACING = 70;
     private static final int START_X = 50;
+    private QuickDropOverlay quickDropOverlay;
+    private CameraPerspectiveOverlay cameraPerspectiveOverlay;
+    private ToggleHudOverlay toggleHudOverlay;
+    private AutoSprintOverlay autoSprintOverlay;
+    private ZoomOverlay zoomOverlay;
     private FpsDisplayOverlay fpsDisplayOverlay;
     private CpsDisplayOverlay cpsDisplayOverlay;
-    private ZoomOverlay zoomOverlay;
 
     public InbuiltOverlayManager(Activity activity) {
         this.activity = activity;
@@ -96,41 +105,41 @@ public class InbuiltOverlayManager {
         int nextY = 150;
 
         ModMenuOverlay modMenu = new ModMenuOverlay(activity);
-        int[] menuPos = getStartPosition("mod_menu", START_X, 50);
+        int[] menuPos = getStartPosition("mod_menu", START_X, 20);
         modMenu.show(menuPos[0], menuPos[1]);
         overlays.add(modMenu);
         nextY += SPACING;
 
         if (modManager.isModAdded(ModIds.QUICK_DROP)) {
             int[] pos = getStartPosition(ModIds.QUICK_DROP, START_X, nextY);
-            QuickDropOverlay overlay = new QuickDropOverlay(activity);
-            overlay.show(pos[0], pos[1]);
-            overlays.add(overlay);
+            if (quickDropOverlay == null) quickDropOverlay = new QuickDropOverlay(activity);
+            quickDropOverlay.show(pos[0], pos[1]);
+            overlays.add(quickDropOverlay);
             nextY += SPACING;
         }
         if (modManager.isModAdded(ModIds.CAMERA_PERSPECTIVE)) {
             int[] pos = getStartPosition(ModIds.CAMERA_PERSPECTIVE, START_X, nextY);
-            CameraPerspectiveOverlay overlay = new CameraPerspectiveOverlay(activity);
-            overlay.show(pos[0], pos[1]);
-            overlays.add(overlay);
+            if (cameraPerspectiveOverlay == null) cameraPerspectiveOverlay = new CameraPerspectiveOverlay(activity);
+            cameraPerspectiveOverlay.show(pos[0], pos[1]);
+            overlays.add(cameraPerspectiveOverlay);
             nextY += SPACING;
         }
         if (modManager.isModAdded(ModIds.TOGGLE_HUD)) {
             int[] pos = getStartPosition(ModIds.TOGGLE_HUD, START_X, nextY);
-            ToggleHudOverlay overlay = new ToggleHudOverlay(activity);
-            overlay.show(pos[0], pos[1]);
-            overlays.add(overlay);
+            if (toggleHudOverlay == null) toggleHudOverlay = new ToggleHudOverlay(activity);
+            toggleHudOverlay.show(pos[0], pos[1]);
+            overlays.add(toggleHudOverlay);
             nextY += SPACING;
         }
         if (modManager.isModAdded(ModIds.AUTO_SPRINT)) {
             int[] pos = getStartPosition(ModIds.AUTO_SPRINT, START_X, nextY);
-            AutoSprintOverlay overlay = new AutoSprintOverlay(activity, modManager.getAutoSprintKey());
-            overlay.show(pos[0], pos[1]);
-            overlays.add(overlay);
+            if (autoSprintOverlay == null) autoSprintOverlay = new AutoSprintOverlay(activity, modManager.getAutoSprintKey());
+            autoSprintOverlay.show(pos[0], pos[1]);
+            overlays.add(autoSprintOverlay);
             nextY += SPACING;
         }
         if (modManager.isModAdded(ModIds.ZOOM)) {
-            zoomOverlay = new ZoomOverlay(activity);
+            if (zoomOverlay == null) zoomOverlay = new ZoomOverlay(activity);
             zoomOverlay.initializeForKeyboard();
             int[] pos = getStartPosition(ModIds.ZOOM, START_X, nextY);
             zoomOverlay.show(pos[0], pos[1]);
@@ -139,17 +148,13 @@ public class InbuiltOverlayManager {
         }
         if (modManager.isModAdded(ModIds.FPS_DISPLAY)) {
             int[] pos = getStartPosition(ModIds.FPS_DISPLAY, START_X, nextY);
-            if (fpsDisplayOverlay == null) {
-    fpsDisplayOverlay = new FpsDisplayOverlay(activity);
-            }
+            if (fpsDisplayOverlay == null) fpsDisplayOverlay = new FpsDisplayOverlay(activity);
             fpsDisplayOverlay.show(pos[0], pos[1]);
             nextY += SPACING;
         }
         if (modManager.isModAdded(ModIds.CPS_DISPLAY)) {
             int[] pos = getStartPosition(ModIds.CPS_DISPLAY, START_X, nextY);
-            if (cpsDisplayOverlay == null) {
-    cpsDisplayOverlay = new CpsDisplayOverlay(activity);
-            }
+            if (cpsDisplayOverlay == null) cpsDisplayOverlay = new CpsDisplayOverlay(activity);
             cpsDisplayOverlay.show(pos[0], pos[1]);
             nextY += SPACING;
         }

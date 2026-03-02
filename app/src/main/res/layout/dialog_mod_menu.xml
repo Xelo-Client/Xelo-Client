@@ -4,17 +4,17 @@
     android:layout_height="wrap_content"
     android:background="@drawable/bg_mod_menu_dialog"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="12dp">
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/mod_menu_title"
+        android:text="Xelo Client"
         android:textColor="@color/primary"
-        android:textSize="20sp"
+        android:textSize="18sp"
         android:textStyle="bold"
         android:gravity="center"
-        android:layout_marginBottom="12dp" />
+        android:layout_marginBottom="8dp" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/mod_recycler_view"
