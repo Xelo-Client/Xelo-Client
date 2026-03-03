@@ -39,7 +39,7 @@ public class ModMenuAdapter extends RecyclerView.Adapter<ModMenuAdapter.ViewHold
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_mod_toggle, parent, false);
+                .inflate(R.layout.item_mod_toggle_card, parent, false);
         return new ViewHolder(view);
     }
 
