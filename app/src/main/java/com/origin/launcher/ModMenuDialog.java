@@ -34,7 +34,7 @@ public class ModMenuDialog {
         dialog.setContentView(R.layout.dialog_mod_menu);
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.getWindow().setLayout(
-                (int) (activity.getResources().getDisplayMetrics().widthPixels * 0.85),
+                (int) (activity.getResources().getDisplayMetrics().widthPixels * 0.70),
                 android.view.ViewGroup.LayoutParams.WRAP_CONTENT
         );
 

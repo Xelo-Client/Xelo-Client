@@ -3,7 +3,6 @@ package com.origin.launcher.Adapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -12,7 +11,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModManager;
 import com.origin.launcher.Launcher.inbuilt.overlay.InbuiltOverlayManager;
-import com.origin.launcher.Launcher.inbuilt.model.ModIds;
 import com.origin.launcher.R;
 
 import java.util.List;
@@ -37,32 +35,18 @@ public class ModMenuAdapter extends RecyclerView.Adapter<ModMenuAdapter.ViewHold
         this.modManager = modManager;
     }
 
-    private int getIconForMod(String modId) {
-        switch (modId) {
-            case ModIds.QUICK_DROP: return R.drawable.q_unpress;
-            case ModIds.CAMERA_PERSPECTIVE: return R.drawable.f5_unpress;
-            case ModIds.TOGGLE_HUD: return R.drawable.f1_unpress;
-            case ModIds.AUTO_SPRINT: return R.drawable.as_unpress;
-            case ModIds.ZOOM: return R.drawable.zoom_unpress;
-            case ModIds.FPS_DISPLAY: return R.drawable.ic_fps;
-            case ModIds.CPS_DISPLAY: return R.drawable.ic_cps;
-            default: return R.mipmap.ic_launcher;
-        }
-    }
-
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_mod_menu_card, parent, false);
+                .inflate(R.layout.item_mod_toggle, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         ModEntry entry = mods.get(position);
-        holder.modCardIcon.setImageResource(getIconForMod(entry.modId));
-        holder.modCardName.setText(entry.modName);
+        holder.modName.setText(entry.modName);
         holder.modSwitch.setOnCheckedChangeListener(null);
         holder.modSwitch.setChecked(modManager.isModAdded(entry.modId));
         holder.modSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
@@ -80,15 +64,13 @@ public class ModMenuAdapter extends RecyclerView.Adapter<ModMenuAdapter.ViewHold
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        ImageView modCardIcon;
-        TextView modCardName;
+        TextView modName;
         SwitchMaterial modSwitch;
 
         ViewHolder(View view) {
             super(view);
-            modCardIcon = view.findViewById(R.id.mod_card_icon);
-            modCardName = view.findViewById(R.id.mod_card_name);
-            modSwitch = view.findViewById(R.id.mod_card_toggle);
+            modName = view.findViewById(R.id.mod_name);
+            modSwitch = view.findViewById(R.id.mod_switch);
         }
     }
 }
