@@ -11,24 +11,46 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_marginEnd="8dp"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:gravity="top">
 
-        <com.google.android.material.tabs.TabLayout
-            android:id="@+id/mod_tab_layout"
+        <TextView
+            android:id="@+id/tab_utility"
             android:layout_width="48dp"
             android:layout_height="wrap_content"
-            app:tabMode="scrollable"
-            app:tabGravity="fill_vertical"
-            app:tabIndicatorFullWidth="true"
-            app:tabIndicatorHeight="4dp"
-            app:tabIndicatorAnimationMode="linear"
-            app:tabTextColor="@color/onSurface"
-            app:tabSelectedTextColor="@color/primary"
-            app:tabIndicatorColor="@color/primary"
-            app:tabBackground="@drawable/tab_background_selector"
-            app:tabInlineLabel="true"
-            app:tabMinWidth="0dp"
-            app:tabMaxWidth="48dp" />
+            android:text="Utility"
+            android:textColor="@color/primary"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:padding="8dp"
+            android:background="@drawable/tab_background_selector"
+            android:layout_marginBottom="4dp" />
+
+        <TextView
+            android:id="@+id/tab_qol"
+            android:layout_width="48dp"
+            android:layout_height="wrap_content"
+            android:text="QoL"
+            android:textColor="@color/onSurface"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:padding="8dp"
+            android:background="@drawable/tab_background_selector"
+            android:layout_marginBottom="4dp" />
+
+        <TextView
+            android:id="@+id/tab_stats"
+            android:layout_width="48dp"
+            android:layout_height="wrap_content"
+            android:text="Stats"
+            android:textColor="@color/onSurface"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:padding="8dp"
+            android:background="@drawable/tab_background_selector" />
 
     </LinearLayout>
 
@@ -79,8 +101,8 @@
 
             <ImageView
                 android:id="@+id/btn_wrench"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
                 android:src="@drawable/wrench"
                 android:layout_marginStart="6dp"
                 android:contentDescription="Customize" />

@@ -7,17 +7,18 @@ import android.graphics.drawable.ColorDrawable;
 import android.view.View;
 import android.view.Window;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.tabs.TabLayout;
 import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModManager;
 import com.origin.launcher.Launcher.inbuilt.model.ModIds;
 import com.origin.launcher.Adapter.ModMenuAdapter;
 import com.origin.launcher.R;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class ModMenuDialog {
@@ -69,33 +70,25 @@ public class ModMenuDialog {
         recyclerView.setLayoutManager(new LinearLayoutManager(activity));
         recyclerView.setAdapter(new ModMenuAdapter(utilityMods, modManager));
 
-        TabLayout tabLayout = dialog.findViewById(R.id.mod_tab_layout);
-        tabLayout.addTab(tabLayout.newTab().setText("Utility"));
-        tabLayout.addTab(tabLayout.newTab().setText("QoL"));
-        tabLayout.addTab(tabLayout.newTab().setText("Stats"));
+        TextView tabUtility = dialog.findViewById(R.id.tab_utility);
+        TextView tabQol = dialog.findViewById(R.id.tab_qol);
+        TextView tabStats = dialog.findViewById(R.id.tab_stats);
 
-        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                switch (tab.getPosition()) {
-                    case 0:
-                        recyclerView.setAdapter(new ModMenuAdapter(utilityMods, modManager));
-                        break;
-                    case 1:
-                        recyclerView.setAdapter(new ModMenuAdapter(qolMods, modManager));
-                        break;
-                    case 2:
-                        recyclerView.setAdapter(new ModMenuAdapter(statsMods, modManager));
-                        break;
+        View[] tabs = {tabUtility, tabQol, tabStats};
+        List<List<ModMenuAdapter.ModEntry>> tabData = Arrays.asList(utilityMods, qolMods, statsMods);
+
+        for (int i = 0; i < tabs.length; i++) {
+            final int index = i;
+            tabs[i].setOnClickListener(v -> {
+                for (View t : tabs) {
+                    ((TextView) t).setTextColor(activity.getResources().getColor(R.color.onSurface, activity.getTheme()));
+                    t.setSelected(false);
                 }
-            }
-
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {}
-
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {}
-        });
+                ((TextView) tabs[index]).setTextColor(activity.getResources().getColor(R.color.primary, activity.getTheme()));
+                tabs[index].setSelected(true);
+                recyclerView.setAdapter(new ModMenuAdapter(tabData.get(index), modManager));
+            });
+        }
 
         dialog.show();
     }
