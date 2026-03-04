@@ -22,7 +22,6 @@
             android:textStyle="bold"
             android:gravity="center"
             android:padding="12dp"
-            android:selected="true"
             android:background="@drawable/tab_background_selector" />
 
         <View
