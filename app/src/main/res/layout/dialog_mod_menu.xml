@@ -8,6 +8,31 @@
     android:padding="8dp">
 
     <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_marginEnd="8dp"
+        android:orientation="vertical">
+
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/mod_tab_layout"
+            android:layout_width="48dp"
+            android:layout_height="wrap_content"
+            app:tabMode="scrollable"
+            app:tabGravity="fill_vertical"
+            app:tabIndicatorFullWidth="true"
+            app:tabIndicatorHeight="4dp"
+            app:tabIndicatorAnimationMode="linear"
+            app:tabTextColor="@color/onSurface"
+            app:tabSelectedTextColor="@color/primary"
+            app:tabIndicatorColor="@color/primary"
+            app:tabBackground="@drawable/tab_background_selector"
+            app:tabInlineLabel="true"
+            app:tabMinWidth="0dp"
+            app:tabMaxWidth="48dp" />
+
+    </LinearLayout>
+
+    <LinearLayout
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"
@@ -54,8 +79,8 @@
 
             <ImageView
                 android:id="@+id/btn_wrench"
-                android:layout_width="60dp"
-                android:layout_height="60dp"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
                 android:src="@drawable/wrench"
                 android:layout_marginStart="6dp"
                 android:contentDescription="Customize" />
@@ -66,7 +91,6 @@
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="#40FFFFFF"
-            android:layout_marginStart="56dp"
             android:layout_marginEnd="8dp" />
 
         <androidx.recyclerview.widget.RecyclerView
@@ -76,31 +100,6 @@
             android:layout_weight="1"
             android:nestedScrollingEnabled="true"
             android:layout_marginTop="8dp" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_marginStart="8dp"
-        android:orientation="vertical">
-
-        <com.google.android.material.tabs.TabLayout
-            android:id="@+id/mod_tab_layout"
-            android:layout_width="48dp"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            app:tabMode="scrollable"
-            app:tabGravity="center"
-            app:tabIndicatorFullWidth="true"
-            app:tabIndicatorHeight="4dp"
-            app:tabIndicatorAnimationMode="linear"
-            app:tabTextColor="@color/onSurface"
-            app:tabSelectedTextColor="@color/primary"
-            app:tabIndicatorColor="@color/primary"
-            app:tabBackground="@drawable/tab_background_selector"
-            app:tabInlineLabel="true"
-            app:tabMinWidth="0dp" />
 
     </LinearLayout>
 
