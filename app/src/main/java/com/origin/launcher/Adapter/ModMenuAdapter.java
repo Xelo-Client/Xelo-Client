@@ -10,7 +10,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModManager;
-import com.origin.launcher.Launcher.inbuilt.overlay.InbuiltOverlayManager;
 import com.origin.launcher.R;
 
 import java.util.List;
@@ -40,6 +39,17 @@ public class ModMenuAdapter extends RecyclerView.Adapter<ModMenuAdapter.ViewHold
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.item_mod_toggle_card, parent, false);
+
+        int horizontalMargin = (int) (4 * parent.getResources().getDisplayMetrics().density);
+        int verticalMargin = (int) (2 * parent.getResources().getDisplayMetrics().density);
+
+        RecyclerView.LayoutParams params = new RecyclerView.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        );
+        params.setMargins(horizontalMargin, verticalMargin, horizontalMargin, verticalMargin);
+        view.setLayoutParams(params);
+
         return new ViewHolder(view);
     }
 
@@ -50,9 +60,10 @@ public class ModMenuAdapter extends RecyclerView.Adapter<ModMenuAdapter.ViewHold
         holder.modSwitch.setOnCheckedChangeListener(null);
         holder.modSwitch.setChecked(modManager.isModAdded(entry.modId));
         holder.modSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            InbuiltOverlayManager overlayManager = InbuiltOverlayManager.getInstance();
-            if (overlayManager != null) {
-                overlayManager.toggleMod(entry.modId);
+            if (isChecked) {
+                modManager.addMod(entry.modId);
+            } else {
+                modManager.removeMod(entry.modId);
             }
             holder.modSwitch.setChecked(modManager.isModAdded(entry.modId));
         });
