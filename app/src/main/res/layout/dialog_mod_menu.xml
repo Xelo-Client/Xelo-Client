@@ -166,7 +166,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:layout_marginEnd="30dp"
+            android:layout_marginEnd="15dp"
             android:background="@drawable/recycler_stroke"
             android:orientation="vertical"
             android:padding="12dp">
