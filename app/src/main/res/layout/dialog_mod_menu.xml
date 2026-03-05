@@ -72,51 +72,93 @@
             android:layout_marginEnd="8dp"
             android:orientation="vertical">
 
-            <TextView
+            <LinearLayout
                 android:id="@+id/tab_utility"
-                android:layout_width="48dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Utility"
-                android:textColor="@color/primary"
-                android:textSize="11sp"
-                android:textStyle="bold"
+                android:orientation="vertical"
                 android:gravity="center"
-                android:padding="12dp"
-                android:background="@drawable/tab_background_selector" />
+                android:padding="8dp"
+                android:background="@drawable/tab_background_selector">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_utility"
+                    android:layout_marginBottom="4dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Utility"
+                    android:textColor="@color/primary"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:gravity="center" />
+
+            </LinearLayout>
 
             <View
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:layout_weight="1" />
 
-            <TextView
+            <LinearLayout
                 android:id="@+id/tab_qol"
-                android:layout_width="48dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="QoL"
-                android:textColor="@color/onSurface"
-                android:textSize="11sp"
-                android:textStyle="bold"
+                android:orientation="vertical"
                 android:gravity="center"
-                android:padding="12dp"
-                android:background="@drawable/tab_background_selector" />
+                android:padding="8dp"
+                android:background="@drawable/tab_background_selector">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_qol"
+                    android:layout_marginBottom="4dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="QoL"
+                    android:textColor="@color/onSurface"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:gravity="center" />
+
+            </LinearLayout>
 
             <View
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:layout_weight="1" />
 
-            <TextView
+            <LinearLayout
                 android:id="@+id/tab_stats"
-                android:layout_width="48dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Stats"
-                android:textColor="@color/onSurface"
-                android:textSize="11sp"
-                android:textStyle="bold"
+                android:orientation="vertical"
                 android:gravity="center"
-                android:padding="12dp"
-                android:background="@drawable/tab_background_selector" />
+                android:padding="8dp"
+                android:background="@drawable/tab_background_selector">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_stats"
+                    android:layout_marginBottom="4dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Stats"
+                    android:textColor="@color/onSurface"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:gravity="center" />
+
+            </LinearLayout>
 
         </LinearLayout>
 
@@ -124,6 +166,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
+            android:layout_marginEnd="30dp"
             android:background="@drawable/recycler_stroke"
             android:orientation="vertical"
             android:padding="12dp">
@@ -131,7 +174,7 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/mod_recycler_view"
                 android:layout_width="match_parent"
-                android:layout_height="250dp"
+                android:layout_height="220dp"
                 android:nestedScrollingEnabled="true" />
 
         </LinearLayout>

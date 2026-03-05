@@ -7,6 +7,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.view.View;
 import android.view.Window;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -70,22 +71,24 @@ public class ModMenuDialog {
         recyclerView.setLayoutManager(new LinearLayoutManager(activity));
         recyclerView.setAdapter(new ModMenuAdapter(utilityMods, modManager));
 
-        TextView tabUtility = dialog.findViewById(R.id.tab_utility);
-        TextView tabQol = dialog.findViewById(R.id.tab_qol);
-        TextView tabStats = dialog.findViewById(R.id.tab_stats);
+        LinearLayout tabUtility = dialog.findViewById(R.id.tab_utility);
+        LinearLayout tabQol = dialog.findViewById(R.id.tab_qol);
+        LinearLayout tabStats = dialog.findViewById(R.id.tab_stats);
 
-        View[] tabs = {tabUtility, tabQol, tabStats};
+        LinearLayout[] tabs = {tabUtility, tabQol, tabStats};
         List<List<ModMenuAdapter.ModEntry>> tabData = Arrays.asList(utilityMods, qolMods, statsMods);
 
         for (int i = 0; i < tabs.length; i++) {
             final int index = i;
             tabs[i].setOnClickListener(v -> {
-                for (View t : tabs) {
-                    ((TextView) t).setTextColor(activity.getResources().getColor(R.color.onSurface, activity.getTheme()));
+                for (LinearLayout t : tabs) {
                     t.setSelected(false);
+                    ((TextView) t.getChildAt(1)).setTextColor(
+                        activity.getResources().getColor(R.color.onSurface, activity.getTheme()));
                 }
-                ((TextView) tabs[index]).setTextColor(activity.getResources().getColor(R.color.primary, activity.getTheme()));
                 tabs[index].setSelected(true);
+                ((TextView) tabs[index].getChildAt(1)).setTextColor(
+                    activity.getResources().getColor(R.color.primary, activity.getTheme()));
                 recyclerView.setAdapter(new ModMenuAdapter(tabData.get(index), modManager));
             });
         }
