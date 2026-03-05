@@ -173,7 +173,7 @@
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/mod_recycler_view"
-                android:layout_width="200dp"
+                android:layout_width="500dp"
                 android:layout_height="200dp"
                 android:nestedScrollingEnabled="true" />
 
