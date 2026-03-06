@@ -9,6 +9,7 @@ public final class ModIds {
     public static final String FPS_DISPLAY = "fps_display";
     public static final String CPS_DISPLAY = "cps_display";
     public static final String THIRD_PERSON_NAMETAG = "third_person_nametag";
+    public static final String MOTION_BLUR = "motion_blur";
 
     private ModIds() {}
 }

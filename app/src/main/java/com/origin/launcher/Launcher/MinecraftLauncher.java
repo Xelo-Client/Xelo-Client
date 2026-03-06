@@ -145,7 +145,6 @@ if (!shouldLoadPlayFab(version)) {
                     gameManager.loadLibrary("MediaDecoders_Android");
                     gameManager.loadLibrary("minecraftpe");
                     gameManager.loadLibrary("mtbinloader2");
-                   // gameManager.loadLibrary("MotionBlur");
                 }
 
                 activity.runOnUiThread(() -> {

@@ -60,6 +60,7 @@ public class ModMenuDialog {
         utilityMods.add(new ModMenuAdapter.ModEntry(ModIds.TOGGLE_HUD, activity.getString(R.string.inbuilt_mod_hud)));
         utilityMods.add(new ModMenuAdapter.ModEntry(ModIds.AUTO_SPRINT, activity.getString(R.string.inbuilt_mod_autosprint)));
         utilityMods.add(new ModMenuAdapter.ModEntry(ModIds.ZOOM, activity.getString(R.string.inbuilt_mod_zoom)));
+        utilityMods.add(new ModMenuAdapter.ModEntry(ModIds.MOTION_BLUR, activity.getString(R.string.inbuilt_mod_motion_blur)));
 
         statsMods = new ArrayList<>();
         statsMods.add(new ModMenuAdapter.ModEntry(ModIds.FPS_DISPLAY, activity.getString(R.string.inbuilt_mod_fps_display)));

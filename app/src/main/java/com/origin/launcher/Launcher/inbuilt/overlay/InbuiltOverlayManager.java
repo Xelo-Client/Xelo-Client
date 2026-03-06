@@ -202,7 +202,7 @@ public class InbuiltOverlayManager {
     public void enableAllMods() {
         String[] allIds = {
             ModIds.QUICK_DROP, ModIds.CAMERA_PERSPECTIVE, ModIds.TOGGLE_HUD,
-            ModIds.AUTO_SPRINT, ModIds.ZOOM, ModIds.FPS_DISPLAY, ModIds.CPS_DISPLAY, ModIds.THIRD_PERSON_NAMETAG
+            ModIds.AUTO_SPRINT, ModIds.ZOOM, ModIds.FPS_DISPLAY, ModIds.CPS_DISPLAY, ModIds.THIRD_PERSON_NAMETAG, ModIds.MOTION_BLUR
         };
         for (String id : allIds) {
             modManager.addMod(id);
@@ -213,7 +213,8 @@ public class InbuiltOverlayManager {
     public void disableAllMods() {
         String[] allIds = {
             ModIds.QUICK_DROP, ModIds.CAMERA_PERSPECTIVE, ModIds.TOGGLE_HUD,
-            ModIds.AUTO_SPRINT, ModIds.ZOOM, ModIds.FPS_DISPLAY, ModIds.CPS_DISPLAY, ModIds.THIRD_PERSON_NAMETAG
+            ModIds.AUTO_SPRINT, ModIds.ZOOM, ModIds.FPS_DISPLAY, ModIds.CPS_DISPLAY, ModIds.THIRD_PERSON_NAMETAG,
+            ModIds.MOTION_BLUR
         };
         for (String id : allIds) {
             modManager.removeMod(id);
