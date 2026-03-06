@@ -167,14 +167,14 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:layout_marginEnd="12dp"
+            android:layout_marginEnd="15dp"
             android:background="@drawable/recycler_stroke"
             android:orientation="vertical"
             android:padding="12dp">
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/mod_recycler_view"
-                android:layout_width="500dp"
+                android:layout_width="530dp"
                 android:layout_height="200dp"
                 android:nestedScrollingEnabled="true" />
 

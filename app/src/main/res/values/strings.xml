@@ -104,4 +104,8 @@ main menu first</string>
 <string name="mod_menu_enable_all">Enable All</string>
 <string name="mod_menu_disable_all">Disable All</string>
 
+<!-- third person name tag-->
+<string name="inbuilt_mod_nametag">Third Person Name Tag</string>
+<string name="inbuilt_mod_nametag_desc">Shows name tags in third person view</string>
+
 </resources>

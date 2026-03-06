@@ -66,6 +66,7 @@ public class ModMenuDialog {
         statsMods.add(new ModMenuAdapter.ModEntry(ModIds.CPS_DISPLAY, activity.getString(R.string.inbuilt_mod_cps_display)));
 
         qolMods = new ArrayList<>();
+        qolMods.add(new ModMenuAdapter.ModEntry(ModIds.THIRD_PERSON_NAMETAG, activity.getString(R.string.inbuilt_mod_nametag)));
 
         recyclerView = dialog.findViewById(R.id.mod_recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(activity));

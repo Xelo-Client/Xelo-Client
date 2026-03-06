@@ -7,6 +7,7 @@ import android.view.KeyEvent;
 import com.origin.launcher.R;
 import com.origin.launcher.Launcher.inbuilt.model.InbuiltMod;
 import com.origin.launcher.Launcher.inbuilt.model.ModIds;
+import com.origin.launcher.Launcher.inbuilt.XeloOverlay.nativemod.NameTagMod;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -56,11 +57,11 @@ public class InbuiltModManager {
                 addedMods.contains(ModIds.QUICK_DROP)
         ));
         mods.add(new InbuiltMod(
-            ModIds.CAMERA_PERSPECTIVE,
-            context.getString(R.string.inbuilt_mod_camera),
-            context.getString(R.string.inbuilt_mod_camera_desc),
-            false,
-            addedMods.contains(ModIds.CAMERA_PERSPECTIVE)
+                ModIds.CAMERA_PERSPECTIVE,
+                context.getString(R.string.inbuilt_mod_camera),
+                context.getString(R.string.inbuilt_mod_camera_desc),
+                false,
+                addedMods.contains(ModIds.CAMERA_PERSPECTIVE)
         ));
         mods.add(new InbuiltMod(
                 ModIds.TOGGLE_HUD,
@@ -77,14 +78,21 @@ public class InbuiltModManager {
                 addedMods.contains(ModIds.AUTO_SPRINT)
         ));
         mods.add(new InbuiltMod(ModIds.ZOOM,
-            context.getString(R.string.inbuilt_mod_zoom),
-            context.getString(R.string.inbuilt_mod_zoom_desc), false, addedMods.contains(ModIds.ZOOM)));
+                context.getString(R.string.inbuilt_mod_zoom),
+                context.getString(R.string.inbuilt_mod_zoom_desc), false, addedMods.contains(ModIds.ZOOM)));
         mods.add(new InbuiltMod(ModIds.FPS_DISPLAY,
-            context.getString(R.string.inbuilt_mod_fps_display),
-            context.getString(R.string.inbuilt_mod_fps_display_desc), false, addedMods.contains(ModIds.FPS_DISPLAY)));
+                context.getString(R.string.inbuilt_mod_fps_display),
+                context.getString(R.string.inbuilt_mod_fps_display_desc), false, addedMods.contains(ModIds.FPS_DISPLAY)));
         mods.add(new InbuiltMod(ModIds.CPS_DISPLAY,
-            context.getString(R.string.inbuilt_mod_cps_display),
-            context.getString(R.string.inbuilt_mod_cps_display_desc), false, addedMods.contains(ModIds.CPS_DISPLAY)));
+                context.getString(R.string.inbuilt_mod_cps_display),
+                context.getString(R.string.inbuilt_mod_cps_display_desc), false, addedMods.contains(ModIds.CPS_DISPLAY)));
+        mods.add(new InbuiltMod(
+                ModIds.THIRD_PERSON_NAMETAG,
+                context.getString(R.string.inbuilt_mod_nametag),
+                context.getString(R.string.inbuilt_mod_nametag_desc),
+                false,
+                addedMods.contains(ModIds.THIRD_PERSON_NAMETAG)
+        ));
         return mods;
     }
 
@@ -112,11 +120,17 @@ public class InbuiltModManager {
 
     public void addMod(String modId) {
         addedMods.add(modId);
+        if (modId.equals(ModIds.THIRD_PERSON_NAMETAG)) {
+            NameTagMod.patch();
+        }
         savePrefs();
     }
 
     public void removeMod(String modId) {
         addedMods.remove(modId);
+        if (modId.equals(ModIds.THIRD_PERSON_NAMETAG)) {
+            NameTagMod.unpatch();
+        }
         savePrefs();
     }
 
@@ -131,7 +145,7 @@ public class InbuiltModManager {
     public void setAutoSprintKey(int keyCode) {
         prefs.edit().putInt(KEY_AUTOSPRINT_KEY, keyCode).apply();
     }
-    
+
     public int getZoomLevel() {
         try {
             return prefs.getInt(KEY_ZOOM_LEVEL, DEFAULT_ZOOM_LEVEL);
@@ -144,7 +158,7 @@ public class InbuiltModManager {
     public void setZoomLevel(int level) {
         prefs.edit().putInt(KEY_ZOOM_LEVEL, Math.max(10, Math.min(100, level))).apply();
     }
-    
+
     public int getZoomKeybind() {
         return prefs.getInt(KEY_ZOOM_KEYBIND, KeyEvent.KEYCODE_C);
     }
@@ -180,8 +194,8 @@ public class InbuiltModManager {
     private void savePrefs() {
         prefs.edit().putStringSet(KEY_ADDED_MODS, new HashSet<>(addedMods)).apply();
     }
-    
+
     public void setOverlayButtonLocked(String modId, boolean locked) {
-    prefs.edit().putBoolean("lock_" + modId, locked).apply();
-   }
+        prefs.edit().putBoolean("lock_" + modId, locked).apply();
+    }
 }
