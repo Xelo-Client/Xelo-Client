@@ -51,7 +51,7 @@
             android:layout_height="30dp"
             android:src="@drawable/wrench"
             android:layout_marginStart="6dp"
-            android:layout_marginEnd="10dp"
+            android:layout_marginEnd="15dp"
             android:contentDescription="Customize" />
 
     </LinearLayout>
@@ -174,7 +174,7 @@
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/mod_recycler_view"
-                android:layout_width="525dp"
+                android:layout_width="515dp"
                 android:layout_height="200dp"
                 android:nestedScrollingEnabled="true" />
 
