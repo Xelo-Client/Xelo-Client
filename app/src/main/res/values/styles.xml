@@ -42,12 +42,6 @@
         <item name="android:textColor">@color/onBackground</item>
     </style>
 
-    <style name="Base.Theme.FullScreen" parent="Theme.Material3.Dark.NoActionBar.Custom">
-        <item name="android:windowNoTitle">true</item>
-        <item name="android:windowFullscreen">true</item>
-        <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
-    </style>
-
     <style name="Theme.FullScreen.Overlay" parent="Base.Theme.FullScreen">
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowBackground">@android:color/transparent</item>
