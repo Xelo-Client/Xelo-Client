@@ -1,45 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+<style name="AppFullScreenTheme" parent="Theme.AppCompat.NoActionBar">
+    <item name="android:windowNoTitle">true</item>
+    <item name="android:windowActionBar">false</item>
+    <item name="android:windowFullscreen">true</item>
+    <item name="android:windowContentOverlay">@null</item>
+      <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
+</style>
 
-    <style name="AppFullScreenTheme" parent="Theme.AppCompat.NoActionBar">
-        <item name="android:windowNoTitle">true</item>
-        <item name="android:windowActionBar">false</item>
-        <item name="android:windowFullscreen">true</item>
-        <item name="android:windowContentOverlay">@null</item>
-        <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
-    </style>
+<style name="Theme.Material3.Dark.NoActionBar.Custom" parent="Theme.Material3.Dark.NoActionBar">
+    <item name="android:statusBarColor">@color/black</item>
+    <item name="android:navigationBarColor">@color/black</item>
+    <item name="colorPrimary">@color/primary</item>
+    <item name="colorOnPrimary">@color/onPrimary</item>
+    <item name="colorPrimaryContainer">@color/primaryContainer</item>
+    <item name="colorOnPrimaryContainer">@color/onPrimaryContainer</item>
+    <item name="colorSecondary">@color/secondary</item>
+    <item name="colorOnSecondary">@color/onSecondary</item>
+    <item name="colorSecondaryContainer">@color/secondaryContainer</item>
+    <item name="colorOnSecondaryContainer">@color/onSecondaryContainer</item>
+    <item name="colorTertiary">@color/tertiary</item>
+    <item name="colorOnTertiary">@color/onTertiary</item>
+    <item name="colorTertiaryContainer">@color/tertiaryContainer</item>
+    <item name="colorOnTertiaryContainer">@color/onTertiaryContainer</item>
+</style>
 
-    <style name="Theme.Material3.Dark.NoActionBar.Custom" parent="Theme.Material3.Dark.NoActionBar">
-        <item name="android:statusBarColor">@color/black</item>
-        <item name="android:navigationBarColor">@color/black</item>
-        <item name="colorPrimary">@color/primary</item>
-        <item name="colorOnPrimary">@color/onPrimary</item>
-        <item name="colorPrimaryContainer">@color/primaryContainer</item>
-        <item name="colorOnPrimaryContainer">@color/onPrimaryContainer</item>
-        <item name="colorSecondary">@color/secondary</item>
-        <item name="colorOnSecondary">@color/onSecondary</item>
-        <item name="colorSecondaryContainer">@color/secondaryContainer</item>
-        <item name="colorOnSecondaryContainer">@color/onSecondaryContainer</item>
-        <item name="colorTertiary">@color/tertiary</item>
-        <item name="colorOnTertiary">@color/onTertiary</item>
-        <item name="colorTertiaryContainer">@color/tertiaryContainer</item>
-        <item name="colorOnTertiaryContainer">@color/onTertiaryContainer</item>
-    </style>
+<style name="AppTitleStyle">
+    <item name="android:textSize">32sp</item>
+    <item name="android:textStyle">bold</item>
+    <item name="android:textColor">@color/onBackground</item>
+    <item name="android:gravity">center_horizontal</item>
+    <item name="android:fontFamily">sans-serif</item>
+</style>
 
-    <style name="AppTitleStyle">
-        <item name="android:textSize">32sp</item>
-        <item name="android:textStyle">bold</item>
-        <item name="android:textColor">@color/onBackground</item>
-        <item name="android:gravity">center_horizontal</item>
-        <item name="android:fontFamily">sans-serif</item>
-    </style>
-
-    <style name="ZoomKeybindDialog" parent="ThemeOverlay.Material3.Dialog.Alert">
-        <item name="colorSurface">@color/black</item>
-        <item name="android:windowBackground">@color/black</item>
-        <item name="colorOnSurface">@color/onBackground</item>
-        <item name="android:textColorPrimary">@color/onBackground</item>
-        <item name="android:textColor">@color/onBackground</item>
-    </style>
-
+<style name="ZoomKeybindDialog" parent="ThemeOverlay.Material3.Dialog.Alert">
+    <item name="colorSurface">@color/black</item>
+    <item name="android:windowBackground">@color/black</item>
+    <item name="colorOnSurface">@color/onBackground</item>
+    <item name="android:textColorPrimary">@color/onBackground</item>
+    <item name="android:textColor">@color/onBackground</item>
+</style>
+  
 </resources>

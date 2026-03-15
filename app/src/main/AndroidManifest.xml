@@ -36,7 +36,6 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
   <uses-permission android:name="android.permission.MANAGE_DOCUMENTS" />
-  <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
     <queries>
         <package android:name="com.mojang.minecraftpe" />
@@ -62,7 +61,7 @@
         
         <activity
     android:name=".InbuiltModsCustomizeActivity"
-    android:theme="@style/Theme.FullScreen.Overlay"
+    android:theme="@style/Base.Theme.FullScreen"
     android:screenOrientation="sensorLandscape"
     android:exported="false" />
 
