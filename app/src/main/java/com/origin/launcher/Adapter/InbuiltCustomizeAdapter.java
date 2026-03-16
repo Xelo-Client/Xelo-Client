@@ -75,8 +75,13 @@ public class InbuiltCustomizeAdapter extends RecyclerView.Adapter<InbuiltCustomi
     @NonNull
     @Override
     public VH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_inbuilt_customize, parent, false);
-        return new VH(v);
+    android.content.Context themedContext = new androidx.appcompat.view.ContextThemeWrapper(
+        parent.getContext(),
+        com.google.android.material.R.style.Theme_Material3_Dark_NoActionBar
+    );
+    View v = LayoutInflater.from(themedContext)
+        .inflate(R.layout.item_inbuilt_customize, parent, false);
+    return new VH(v);
     }
 
     @Override

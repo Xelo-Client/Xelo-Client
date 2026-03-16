@@ -57,6 +57,7 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
     private RecyclerView adapterRecyclerView;
     private InbuiltCustomizeAdapter adapter;
     private boolean isAdapterVisible = false;
+    private boolean isResetting = false;
     private final boolean showBackground;
     private FrameLayout adapterContainer;
     private TextView emptyAdapterText;
@@ -164,12 +165,11 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
             }
         });
 
-        View rootTouch = findViewById(R.id.customize_background);
-            if (!showBackground) {
-            View rootView = ((ViewGroup) findViewById(android.R.id.content)).getChildAt(0);
-            if (rootView != null) rootView.setBackground(null);
-            }
-            rootTouch.setOnTouchListener((v, event) -> {
+        ImageView rootTouch = findViewById(R.id.customize_background);
+        if (!showBackground) {
+        rootTouch.setImageDrawable(null);
+        }
+        rootTouch.setOnTouchListener((v, event) -> {
             if (event.getAction() == MotionEvent.ACTION_DOWN) {
                 lastSelectedButton = null;
                 lastSelectedId = null;
@@ -247,9 +247,11 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
         });
 
         resetButton.setOnClickListener(v -> {
+            isResetting = true;
             resetAll(grid);
             adapter.submitList(null);
             adapter.submitList(getEnabledMods());
+            isResetting = false;
 
             float panelW = dpToPx(280);
             int duration = 200;
@@ -327,6 +329,7 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
 
     @Override
     public void onSizeChanged(String id, int sizeDp) {
+        if (isResetting) return;
         int clamped = clampSize(sizeDp);
         modSizes.put(id, clamped);
         View btn = modButtons.get(id);
@@ -354,6 +357,7 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
 
     @Override
     public void onOpacityChanged(String id, int opacity) {
+        if (isResetting) return;
         int clamped = clampOpacity(opacity);
         modOpacity.put(id, clamped);
         View btn = modButtons.get(id);

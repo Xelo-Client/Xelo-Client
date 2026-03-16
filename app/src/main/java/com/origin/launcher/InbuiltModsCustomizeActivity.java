@@ -61,6 +61,7 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity implements 
     private RecyclerView adapterRecyclerView;
     private InbuiltCustomizeAdapter adapter;
     private boolean isAdapterVisible = false;
+    private boolean isResetting = false;
     private FrameLayout adapterContainer;
     private TextView emptyAdapterText;
 
@@ -254,9 +255,11 @@ bottomButtons.animate().translationX(-slide).setDuration(duration).start();
         });
 
         resetButton.setOnClickListener(v -> {
+            isResetting = true; 
             resetAll(grid);
             adapter.submitList(null);
             adapter.submitList(getEnabledMods());
+            isResetting = false;
 
             float panelW = dpToPx(280);
             int duration = 200;
@@ -341,6 +344,7 @@ bottomButtons.animate().translationX(-slide).setDuration(duration).start();
 
     @Override
 public void onSizeChanged(String id, int sizeDp) {
+    if (isResetting) return;
     int clamped = clampSize(sizeDp);
     modSizes.put(id, clamped);
 
@@ -372,6 +376,7 @@ public void onSizeChanged(String id, int sizeDp) {
 
     @Override
     public void onOpacityChanged(String id, int opacity) {
+        if (isResetting) return;
         int clamped = clampOpacity(opacity);
         modOpacity.put(id, clamped);
 
