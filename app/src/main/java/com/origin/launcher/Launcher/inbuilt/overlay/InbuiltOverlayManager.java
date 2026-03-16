@@ -15,6 +15,7 @@ import com.origin.launcher.Launcher.inbuilt.overlay.ModMenuOverlay;
 import com.origin.launcher.Launcher.inbuilt.overlay.QuickDropOverlay;
 import com.origin.launcher.Launcher.inbuilt.overlay.ToggleHudOverlay;
 import com.origin.launcher.Launcher.inbuilt.overlay.ZoomOverlay;
+import com.origin.launcher.Launcher.inbuilt.XeloOverlay.nativemod.NameTagMod;
 
 import java.util.ArrayList;
 import java.util.List;
