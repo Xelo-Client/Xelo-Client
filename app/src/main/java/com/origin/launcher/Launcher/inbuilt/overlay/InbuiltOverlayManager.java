@@ -192,13 +192,19 @@ public class InbuiltOverlayManager {
     }
 
     public void toggleMod(String modId) {
-        if (modManager.isModAdded(modId)) {
+            if (modManager.isModAdded(modId)) {
             modManager.removeMod(modId);
-        } else {
+            if (modId.equals(ModIds.THIRD_PERSON_NAMETAG)) {
+            NameTagMod.unpatch();
+                }
+            } else {
             modManager.addMod(modId);
+            if (modId.equals(ModIds.THIRD_PERSON_NAMETAG)) {
+            NameTagMod.patch();
+                }
+            }
+            showEnabledOverlays();
         }
-        showEnabledOverlays();
-    }
 
     public void enableAllMods() {
         String[] allIds = {

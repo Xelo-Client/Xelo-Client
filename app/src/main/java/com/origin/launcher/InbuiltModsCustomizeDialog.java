@@ -78,6 +78,10 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.MATCH_PARENT
         );
+        getWindow().setBackgroundDrawable(
+        new android.graphics.drawable.ColorDrawable(Color.TRANSPARENT)
+        );
+        getWindow().addFlags(android.view.WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL);
 
         Button resetButton = findViewById(R.id.reset_button);
         Button doneButton = findViewById(R.id.done_button);
@@ -159,6 +163,7 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
 
         ViewGroup rootContainer = (ViewGroup) findViewById(android.R.id.content);
         rootContainer.addView(adapterContainer);
+        lockSwitch.bringToFront();
 
         ThemeUtils.applyThemeToSwitch(lockSwitch, getContext());
         lockSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
