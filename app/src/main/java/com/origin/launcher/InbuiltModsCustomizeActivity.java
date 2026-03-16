@@ -185,11 +185,17 @@ adapterContainer.layout(0, 0, adapterContainer.getMeasuredWidth(), adapterContai
 
         InbuiltModSizeStore.getInstance().init(getApplicationContext());
 
-        addModButton(grid, R.drawable.as_unpress, ModIds.AUTO_SPRINT);
-        addModButton(grid, R.drawable.q_unpress, ModIds.QUICK_DROP);
-        addModButton(grid, R.drawable.f1_unpress, ModIds.TOGGLE_HUD);
-        addModButton(grid, R.drawable.f5_unpress, ModIds.CAMERA_PERSPECTIVE);
-        addModButton(grid, R.drawable.zoom_unpress, ModIds.ZOOM);
+        InbuiltModManager gridManager = InbuiltModManager.getInstance(this);
+            if (gridManager.isModAdded(ModIds.AUTO_SPRINT))
+            addModButton(grid, R.drawable.as_unpress, ModIds.AUTO_SPRINT);
+            if (gridManager.isModAdded(ModIds.QUICK_DROP))
+            addModButton(grid, R.drawable.q_unpress, ModIds.QUICK_DROP);
+            if (gridManager.isModAdded(ModIds.TOGGLE_HUD))
+            addModButton(grid, R.drawable.f1_unpress, ModIds.TOGGLE_HUD);
+            if (gridManager.isModAdded(ModIds.CAMERA_PERSPECTIVE))
+            addModButton(grid, R.drawable.f5_unpress, ModIds.CAMERA_PERSPECTIVE);
+            if (gridManager.isModAdded(ModIds.ZOOM))
+            addModButton(grid, R.drawable.zoom_unpress, ModIds.ZOOM);
 
         InbuiltModSizeStore sizeStore = InbuiltModSizeStore.getInstance();
         for (Map.Entry<String, View> e : modButtons.entrySet()) {
@@ -248,18 +254,19 @@ bottomButtons.animate().translationX(-slide).setDuration(duration).start();
         });
 
         resetButton.setOnClickListener(v -> {
-    resetAll(grid);
-    adapter.notifyDataSetChanged();
-    
-    float panelW = adapterContainer.getWidth();
-    int duration = 200;
-    
-    isAdapterVisible = false;
-    adapterContainer.animate().translationX(panelW).setDuration(duration).withEndAction(() -> {
+            resetAll(grid);
+            adapter.submitList(null);
+            adapter.submitList(getEnabledMods());
+
+            float panelW = dpToPx(280);
+            int duration = 200;
+
+            isAdapterVisible = false;
+        adapterContainer.animate().translationX(panelW).setDuration(duration).withEndAction(() -> {
         adapterContainer.setVisibility(View.GONE);
-    }).start();
-    bottomButtons.animate().translationX(0f).setDuration(duration).start();
-});
+            }).start();
+        bottomButtons.animate().translationX(0f).setDuration(duration).start();
+        });
 
         doneButton.setOnClickListener(v -> {
             Intent result = new Intent();

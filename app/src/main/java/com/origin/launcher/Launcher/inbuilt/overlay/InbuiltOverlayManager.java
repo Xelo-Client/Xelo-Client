@@ -99,6 +99,7 @@ public class InbuiltOverlayManager {
     }
 
     public void showEnabledOverlays() {
+        modManager.applyAllPatches();
         for (Object overlay : new ArrayList<>(overlays)) {
             if (overlay instanceof BaseOverlayButton) {
                 ((BaseOverlayButton) overlay).hide();
@@ -219,6 +220,7 @@ public class InbuiltOverlayManager {
         for (String id : allIds) {
             modManager.removeMod(id);
         }
+        modManager.removeAllPatches();
         showEnabledOverlays();
     }
 }

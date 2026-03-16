@@ -128,20 +128,24 @@ public class InbuiltModManager {
 
     public void addMod(String modId) {
         addedMods.add(modId);
-        if (modId.equals(ModIds.THIRD_PERSON_NAMETAG)) {
-            NameTagMod.patch();
-        }
-        //if (modId.equals(ModIds.MOTION_BLUR)) MotionBlurMod.enable();
         savePrefs();
     }
 
     public void removeMod(String modId) {
         addedMods.remove(modId);
-        if (modId.equals(ModIds.THIRD_PERSON_NAMETAG)) {
-            NameTagMod.unpatch();
-        }
-        //if (modId.equals(ModIds.MOTION_BLUR)) MotionBlurMod.disable();
         savePrefs();
+    }
+    
+    public void applyAllPatches() {
+    if (addedMods.contains(ModIds.THIRD_PERSON_NAMETAG)) {
+        NameTagMod.patch();
+        }
+    }
+
+    public void removeAllPatches() {
+    if (addedMods.contains(ModIds.THIRD_PERSON_NAMETAG)) {
+        NameTagMod.unpatch();
+        }
     }
 
     public boolean isModAdded(String modId) {

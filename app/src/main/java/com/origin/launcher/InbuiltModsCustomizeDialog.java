@@ -166,7 +166,8 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
 
         View rootTouch = findViewById(R.id.customize_background);
             if (!showBackground) {
-            rootTouch.setBackground(null);
+            View rootView = ((ViewGroup) findViewById(android.R.id.content)).getChildAt(0);
+            if (rootView != null) rootView.setBackground(null);
             }
             rootTouch.setOnTouchListener((v, event) -> {
             if (event.getAction() == MotionEvent.ACTION_DOWN) {
@@ -179,10 +180,16 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
 
         InbuiltModSizeStore.getInstance().init(getContext().getApplicationContext());
 
+        InbuiltModManager gridManager = InbuiltModManager.getInstance(getContext());
+        if (gridManager.isModAdded(ModIds.AUTO_SPRINT))
         addModButton(grid, R.drawable.as_unpress, ModIds.AUTO_SPRINT);
+        if (gridManager.isModAdded(ModIds.QUICK_DROP))
         addModButton(grid, R.drawable.q_unpress, ModIds.QUICK_DROP);
+        if (gridManager.isModAdded(ModIds.TOGGLE_HUD))
         addModButton(grid, R.drawable.f1_unpress, ModIds.TOGGLE_HUD);
+        if (gridManager.isModAdded(ModIds.CAMERA_PERSPECTIVE))
         addModButton(grid, R.drawable.f5_unpress, ModIds.CAMERA_PERSPECTIVE);
+        if (gridManager.isModAdded(ModIds.ZOOM))
         addModButton(grid, R.drawable.zoom_unpress, ModIds.ZOOM);
 
         InbuiltModSizeStore sizeStore = InbuiltModSizeStore.getInstance();
@@ -212,46 +219,47 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
         adapter.submitList(getEnabledMods());
 
         customizeButton.setOnClickListener(v -> {
-            boolean show = !isAdapterVisible;
-            isAdapterVisible = show;
+    boolean show = !isAdapterVisible;
+    isAdapterVisible = show;
 
-            adapterContainer.post(() -> {
-                float panelW = adapterContainer.getWidth();
-                int duration = 200;
+    adapterContainer.post(() -> {
+        float panelW = dpToPx(280);
+        int duration = 200;
 
-                if (show) {
-                    boolean isEmpty = adapter.getItemCount() == 0;
-                    adapterRecyclerView.setVisibility(isEmpty ? View.GONE : View.VISIBLE);
-                    emptyAdapterText.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
+        if (show) {
+            boolean isEmpty = adapter.getItemCount() == 0;
+            adapterRecyclerView.setVisibility(isEmpty ? View.GONE : View.VISIBLE);
+            emptyAdapterText.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
 
-                    adapterContainer.setVisibility(View.VISIBLE);
-                    adapterContainer.setTranslationX(panelW);
-                    adapterContainer.animate().translationX(0f).setDuration(duration).start();
+            adapterContainer.setVisibility(View.VISIBLE);
+            adapterContainer.setTranslationX(panelW);
+            adapterContainer.animate().translationX(0f).setDuration(duration).start();
 
-                    float slide = panelW - dpToPx(65);
-                    bottomButtons.animate().translationX(-slide).setDuration(duration).start();
-                } else {
-                    adapterContainer.animate().translationX(panelW).setDuration(duration).withEndAction(() -> {
-                        adapterContainer.setVisibility(View.GONE);
-                    }).start();
-                    bottomButtons.animate().translationX(0f).setDuration(duration).start();
+            float slide = panelW - dpToPx(65);
+            bottomButtons.animate().translationX(-slide).setDuration(duration).start();
+        } else {
+            adapterContainer.animate().translationX(panelW).setDuration(duration).withEndAction(() -> {
+                adapterContainer.setVisibility(View.GONE);
+            }).start();
+            bottomButtons.animate().translationX(0f).setDuration(duration).start();
                 }
             });
         });
 
         resetButton.setOnClickListener(v -> {
             resetAll(grid);
-            adapter.notifyDataSetChanged();
+            adapter.submitList(null);
+            adapter.submitList(getEnabledMods());
 
-            float panelW = adapterContainer.getWidth();
+            float panelW = dpToPx(280);
             int duration = 200;
 
             isAdapterVisible = false;
             adapterContainer.animate().translationX(panelW).setDuration(duration).withEndAction(() -> {
-                adapterContainer.setVisibility(View.GONE);
-            }).start();
+            adapterContainer.setVisibility(View.GONE);
+                }).start();
             bottomButtons.animate().translationX(0f).setDuration(duration).start();
-        });
+            });
 
         doneButton.setOnClickListener(v -> {
             InbuiltModManager manager = InbuiltModManager.getInstance(getContext());
