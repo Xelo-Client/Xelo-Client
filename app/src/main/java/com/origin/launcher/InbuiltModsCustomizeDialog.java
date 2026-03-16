@@ -26,6 +26,7 @@ import com.google.android.material.materialswitch.MaterialSwitch;
 import com.origin.launcher.Adapter.InbuiltCustomizeAdapter;
 import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModManager;
 import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModSizeStore;
+import com.origin.launcher.Launcher.inbuilt.overlay.InbuiltOverlayManager;
 import com.origin.launcher.Launcher.inbuilt.model.ModIds;
 import com.origin.launcher.R;
 
