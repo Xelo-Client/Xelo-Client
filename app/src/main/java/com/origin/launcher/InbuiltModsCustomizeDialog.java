@@ -135,6 +135,13 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
         resetButton.setPadding(padding24dp, padding8dp, padding24dp, padding8dp);
         customizeButton.setPadding(padding16dp, padding8dp, padding16dp, padding8dp);
         doneButton.setPadding(padding24dp, padding8dp, padding24dp, padding8dp);
+        
+        resetButton.setSingleLine(false);
+        customizeButton.setSingleLine(false);
+        doneButton.setSingleLine(false);
+        resetButton.setEllipsize(null);
+        customizeButton.setEllipsize(null);
+        doneButton.setEllipsize(null);
 
         adapter = new InbuiltCustomizeAdapter(this, MIN_SIZE_DP, MAX_SIZE_DP, MIN_OPACITY, MAX_OPACITY, SEEKBAR_MAX);
 

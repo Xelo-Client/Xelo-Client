@@ -40,7 +40,7 @@ public class ModMenuDialog {
     }
 
     private void animatePop(View view) {
-        Animation anim = AnimationUtils.loadAnimation(activity, R.anim.pop_up);
+        Animation anim = AnimationUtils.loadAnimation(activity, R.anim.button_pop);
         view.startAnimation(anim);
     }
 
