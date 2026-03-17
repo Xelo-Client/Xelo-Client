@@ -107,15 +107,22 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
         ));
         lockSwitch.setChecked(false);
         lockSwitch.setZ(Float.MAX_VALUE);
+        lockSwitch.setTranslationZ(100f);
         lockSwitch.bringToFront();
+
+        ViewGroup parent = (ViewGroup) lockSwitch.getParent();
+                if (parent != null) {
+            parent.bringChildToFront(lockSwitch);
+            }
+
         lockSwitch.requestLayout();
         lockSwitch.invalidate();
 
         lockSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (lastSelectedId != null) {
-                InbuiltModSizeStore.getInstance().setLocked(lastSelectedId, isChecked);
-            }
-        });
+        InbuiltModSizeStore.getInstance().setLocked(lastSelectedId, isChecked);
+        }
+    });
 
         customizeButton.setText("Customize");
 
@@ -136,9 +143,9 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
         customizeButton.setPadding(padding16dp, padding8dp, padding16dp, padding8dp);
         doneButton.setPadding(padding24dp, padding8dp, padding24dp, padding8dp);
         
-        resetButton.setSingleLine(false);
-        customizeButton.setSingleLine(false);
-        doneButton.setSingleLine(false);
+        resetButton.setMinHeight(dpToPx(48));
+        customizeButton.setMinHeight(dpToPx(48));
+        doneButton.setMinHeight(dpToPx(48));
         resetButton.setEllipsize(null);
         customizeButton.setEllipsize(null);
         doneButton.setEllipsize(null);
@@ -208,9 +215,9 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
             float sx = sizeStore.getPositionX(id);
             float sy = sizeStore.getPositionY(id);
             if (sx >= 0f && sy >= 0f) {
-                btn.setX(sx);
-                btn.setY(sy);
-            }
+                    btn.setX(sx);
+                    btn.setY(sy);
+                }
         }
 
         for (Map.Entry<String, Integer> e : modSizes.entrySet()) {
@@ -479,8 +486,9 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
                         if (!moved) {
                             view.performClick();
                         } else {
-                            InbuiltModSizeStore.getInstance().setPositionX(id, view.getX() + grid.getLeft());
-                            InbuiltModSizeStore.getInstance().setPositionY(id, view.getY() + grid.getTop());
+                            InbuiltModSizeStore.getInstance().setPositionX(id, view.getX());
+                        
+                   InbuiltModSizeStore.getInstance().setPositionY(id, view.getY());
                         }
                         return true;
                 }
