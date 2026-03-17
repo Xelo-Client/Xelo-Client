@@ -40,5 +40,10 @@
     <item name="android:textColorPrimary">@color/onBackground</item>
     <item name="android:textColor">@color/onBackground</item>
 </style>
+
+<style name="ModMenuDialogAnimation">
+    <item name="android:windowEnterAnimation">@anim/pop_up</item>
+    <item name="android:windowExitAnimation">@anim/pop_down</item>
+</style>
   
 </resources>

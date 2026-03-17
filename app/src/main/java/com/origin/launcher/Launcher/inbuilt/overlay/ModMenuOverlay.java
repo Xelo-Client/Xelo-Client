@@ -36,34 +36,8 @@ public class ModMenuOverlay extends BaseOverlayButton {
         if (dialog != null) dialog.hide();
         dialog = new ModMenuDialog(activity);
         dialog.show();
-        animateShow();
     } else {
         dialog.hide();
-        animateHide();
         }
-    }
-    
-    private void animateShow() {
-        if (overlayView == null) return;
-        overlayView.setAlpha(0.5f);
-        overlayView.setScaleX(0.8f);
-        overlayView.setScaleY(0.8f);
-        Animation popUp = AnimationUtils.loadAnimation(activity, R.anim.pop_up);
-        overlayView.startAnimation(popUp);
-    }
-    
-    private void animateHide() {
-        if (overlayView == null) return;
-        Animation popDown = AnimationUtils.loadAnimation(activity, R.anim.pop_down);
-        popDown.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {}
-            @Override
-            public void onAnimationEnd(Animation animation) {
-            }
-            @Override
-            public void onAnimationRepeat(Animation animation) {}
-        });
-        overlayView.startAnimation(popDown);
     }
 }

@@ -110,11 +110,11 @@ public class ZoomOverlay extends BaseOverlayButton {
     }
 
     private void updateButtonState(boolean active) {
-        if (overlayView instanceof ImageButton) {
-            ImageButton btn = (ImageButton) overlayView;
-            btn.setActivated(active);
-            btn.setAlpha(active ? 1.0f : 0.6f);
-            btn.setBackgroundResource(active ? R.drawable.bg_overlay_button_active : R.drawable.bg_overlay_button);
+    if (overlayView instanceof ImageButton) {
+        ImageButton btn = (ImageButton) overlayView;
+        btn.setActivated(active);
+        btn.setAlpha(getButtonAlpha() * (active ? 1.1f : 1.0f));
+        btn.setBackgroundResource(active ? R.drawable.bg_overlay_button_active : R.drawable.bg_overlay_button);
         }
     }
 
@@ -123,6 +123,9 @@ public class ZoomOverlay extends BaseOverlayButton {
             ZoomMod.nativeOnScroll(delta);
         }
     }
+    
+    @Override
+    protected void onOverlayViewCreated(ImageButton btn) {}
 
     @Override
     public void hide() {

@@ -24,6 +24,9 @@ public class ToggleHudOverlay extends BaseOverlayButton {
     }
 
     @Override
+    protected void onOverlayViewCreated(ImageButton btn) {}
+
+    @Override
     protected void onButtonClick() {
         sendKey(KeyEvent.KEYCODE_F1);
         updateButtonState(true);
@@ -35,7 +38,7 @@ public class ToggleHudOverlay extends BaseOverlayButton {
             ImageButton btn = overlayView.findViewById(R.id.mod_overlay_button);
             if (btn != null) {
                 btn.setActivated(active);
-                btn.setAlpha(active ? 1.0f : 0.6f);
+                btn.setAlpha(getButtonAlpha() * (active ? 1.1f : 1.0f));
                 btn.setBackgroundResource(
                         active ? R.drawable.bg_overlay_button_active
                                : R.drawable.bg_overlay_button

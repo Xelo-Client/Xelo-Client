@@ -11,6 +11,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
@@ -89,7 +91,20 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
         lockSwitch.setTextOn("");
         lockSwitch.setTextOff("");
         lockSwitch.setShowText(false);
-        ThemeUtils.applyThemeToSwitch(lockSwitch, getContext());
+        lockSwitch.setTrackTintList(new android.content.res.ColorStateList(
+        new int[][]{
+        new int[]{android.R.attr.state_checked},
+        new int[]{-android.R.attr.state_checked}
+            },
+        new int[]{Color.WHITE, Color.parseColor("#757575")}
+        ));
+        lockSwitch.setThumbTintList(new android.content.res.ColorStateList(
+        new int[][]{
+        new int[]{android.R.attr.state_checked},
+        new int[]{-android.R.attr.state_checked}
+            },
+        new int[]{Color.WHITE, Color.parseColor("#BDBDBD")}
+        ));
         lockSwitch.setChecked(false);
         lockSwitch.setZ(Float.MAX_VALUE);
         lockSwitch.bringToFront();
@@ -204,58 +219,70 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
         adapter.submitList(getEnabledMods());
 
         customizeButton.setOnClickListener(v -> {
-            boolean show = !isAdapterVisible;
-            isAdapterVisible = show;
-            adapterContainer.post(() -> {
-                float panelW = dpToPx(280);
-                int duration = 200;
-                if (show) {
-                    boolean isEmpty = adapter.getItemCount() == 0;
-                    adapterRecyclerView.setVisibility(isEmpty ? View.GONE : View.VISIBLE);
-                    emptyAdapterText.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
-                    adapterContainer.setVisibility(View.VISIBLE);
-                    adapterContainer.setTranslationX(panelW);
-                    adapterContainer.animate().translationX(0f).setDuration(duration).start();
-                    bottomButtons.animate().translationX(-(panelW - dpToPx(65))).setDuration(duration).start();
-                } else {
-                    adapterContainer.animate().translationX(panelW).setDuration(duration).withEndAction(() -> adapterContainer.setVisibility(View.GONE)).start();
-                    bottomButtons.animate().translationX(0f).setDuration(duration).start();
-                }
-            });
+        Animation anim = AnimationUtils.loadAnimation(getContext(), R.anim.pop_up);
+        v.startAnimation(anim);
+        v.postDelayed(() -> {
+        boolean show = !isAdapterVisible;
+        isAdapterVisible = show;
+        adapterContainer.post(() -> {
+            float panelW = dpToPx(280);
+            int duration = 200;
+            if (show) {
+                boolean isEmpty = adapter.getItemCount() == 0;
+                adapterRecyclerView.setVisibility(isEmpty ? View.GONE : View.VISIBLE);
+                emptyAdapterText.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
+                adapterContainer.setVisibility(View.VISIBLE);
+                adapterContainer.setTranslationX(panelW);
+                adapterContainer.animate().translationX(0f).setDuration(duration).start();
+                bottomButtons.animate().translationX(-(panelW - dpToPx(65))).setDuration(duration).start();
+            } else {
+                adapterContainer.animate().translationX(panelW).setDuration(duration).withEndAction(() -> adapterContainer.setVisibility(View.GONE)).start();
+                bottomButtons.animate().translationX(0f).setDuration(duration).start();
+                    }
+                });
+            }, 150);
         });
 
         resetButton.setOnClickListener(v -> {
-            isResetting = true;
-            resetAll(grid);
-            adapter.submitList(null);
-            adapter.submitList(getEnabledMods());
-            isResetting = false;
-            float panelW = dpToPx(280);
-            int duration = 200;
-            isAdapterVisible = false;
-            adapterContainer.animate().translationX(panelW).setDuration(duration).withEndAction(() -> adapterContainer.setVisibility(View.GONE)).start();
-            bottomButtons.animate().translationX(0f).setDuration(duration).start();
+        Animation anim = AnimationUtils.loadAnimation(getContext(), R.anim.pop_up);
+        v.startAnimation(anim);
+        v.postDelayed(() -> {
+        isResetting = true;
+        resetAll(grid);
+        adapter.submitList(null);
+        adapter.submitList(getEnabledMods());
+        isResetting = false;
+        float panelW = dpToPx(280);
+        int duration = 200;
+        isAdapterVisible = false;
+        adapterContainer.animate().translationX(panelW).setDuration(duration).withEndAction(() -> adapterContainer.setVisibility(View.GONE)).start();
+        bottomButtons.animate().translationX(0f).setDuration(duration).start();
+            }, 150);
         });
 
         doneButton.setOnClickListener(v -> {
-            InbuiltModManager manager = InbuiltModManager.getInstance(getContext());
-            for (Map.Entry<String, Integer> e : modSizes.entrySet()) {
-                String id = e.getKey();
-                manager.setOverlayButtonSize(id, e.getValue());
-                View btn = modButtons.get(id);
-                if (btn != null) {
-                    InbuiltModSizeStore.getInstance().setPositionX(id, btn.getX());
-                    InbuiltModSizeStore.getInstance().setPositionY(id, btn.getY());
-                }
+        Animation anim = AnimationUtils.loadAnimation(getContext(), R.anim.pop_up);
+        v.startAnimation(anim);
+        v.postDelayed(() -> {
+        InbuiltModManager manager = InbuiltModManager.getInstance(getContext());
+        for (Map.Entry<String, Integer> e : modSizes.entrySet()) {
+            String id = e.getKey();
+            manager.setOverlayButtonSize(id, e.getValue());
+            View btn = modButtons.get(id);
+            if (btn != null) {
+                InbuiltModSizeStore.getInstance().setPositionX(id, btn.getX());
+                InbuiltModSizeStore.getInstance().setPositionY(id, btn.getY());
             }
-            for (Map.Entry<String, Integer> e : modOpacity.entrySet()) {
-                manager.setOverlayButtonOpacity(e.getKey(), e.getValue());
-            }
-            if (modZoomLevels.containsKey(ModIds.ZOOM)) manager.setZoomLevel(modZoomLevels.get(ModIds.ZOOM));
-            if (modZoomKeybinds.containsKey(ModIds.ZOOM)) manager.setZoomKeybind(modZoomKeybinds.get(ModIds.ZOOM));
-            InbuiltOverlayManager overlayManager = InbuiltOverlayManager.getInstance();
-            if (overlayManager != null) overlayManager.showEnabledOverlays();
-            dismiss();
+        }
+        for (Map.Entry<String, Integer> e : modOpacity.entrySet()) {
+            manager.setOverlayButtonOpacity(e.getKey(), e.getValue());
+        }
+        if (modZoomLevels.containsKey(ModIds.ZOOM)) manager.setZoomLevel(modZoomLevels.get(ModIds.ZOOM));
+        if (modZoomKeybinds.containsKey(ModIds.ZOOM)) manager.setZoomKeybind(modZoomKeybinds.get(ModIds.ZOOM));
+        InbuiltOverlayManager overlayManager = InbuiltOverlayManager.getInstance();
+        if (overlayManager != null) overlayManager.showEnabledOverlays();
+        dismiss();
+            }, 150);
         });
     }
 
@@ -447,7 +474,6 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
                         } else {
                             InbuiltModSizeStore.getInstance().setPositionX(id, view.getX() + grid.getLeft());
                             InbuiltModSizeStore.getInstance().setPositionY(id, view.getY() + grid.getTop());
-                            InbuiltOverlayManager.getInstance().refreshPositions();
                         }
                         return true;
                 }

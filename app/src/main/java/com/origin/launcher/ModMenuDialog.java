@@ -53,6 +53,8 @@ public class ModMenuDialog {
                 (int) (activity.getResources().getDisplayMetrics().widthPixels * 0.80),
                 android.view.ViewGroup.LayoutParams.WRAP_CONTENT
         );
+        
+        dialog.getWindow().getAttributes().windowAnimations = R.style.ModMenuDialogAnimation;
 
         ImageView btnBack = dialog.findViewById(R.id.btn_back);
         ImageView btnWrench = dialog.findViewById(R.id.btn_wrench);
