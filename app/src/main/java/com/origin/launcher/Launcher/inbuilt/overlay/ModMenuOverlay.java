@@ -31,15 +31,16 @@ public class ModMenuOverlay extends BaseOverlayButton {
     }
 
     @Override
+    @Override
     protected void onButtonClick() {
-        if (dialog == null || !dialog.isShowing()) {
-            if (dialog != null) dialog.dismiss();
-            dialog = new ModMenuDialog(activity);
-            dialog.show();
-            animateShow();
-        } else {
-            dialog.hide();
-            animateHide();
+    if (dialog == null || !dialog.isShowing()) {
+        if (dialog != null) dialog.hide();
+        dialog = new ModMenuDialog(activity);
+        dialog.show();
+        animateShow();
+    } else {
+        dialog.hide();
+        animateHide();
         }
     }
     
