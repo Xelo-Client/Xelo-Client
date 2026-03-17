@@ -353,6 +353,24 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
         kDialog.show();
         kDialog.getWindow().getDecorView().post(() -> findAndColorTextViews(kDialog.getWindow().getDecorView(), getContext().getResources().getColor(R.color.white, null)));
     }
+    
+    @Override
+    public void show() {
+    super.show();
+    InbuiltOverlayManager overlayManager = InbuiltOverlayManager.getInstance();
+    if (overlayManager != null) {
+        overlayManager.hideForCustomize();
+        }
+    }
+    
+    @Override
+    public void dismiss() {
+    InbuiltOverlayManager overlayManager = InbuiltOverlayManager.getInstance();
+    if (overlayManager != null) {
+        overlayManager.showAfterCustomize();
+        }
+    super.dismiss();
+    }
 
     private void findAndColorTextViews(View view, int color) {
         if (view instanceof TextView) ((TextView) view).setTextColor(color);
@@ -421,7 +439,7 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
                         view.setX(newX);
                         view.setY(newY);
                         moved = true;
-                        InbuiltOverlayManager.getInstance().updatePosition(id, newX + grid.getLeft(), newY + grid.getTop());
+                        
                         return true;
                     case MotionEvent.ACTION_UP:
                         if (!moved) {

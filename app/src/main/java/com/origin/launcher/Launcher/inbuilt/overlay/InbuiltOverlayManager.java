@@ -220,6 +220,14 @@ public class InbuiltOverlayManager {
     showEnabledOverlays();
     }
     
+    public void hideForCustomize() {
+    hideAllOverlays();
+    }
+
+    public void showAfterCustomize() {
+    showEnabledOverlays();
+    }
+    
     public void updatePosition(String modId, float x, float y) {
     InbuiltModSizeStore.getInstance().setPositionX(modId, x);
     InbuiltModSizeStore.getInstance().setPositionY(modId, y);
