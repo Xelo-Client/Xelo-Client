@@ -68,7 +68,7 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
     private TextView emptyAdapterText;
 
     public InbuiltModsCustomizeDialog(@NonNull Context context, boolean showBackground) {
-        super(context, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
+        super(context, R.style.Theme_Material3_Dark_NoActionBar_Custom);
         this.showBackground = showBackground;
     }
 
@@ -109,7 +109,7 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
             lockButton.setTextColor(isLocked ? Color.WHITE : Color.BLACK);
             GradientDrawable bg = new GradientDrawable();
             bg.setShape(GradientDrawable.RECTANGLE);
-            bg.setColor(isLocked ? Color.BLACK : Color.WHITE);
+            bg.setColor(isLocked ? Color.parseColor("#808080") : Color.WHITE);
             bg.setCornerRadius(dpToPx(12));
             lockButton.setBackground(bg);
             InbuiltModSizeStore.getInstance().setLocked(lastSelectedId, isLocked);
@@ -536,10 +536,10 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
         lastSelectedId = null;
         isLocked = false;
         lockButton.setText("Lock");
-        lockButton.setTextColor(Color.BLACK);
+        lockButton.setTextColor(Color.WHITE);
         GradientDrawable bg = new GradientDrawable();
         bg.setShape(GradientDrawable.RECTANGLE);
-        bg.setColor(Color.WHITE);
+        bg.setColor(Color.BLACK);
         bg.setCornerRadius(dpToPx(12));
         lockButton.setBackground(bg);
         isAdapterVisible = false;

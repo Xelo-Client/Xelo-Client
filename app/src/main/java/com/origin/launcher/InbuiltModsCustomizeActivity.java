@@ -224,7 +224,7 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity implements 
                     adapterContainer.setVisibility(View.VISIBLE);
                     adapterContainer.setTranslationX(panelW);
                     adapterContainer.animate().translationX(0f).setDuration(duration).start();
-                    float slide = panelW - dpToPx(65);
+                    float slide = panelW - dpToPx(100);
                     bottomButtons.animate().translationX(-slide).setDuration(duration).start();
                 } else {
                     adapterContainer.animate().translationX(panelW).setDuration(duration).withEndAction(() -> adapterContainer.setVisibility(View.GONE)).start();
