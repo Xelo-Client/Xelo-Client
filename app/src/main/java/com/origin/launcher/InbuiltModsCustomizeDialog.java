@@ -123,6 +123,10 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
         resetButton.setBackground(blackBg);
         customizeButton.setBackground(blackBg);
         doneButton.setBackground(blackBg);
+        
+        resetButton.setStateListAnimator(null);
+        customizeButton.setStateListAnimator(null);
+        doneButton.setStateListAnimator(null);
 
         int padding8dp = dpToPx(8);
         int padding16dp = dpToPx(16);
