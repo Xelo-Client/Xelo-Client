@@ -2,7 +2,6 @@ package com.origin.launcher;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
@@ -89,11 +88,7 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
         View bottomButtons = findViewById(R.id.bottom_buttons_container);
 
         lockButton = findViewById(R.id.lock_button);
-        GradientDrawable lockBg = new GradientDrawable();
-        lockBg.setShape(GradientDrawable.RECTANGLE);
-        lockBg.setColor(Color.BLACK);
-        lockBg.setCornerRadius(dpToPx(12));
-        lockButton.setBackground(lockBg);
+        lockButton.setBackground(makeBlackBg());
         lockButton.setBackgroundTintList(null);
         lockButton.setTextColor(Color.WHITE);
         lockButton.setText("Lock");
@@ -103,29 +98,32 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
         lockButton.setStateListAnimator(null);
 
         lockButton.setOnClickListener(v -> {
-        if (lastSelectedId == null) return;
-        isLocked = !isLocked;
-        lockButton.setText(isLocked ? "Locked" : "Lock");
-        lockButton.setTextColor(isLocked ? Color.BLACK : Color.WHITE);
-        GradientDrawable bg = new GradientDrawable();
-        bg.setShape(GradientDrawable.RECTANGLE);
-        bg.setColor(isLocked ? Color.GRAY : Color.BLACK);
-        bg.setCornerRadius(dpToPx(12));
-        lockButton.setBackground(bg);
-        lockButton.setBackgroundTintList(null);
-        InbuiltModSizeStore.getInstance().setLocked(lastSelectedId, isLocked);
+            if (lastSelectedId == null) return;
+            isLocked = !isLocked;
+            lockButton.setText(isLocked ? "Locked" : "Lock");
+            lockButton.setTextColor(isLocked ? Color.BLACK : Color.WHITE);
+            GradientDrawable bg = new GradientDrawable();
+            bg.setShape(GradientDrawable.RECTANGLE);
+            bg.setColor(isLocked ? Color.GRAY : Color.BLACK);
+            bg.setCornerRadius(dpToPx(12));
+            lockButton.setBackground(bg);
+            lockButton.setBackgroundTintList(null);
+            InbuiltModSizeStore.getInstance().setLocked(lastSelectedId, isLocked);
         });
 
         customizeButton.setText("Customize");
 
-        GradientDrawable blackBg = new GradientDrawable();
-        blackBg.setShape(GradientDrawable.RECTANGLE);
-        blackBg.setColor(Color.BLACK);
-        blackBg.setCornerRadius(dpToPx(12));
+        resetButton.setBackground(makeBlackBg());
+        resetButton.setBackgroundTintList(null);
+        resetButton.setTextColor(Color.WHITE);
 
-        resetButton.setBackground(blackBg);
-        customizeButton.setBackground(blackBg);
-        doneButton.setBackground(blackBg);
+        customizeButton.setBackground(makeBlackBg());
+        customizeButton.setBackgroundTintList(null);
+        customizeButton.setTextColor(Color.WHITE);
+
+        doneButton.setBackground(makeBlackBg());
+        doneButton.setBackgroundTintList(null);
+        doneButton.setTextColor(Color.WHITE);
 
         resetButton.setStateListAnimator(null);
         customizeButton.setStateListAnimator(null);
@@ -192,16 +190,15 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
         }
         rootTouch.setOnTouchListener((v, event) -> {
             if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                lastSelectedButton = null;
+                if (lastSelectedButton != null) {
+                    lastSelectedButton.setBackgroundResource(R.drawable.bg_overlay_button);
+                    lastSelectedButton = null;
+                }
                 lastSelectedId = null;
                 isLocked = false;
                 lockButton.setText("Lock");
                 lockButton.setTextColor(Color.WHITE);
-                GradientDrawable bg = new GradientDrawable();
-                bg.setShape(GradientDrawable.RECTANGLE);
-                bg.setColor(Color.BLACK);
-                bg.setCornerRadius(dpToPx(12));
-                lockButton.setBackground(bg);
+                lockButton.setBackground(makeBlackBg());
                 lockButton.setBackgroundTintList(null);
             }
             return false;
@@ -374,6 +371,16 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
     @Override public void onItemClicked(String id) { View btn = modButtons.get(id); if (btn != null) btn.performClick(); }
 
     @Override
+    public boolean getZoomHoldMode(String id) {
+        return InbuiltModManager.getInstance(getContext()).getZoomHoldMode();
+    }
+
+    @Override
+    public void onZoomHoldModeChanged(String id, boolean holdMode) {
+        InbuiltModManager.getInstance(getContext()).setZoomHoldMode(holdMode);
+    }
+
+    @Override
     public String getKeyName(String id) {
         int keybind = modZoomKeybinds.getOrDefault(id, KeyEvent.KEYCODE_C);
         if (keybind == KeyEvent.KEYCODE_C) return "C";
@@ -463,18 +470,27 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
         modButtons.put(id, btn);
 
         btn.setOnClickListener(v -> {
-        lastSelectedButton = v;
-        lastSelectedId = id;
+            if (lastSelectedButton != null) {
+                lastSelectedButton.setBackgroundResource(R.drawable.bg_overlay_button);
+            }
+            lastSelectedButton = v;
+            lastSelectedId = id;
+            GradientDrawable highlight = new GradientDrawable();
+            highlight.setShape(GradientDrawable.RECTANGLE);
+            highlight.setColor(Color.TRANSPARENT);
+            highlight.setStroke(dpToPx(2), Color.CYAN);
+            highlight.setCornerRadius(dpToPx(8));
+            v.setBackground(highlight);
             boolean locked = InbuiltModSizeStore.getInstance().isLocked(id);
-        isLocked = locked;
-        lockButton.setText(locked ? "Locked" : "Lock");
-        lockButton.setTextColor(locked ? Color.BLACK : Color.WHITE);
-        GradientDrawable bg = new GradientDrawable();
-        bg.setShape(GradientDrawable.RECTANGLE);
-        bg.setColor(locked ? Color.GRAY : Color.BLACK);
-        bg.setCornerRadius(dpToPx(12));
-        lockButton.setBackground(bg);
-        lockButton.setBackgroundTintList(null);
+            isLocked = locked;
+            lockButton.setText(locked ? "Locked" : "Lock");
+            lockButton.setTextColor(locked ? Color.BLACK : Color.WHITE);
+            GradientDrawable bg = new GradientDrawable();
+            bg.setShape(GradientDrawable.RECTANGLE);
+            bg.setColor(locked ? Color.GRAY : Color.BLACK);
+            bg.setCornerRadius(dpToPx(12));
+            lockButton.setBackground(bg);
+            lockButton.setBackgroundTintList(null);
         });
 
         btn.setOnTouchListener(new View.OnTouchListener() {
@@ -532,6 +548,7 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
             c.setX(0f);
             c.setY(0f);
             c.setAlpha(DEFAULT_OPACITY / 100f);
+            c.setBackgroundResource(R.drawable.bg_overlay_button);
         }
         for (String key : modSizes.keySet()) modSizes.put(key, clampSize(DEFAULT_SIZE_DP));
         for (String key : modOpacity.keySet()) modOpacity.put(key, DEFAULT_OPACITY);
@@ -540,11 +557,7 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
         isLocked = false;
         lockButton.setText("Lock");
         lockButton.setTextColor(Color.WHITE);
-        GradientDrawable bg = new GradientDrawable();
-        bg.setShape(GradientDrawable.RECTANGLE);
-        bg.setColor(Color.BLACK);
-        bg.setCornerRadius(dpToPx(12));
-        lockButton.setBackground(bg);
+        lockButton.setBackground(makeBlackBg());
         lockButton.setBackgroundTintList(null);
         isAdapterVisible = false;
         adapterContainer.setVisibility(View.GONE);
@@ -552,6 +565,14 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
         modZoomLevels.put(ModIds.ZOOM, 50);
         modZoomKeybinds.clear();
         modZoomKeybinds.put(ModIds.ZOOM, KeyEvent.KEYCODE_C);
+    }
+
+    private GradientDrawable makeBlackBg() {
+        GradientDrawable d = new GradientDrawable();
+        d.setShape(GradientDrawable.RECTANGLE);
+        d.setColor(Color.BLACK);
+        d.setCornerRadius(dpToPx(12));
+        return d;
     }
 
     private int clampSize(int s) { return Math.max(MIN_SIZE_DP, Math.min(s, MAX_SIZE_DP)); }

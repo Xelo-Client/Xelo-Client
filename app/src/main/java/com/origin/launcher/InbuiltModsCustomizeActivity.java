@@ -65,6 +65,14 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity implements 
     private int clampOpacity(int o) { return Math.max(MIN_OPACITY, Math.min(o, MAX_OPACITY)); }
     private int dpToPx(int dp) { return Math.round(dp * getResources().getDisplayMetrics().density); }
 
+    private GradientDrawable makeBlackBg() {
+        GradientDrawable d = new GradientDrawable();
+        d.setShape(GradientDrawable.RECTANGLE);
+        d.setColor(Color.BLACK);
+        d.setCornerRadius(dpToPx(12));
+        return d;
+    }
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -77,11 +85,7 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity implements 
         View bottomButtons = findViewById(R.id.bottom_buttons_container);
 
         lockButton = findViewById(R.id.lock_button);
-        GradientDrawable lockBg = new GradientDrawable();
-        lockBg.setShape(GradientDrawable.RECTANGLE);
-        lockBg.setColor(Color.BLACK);
-        lockBg.setCornerRadius(dpToPx(12));
-        lockButton.setBackground(lockBg);
+        lockButton.setBackground(makeBlackBg());
         lockButton.setBackgroundTintList(null);
         lockButton.setTextColor(Color.WHITE);
         lockButton.setText("Lock");
@@ -91,29 +95,32 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity implements 
         lockButton.setStateListAnimator(null);
 
         lockButton.setOnClickListener(v -> {
-        if (lastSelectedId == null) return;
-        isLocked = !isLocked;
-        lockButton.setText(isLocked ? "Locked" : "Lock");
-        lockButton.setTextColor(isLocked ? Color.BLACK : Color.WHITE);
-        GradientDrawable bg = new GradientDrawable();
-        bg.setShape(GradientDrawable.RECTANGLE);
+            if (lastSelectedId == null) return;
+            isLocked = !isLocked;
+            lockButton.setText(isLocked ? "Locked" : "Lock");
+            lockButton.setTextColor(isLocked ? Color.BLACK : Color.WHITE);
+            GradientDrawable bg = new GradientDrawable();
+            bg.setShape(GradientDrawable.RECTANGLE);
             bg.setColor(isLocked ? Color.GRAY : Color.BLACK);
-        bg.setCornerRadius(dpToPx(12));
-        lockButton.setBackground(bg);
-        lockButton.setBackgroundTintList(null);
-        InbuiltModSizeStore.getInstance().setLocked(lastSelectedId, isLocked);
+            bg.setCornerRadius(dpToPx(12));
+            lockButton.setBackground(bg);
+            lockButton.setBackgroundTintList(null);
+            InbuiltModSizeStore.getInstance().setLocked(lastSelectedId, isLocked);
         });
 
         customizeButton.setText("Customize");
 
-        GradientDrawable blackBg = new GradientDrawable();
-        blackBg.setShape(GradientDrawable.RECTANGLE);
-        blackBg.setColor(Color.BLACK);
-        blackBg.setCornerRadius(dpToPx(12));
+        resetButton.setBackground(makeBlackBg());
+        resetButton.setBackgroundTintList(null);
+        resetButton.setTextColor(Color.WHITE);
 
-        resetButton.setBackground(blackBg);
-        customizeButton.setBackground(blackBg);
-        doneButton.setBackground(blackBg);
+        customizeButton.setBackground(makeBlackBg());
+        customizeButton.setBackgroundTintList(null);
+        customizeButton.setTextColor(Color.WHITE);
+
+        doneButton.setBackground(makeBlackBg());
+        doneButton.setBackgroundTintList(null);
+        doneButton.setTextColor(Color.WHITE);
 
         int padding8dp = dpToPx(8);
         int padding16dp = dpToPx(16);
@@ -166,16 +173,15 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity implements 
         View rootTouch = findViewById(R.id.customize_background);
         rootTouch.setOnTouchListener((v, event) -> {
             if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                lastSelectedButton = null;
+                if (lastSelectedButton != null) {
+                    lastSelectedButton.setBackgroundResource(R.drawable.bg_overlay_button);
+                    lastSelectedButton = null;
+                }
                 lastSelectedId = null;
                 isLocked = false;
                 lockButton.setText("Lock");
                 lockButton.setTextColor(Color.WHITE);
-                GradientDrawable bg = new GradientDrawable();
-                bg.setShape(GradientDrawable.RECTANGLE);
-                bg.setColor(Color.BLACK);
-                bg.setCornerRadius(dpToPx(12));
-                lockButton.setBackground(bg);
+                lockButton.setBackground(makeBlackBg());
                 lockButton.setBackgroundTintList(null);
             }
             return false;
@@ -331,6 +337,16 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity implements 
     @Override public void onItemClicked(String id) { View btn = modButtons.get(id); if (btn != null) btn.performClick(); }
 
     @Override
+    public boolean getZoomHoldMode(String id) {
+        return InbuiltModManager.getInstance(this).getZoomHoldMode();
+    }
+
+    @Override
+    public void onZoomHoldModeChanged(String id, boolean holdMode) {
+        InbuiltModManager.getInstance(this).setZoomHoldMode(holdMode);
+    }
+
+    @Override
     public String getKeyName(String id) {
         int keybind = modZoomKeybinds.getOrDefault(id, KeyEvent.KEYCODE_C);
         if (keybind == KeyEvent.KEYCODE_C) return "C";
@@ -402,18 +418,27 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity implements 
         modButtons.put(id, btn);
 
         btn.setOnClickListener(v -> {
-        lastSelectedButton = v;
-        lastSelectedId = id;
+            if (lastSelectedButton != null) {
+                lastSelectedButton.setBackgroundResource(R.drawable.bg_overlay_button);
+            }
+            lastSelectedButton = v;
+            lastSelectedId = id;
+            GradientDrawable highlight = new GradientDrawable();
+            highlight.setShape(GradientDrawable.RECTANGLE);
+            highlight.setColor(Color.TRANSPARENT);
+            highlight.setStroke(dpToPx(2), Color.CYAN);
+            highlight.setCornerRadius(dpToPx(8));
+            v.setBackground(highlight);
             boolean locked = InbuiltModSizeStore.getInstance().isLocked(id);
-        isLocked = locked;
-        lockButton.setText(locked ? "Locked" : "Lock");
-        lockButton.setTextColor(locked ? Color.BLACK : Color.WHITE);
-        GradientDrawable bg = new GradientDrawable();
-        bg.setShape(GradientDrawable.RECTANGLE);
-        bg.setColor(locked ? Color.GRAY : Color.BLACK);
-        bg.setCornerRadius(dpToPx(12));
-        lockButton.setBackground(bg);
-        lockButton.setBackgroundTintList(null);
+            isLocked = locked;
+            lockButton.setText(locked ? "Locked" : "Lock");
+            lockButton.setTextColor(locked ? Color.BLACK : Color.WHITE);
+            GradientDrawable bg = new GradientDrawable();
+            bg.setShape(GradientDrawable.RECTANGLE);
+            bg.setColor(locked ? Color.GRAY : Color.BLACK);
+            bg.setCornerRadius(dpToPx(12));
+            lockButton.setBackground(bg);
+            lockButton.setBackgroundTintList(null);
         });
 
         btn.setOnTouchListener(new View.OnTouchListener() {
@@ -471,6 +496,7 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity implements 
             c.setX(0f);
             c.setY(0f);
             c.setAlpha(DEFAULT_OPACITY / 100f);
+            c.setBackgroundResource(R.drawable.bg_overlay_button);
         }
         for (String key : modSizes.keySet()) modSizes.put(key, defaultSizeDp);
         for (String key : modOpacity.keySet()) modOpacity.put(key, DEFAULT_OPACITY);
@@ -479,11 +505,7 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity implements 
         isLocked = false;
         lockButton.setText("Lock");
         lockButton.setTextColor(Color.WHITE);
-        GradientDrawable bg = new GradientDrawable();
-        bg.setShape(GradientDrawable.RECTANGLE);
-        bg.setColor(Color.BLACK);
-        bg.setCornerRadius(dpToPx(12));
-        lockButton.setBackground(bg);
+        lockButton.setBackground(makeBlackBg());
         lockButton.setBackgroundTintList(null);
         isAdapterVisible = false;
         adapterContainer.setVisibility(View.GONE);

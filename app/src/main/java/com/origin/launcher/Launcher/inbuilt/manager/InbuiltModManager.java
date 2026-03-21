@@ -24,6 +24,7 @@ public class InbuiltModManager {
     private static final String KEY_OVERLAY_BUTTON_OPACITY_PREFIX = "overlay_button_opacity_";
     private static final String KEY_ZOOM_LEVEL = "zoom_level";
     private static final String KEY_ZOOM_KEYBIND = "zoom_keybind";
+    private static final String KEY_ZOOM_HOLD_MODE = "zoom_hold_mode";
     private static final int DEFAULT_OVERLAY_BUTTON_SIZE = 56;
     private static final int DEFAULT_OVERLAY_BUTTON_OPACITY = 100;
     private static final int DEFAULT_ZOOM_LEVEL = 50;
@@ -94,13 +95,6 @@ public class InbuiltModManager {
                 false,
                 addedMods.contains(ModIds.THIRD_PERSON_NAMETAG)
         ));
-        /*mods.add(new InbuiltMod(
-            ModIds.MOTION_BLUR,
-            context.getString(R.string.inbuilt_mod_motion_blur),
-            context.getString(R.string.inbuilt_mod_motion_blur_desc),
-            false,
-            addedMods.contains(ModIds.MOTION_BLUR)
-        ));*/
         return mods;
     }
 
@@ -135,16 +129,16 @@ public class InbuiltModManager {
         addedMods.remove(modId);
         savePrefs();
     }
-    
+
     public void applyAllPatches() {
-    if (addedMods.contains(ModIds.THIRD_PERSON_NAMETAG)) {
-        NameTagMod.patch();
+        if (addedMods.contains(ModIds.THIRD_PERSON_NAMETAG)) {
+            NameTagMod.patch();
         }
     }
 
     public void removeAllPatches() {
-    if (addedMods.contains(ModIds.THIRD_PERSON_NAMETAG)) {
-        NameTagMod.unpatch();
+        if (addedMods.contains(ModIds.THIRD_PERSON_NAMETAG)) {
+            NameTagMod.unpatch();
         }
     }
 
@@ -179,6 +173,14 @@ public class InbuiltModManager {
 
     public void setZoomKeybind(int keyCode) {
         prefs.edit().putInt(KEY_ZOOM_KEYBIND, keyCode).apply();
+    }
+
+    public boolean getZoomHoldMode() {
+        return prefs.getBoolean(KEY_ZOOM_HOLD_MODE, false);
+    }
+
+    public void setZoomHoldMode(boolean holdMode) {
+        prefs.edit().putBoolean(KEY_ZOOM_HOLD_MODE, holdMode).apply();
     }
 
     public int getOverlayButtonSize() {
