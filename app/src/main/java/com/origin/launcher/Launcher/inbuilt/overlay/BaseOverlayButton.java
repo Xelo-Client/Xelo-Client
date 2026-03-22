@@ -2,7 +2,11 @@ package com.origin.launcher.Launcher.inbuilt.overlay;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.PixelFormat;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.StateListDrawable;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
@@ -18,6 +22,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 
 import com.origin.launcher.R;
+import com.origin.launcher.ThemeManager;
 import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModManager;
 import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModSizeStore;
 
@@ -65,12 +70,29 @@ public abstract class BaseOverlayButton {
         handler.post(() -> showInternal(startX, startY));
     }
 
+    // Applies themed pressed/unpressed bitmaps if available, otherwise falls back to the default selector drawable
+    private void applyThemedIcon(ImageButton btn) {
+        Bitmap normal = ThemeManager.getInstance().getOverlayButtonBitmap(getModId());
+        Bitmap pressed = ThemeManager.getInstance().getOverlayButtonPressedBitmap(getModId());
+
+        if (normal != null && pressed != null) {
+            // Build a StateListDrawable matching the selector pattern: activated/pressed → pressed bitmap, default → normal bitmap
+            StateListDrawable stateDrawable = new StateListDrawable();
+            stateDrawable.addState(new int[]{android.R.attr.state_activated}, new BitmapDrawable(activity.getResources(), pressed));
+            stateDrawable.addState(new int[]{android.R.attr.state_pressed}, new BitmapDrawable(activity.getResources(), pressed));
+            stateDrawable.addState(new int[]{}, new BitmapDrawable(activity.getResources(), normal));
+            btn.setImageDrawable(stateDrawable);
+        } else {
+            btn.setImageResource(getIconResource());
+        }
+    }
+
     private void showInternal(int startX, int startY) {
         if (isShowing || activity.isFinishing() || activity.isDestroyed()) return;
         try {
             overlayView = LayoutInflater.from(activity).inflate(R.layout.overlay_mod_button, null);
             ImageButton btn = (ImageButton) overlayView;
-            btn.setImageResource(getIconResource());
+            applyThemedIcon(btn);
 
             int buttonSize = getButtonSizePx();
             btn.setScaleType(ImageButton.ScaleType.FIT_CENTER);
@@ -107,7 +129,7 @@ public abstract class BaseOverlayButton {
 
         overlayView = LayoutInflater.from(activity).inflate(R.layout.overlay_mod_button, null);
         ImageButton btn = (ImageButton) overlayView;
-        btn.setImageResource(getIconResource());
+        applyThemedIcon(btn);
 
         int buttonSize = getButtonSizePx();
         btn.setScaleType(ImageButton.ScaleType.FIT_CENTER);
