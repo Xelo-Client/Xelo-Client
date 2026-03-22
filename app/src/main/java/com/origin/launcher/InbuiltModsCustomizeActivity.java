@@ -3,6 +3,7 @@ package com.origin.launcher;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -26,6 +27,7 @@ import com.origin.launcher.Adapter.InbuiltCustomizeAdapter;
 import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModManager;
 import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModSizeStore;
 import com.origin.launcher.Launcher.inbuilt.model.ModIds;
+import com.origin.launcher.ThemeManager;
 import com.origin.launcher.R;
 
 import java.util.ArrayList;
@@ -421,6 +423,8 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity implements 
     private void addModButton(FrameLayout grid, int iconResId, String id) {
         ImageButton btn = new ImageButton(this);
         btn.setImageResource(iconResId);
+        Bitmap themedBitmap = ThemeManager.getInstance().getOverlayButtonBitmap(id);
+        if (themedBitmap != null) btn.setImageBitmap(themedBitmap);
         btn.setBackgroundResource(R.drawable.bg_overlay_button);
         btn.setPadding(0, 0, 0, 0);
         btn.setPaddingRelative(0, 0, 0, 0);

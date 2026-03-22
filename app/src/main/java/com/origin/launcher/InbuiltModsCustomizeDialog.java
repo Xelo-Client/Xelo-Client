@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -31,6 +32,7 @@ import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModManager;
 import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModSizeStore;
 import com.origin.launcher.Launcher.inbuilt.overlay.InbuiltOverlayManager;
 import com.origin.launcher.Launcher.inbuilt.model.ModIds;
+import com.origin.launcher.ThemeManager;
 import com.origin.launcher.R;
 
 import java.util.ArrayList;
@@ -503,6 +505,8 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
     private void addModButton(FrameLayout grid, int iconResId, String id) {
         ImageButton btn = new ImageButton(getContext());
         btn.setImageResource(iconResId);
+        Bitmap themedBitmap = ThemeManager.getInstance().getOverlayButtonBitmap(id);
+        if (themedBitmap != null) btn.setImageBitmap(themedBitmap);
         btn.setBackgroundResource(R.drawable.bg_overlay_button);
         btn.setPadding(0, 0, 0, 0);
         btn.setPaddingRelative(0, 0, 0, 0);
