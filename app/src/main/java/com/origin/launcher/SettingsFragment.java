@@ -7,7 +7,8 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -15,14 +16,25 @@ import android.util.Log;
 import androidx.fragment.app.Fragment;
 import android.os.Handler;
 import android.os.Looper;
+import java.util.List;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.core.content.ContextCompat;
+import androidx.appcompat.app.AlertDialog;
 
-public class SettingsFragment extends BaseThemedFragment implements DiscordManager.DiscordLoginCallback {
+import com.origin.launcher.versions.VersionManager;
+import com.origin.launcher.versions.GameVersion;
+import com.origin.launcher.Adapter.VersionAdapter;
+import com.origin.launcher.animation.DynamicAnim;
+import com.origin.launcher.R;
 
-    private EditText packageNameEdit;
+public class SettingsFragment extends BaseThemedFragment implements DiscordManager.DiscordLoginCallback, VersionAdapter.OnVersionSelectedListener {
+
     private LinearLayout themesButton;
     private LinearLayout configurationButton;
     private LinearLayout aboutButton; 
     private LinearLayout supportButton;
+    private View fragmentView;
     
     // Discord components
     private com.google.android.material.button.MaterialButton discordLoginButton;
@@ -30,73 +42,134 @@ public class SettingsFragment extends BaseThemedFragment implements DiscordManag
     private TextView discordUserText;
     private DiscordManager discordManager;
     
-    private static final String PREF_PACKAGE_NAME = "mc_package_name";
     private static final String DEFAULT_PACKAGE_NAME = "com.mojang.minecraftpe";
     private static final String TAG = "SettingsFragment";
     private Handler mainHandler;
+    
+    private VersionManager versionManager;
+    private TextView selectedVersionText;
+    private AlertDialog versionDialog;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_settings, container, false);
-        
-        packageNameEdit = view.findViewById(R.id.mc_pkgname);
-        
-        // Initialize themes and about buttons
-        themesButton = view.findViewById(R.id.themes_button);
-        configurationButton = view.findViewById(R.id.configuration_button);
-        aboutButton = view.findViewById(R.id.about_button);
-        supportButton = view.findViewById(R.id.support_button);
-        
-        // Initialize Discord components
-        discordLoginButton = view.findViewById(R.id.discord_login_button);
-        discordStatusText = view.findViewById(R.id.discord_status_text);
-        discordUserText = view.findViewById(R.id.discord_user_text);
-        
-        // Initialize Discord manager
-        discordManager = new DiscordManager(getActivity()); // Use getActivity() instead of getContext()
-        discordManager.setCallback(this);
-        discordManager.setFragment(this); // Set fragment reference for startActivityForResult
-        
-        // Initialize the global RPC helper
-        DiscordRPCHelper.getInstance().initialize(discordManager);
-        
-        // Initialize Discord RPC with the helper
-        if (discordManager != null) {
-            DiscordRPCHelper.getInstance().initializeRPC(discordManager.getDiscordRPC());
-        }
-        
-        // Initialize handler
-        mainHandler = new Handler(Looper.getMainLooper());
-        
-        // Load saved package name
-        SharedPreferences prefs = requireContext().getSharedPreferences("settings", 0);
-        String savedPackageName = prefs.getString(PREF_PACKAGE_NAME, DEFAULT_PACKAGE_NAME);
-        packageNameEdit.setText(savedPackageName);
-        
-        // Save package name when text changes
-        packageNameEdit.setOnFocusChangeListener((v, hasFocus) -> {
-            if (!hasFocus) {
-                savePackageName();
-            }
-        });
-        
-        // Set up button click listeners
-        setupButtonListeners();
-        
-        // Setup Discord login button
-        setupDiscordButton();
-        
-        // Update Discord UI immediately
-        updateDiscordUI();
-        
-        // If already logged in, start RPC
-        if (discordManager.isLoggedIn()) {
-            Log.d(TAG, "User already logged in, starting RPC...");
-            discordManager.startRPC();
-        }
-        
-        return view;
+public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    fragmentView = inflater.inflate(R.layout.fragment_settings, container, false);
+    
+    // Initialize themes and about buttons
+    themesButton = fragmentView.findViewById(R.id.themes_button);
+    configurationButton = fragmentView.findViewById(R.id.configuration_button);
+    aboutButton = fragmentView.findViewById(R.id.about_button);
+    supportButton = fragmentView.findViewById(R.id.support_button);
+    
+    selectedVersionText = fragmentView.findViewById(R.id.selected_version_text);
+    
+    // Initialize Discord components
+    discordLoginButton = fragmentView.findViewById(R.id.discord_login_button);
+    discordStatusText = fragmentView.findViewById(R.id.discord_status_text);
+    discordUserText = fragmentView.findViewById(R.id.discord_user_text);
+    
+    // Initialize Discord manager
+    discordManager = new DiscordManager(getActivity());
+    discordManager.setCallback(this);
+    discordManager.setFragment(this);
+    
+    // Initialize the global RPC helper
+    DiscordRPCHelper.getInstance().initialize(discordManager);
+    
+    if (discordManager != null) {
+        DiscordRPCHelper.getInstance().initializeRPC(discordManager.getDiscordRPC());
     }
+    
+    // Initialize handler
+    mainHandler = new Handler(Looper.getMainLooper());
+    
+    setupVersionSelection(null, selectedVersionText);
+    
+    SharedPreferences prefs = requireContext().getSharedPreferences("settings", 0);
+    
+    // Set up button click listeners
+    setupButtonListeners();
+    
+    // Setup Discord login button
+    setupDiscordButton();
+    
+    // Update Discord UI immediately
+    updateDiscordUI();
+    
+    // If already logged in, start RPC
+    if (discordManager.isLoggedIn()) {
+        Log.d(TAG, "User already logged in, starting RPC...");
+        discordManager.startRPC();
+    }
+    
+    return fragmentView;
+}
+    
+    private void setupVersionSelection(Button selectButton, TextView versionText) {
+    this.selectedVersionText = versionText;
+    versionManager = VersionManager.get(requireContext());
+    versionManager.loadAllVersions();
+    updateVersionDisplay();
+    
+    versionText.setOnClickListener(v -> showVersionDialog());
+}
+
+private void showVersionDialog() {
+    if (versionDialog != null && versionDialog.isShowing()) {
+        dismissVersionDialog();
+        return;
+    }
+    
+    View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_versions, null);
+    RecyclerView recyclerView = dialogView.findViewById(R.id.recycler_versions);
+    
+    recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+    recyclerView.setItemAnimator(null);
+    
+    VersionAdapter dialogAdapter = new VersionAdapter(versionManager.getInstalledVersions(), version -> onVersionSelected(version));
+    recyclerView.setAdapter(dialogAdapter);
+    
+    ImageButton backButton = dialogView.findViewById(R.id.back_button);
+    backButton.setOnClickListener(v -> dismissVersionDialog());
+    
+    versionDialog = new AlertDialog.Builder(requireContext())
+        .setView(dialogView)
+        .setCancelable(true)
+        .create();
+    
+    versionDialog.setOnShowListener(dialogInterface -> {
+        View rootView = dialogView.findViewById(R.id.header_container);
+        DynamicAnim.animateDialogShow(rootView);
+    });
+    
+    versionDialog.show();
+}
+
+private void dismissVersionDialog() {
+    if (versionDialog != null && versionDialog.isShowing()) {
+        versionDialog.dismiss();
+        versionDialog = null;
+    }
+}
+
+@Override
+public void onVersionSelected(GameVersion version) {
+    versionManager.selectVersion(version);
+    updateVersionDisplay();
+    dismissVersionDialog();
+}
+
+    private void updateVersionDisplay() {
+    if (selectedVersionText == null) return;
+    
+    GameVersion current = versionManager.getSelectedVersion();
+    if (current != null) {
+        selectedVersionText.setText(current.displayName);
+        selectedVersionText.setTextColor(ContextCompat.getColor(requireContext(), R.color.primary));
+    } else {
+        selectedVersionText.setText("No version selected");
+        selectedVersionText.setTextColor(ContextCompat.getColor(requireContext(), R.color.onSurfaceVariant));
+    }
+}
     
     private void setupButtonListeners() {
         // Add themes button listener - simple fragment replacement
@@ -362,14 +435,6 @@ public class SettingsFragment extends BaseThemedFragment implements DiscordManag
         }
     }
     
-    private void savePackageName() {
-        String packageName = packageNameEdit.getText().toString().trim();
-        if (!packageName.isEmpty()) {
-            SharedPreferences prefs = requireContext().getSharedPreferences("settings", 0);
-            prefs.edit().putString(PREF_PACKAGE_NAME, packageName).apply();
-        }
-    }
-    
     @Override
     public void onResume() {
         super.onResume();
@@ -383,7 +448,6 @@ public class SettingsFragment extends BaseThemedFragment implements DiscordManag
     @Override
     public void onPause() {
         super.onPause();
-        savePackageName();
         
         // Update Discord RPC when leaving settings
         DiscordRPCHelper.getInstance().updateIdlePresence();

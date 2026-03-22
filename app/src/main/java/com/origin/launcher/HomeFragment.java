@@ -284,9 +284,10 @@ public void onDestroyView() {
     }
 
     private String getPackageNameFromSettings() {
-        SharedPreferences prefs = requireContext().getSharedPreferences("settings", 0);
-        return prefs.getString("mc_package_name", "com.mojang.minecraftpe");
-    }
+    VersionManager vm = VersionManager.get(requireContext());
+    GameVersion version = vm.getSelectedVersion();
+    return version != null ? version.packageName : "com.mojang.minecraftpe";
+}
 
     private String getSelectedApkPath() {
         SharedPreferences prefs = requireContext().getSharedPreferences("selected_apk", 0);

@@ -44,6 +44,10 @@ import androidx.core.content.FileProvider;
 import androidx.core.math.MathUtils;
 import androidx.core.splashscreen.SplashScreen;
 import androidx.preference.PreferenceManager;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.PickVisualMediaRequest;
+import androidx.activity.result.contract.ActivityResultContract;
+import androidx.activity.result.contract.ActivityResultContracts;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.androidgamesdk.GameActivity;
 import com.google.firebase.FirebaseApp;
@@ -94,6 +98,7 @@ public class MainActivity extends GameActivity implements View.OnKeyListener, Fi
     public ParcelFileDescriptor mPickedFileDescriptor;
     private ThermalMonitor mThermalMonitor;
 
+    public TextInputProxyEditTextbox textInputWidget;
     private TextToSpeech textToSpeechManager;
     private Thread mMainThread = null;
     public int virtualKeyboardHeight = 0;
@@ -105,9 +110,9 @@ public class MainActivity extends GameActivity implements View.OnKeyListener, Fi
     private long mFileDialogCallback = 0;
     private float mVolume = 1.0f;
     private boolean mIsRunningInAppCenter = false;
-    private boolean mPauseTextboxUIUpdates = false;
-    AtomicInteger mCaretPositionMirror = new AtomicInteger(0);
-    AtomicReference<String> mCurrentTextMirror = new AtomicReference<>("");
+    public boolean mPauseTextboxUIUpdates = false;
+    public AtomicInteger mCaretPositionMirror = new AtomicInteger(0);
+    public AtomicReference<String> mCurrentTextMirror = new AtomicReference<>("");
     public List<ActivityListener> mActivityListeners = new ArrayList();
     private FilePickerManager mFilePickerManager = null;
     private WorldRecovery mWorldRecovery = null;
@@ -150,6 +155,7 @@ public class MainActivity extends GameActivity implements View.OnKeyListener, Fi
     Debug.MemoryInfo mCachedDebugMemoryInfo = new Debug.MemoryInfo();
     long mCachedDebugMemoryUpdateTime = 0;
     private long mCallback = 0;
+    private ActivityResultLauncher<PickVisualMediaRequest> pickMedia;
 
     enum MessageConnectionStatus {
         NOTSET,
@@ -274,7 +280,9 @@ public class MainActivity extends GameActivity implements View.OnKeyListener, Fi
 
     native void nativeCaretPosition(final int caretPosition);
 
-    native void nativeSetTextboxText(String text);
+    native void nativeSetTextboxText(String text, int cursorBegin, int cursorEnd);
+
+    native void nativeShiftKeyPressed(int i);
 
     native void nativeShutdown();
 
@@ -345,16 +353,7 @@ public class MainActivity extends GameActivity implements View.OnKeyListener, Fi
         return keyboardHeight;
     }
 
-    public void updateTextboxText(final String text) {
-        runOnUiThread(() -> {
-            if (!showingKeyboard)
-                return;
-            showingKeyboard = false;
-            keyboardInput.setText(text);
-            keyboardInput.setSelection(keyboardInput.getText().length());
-            showingKeyboard = true;
-        });
-    }
+
 
     public void trackPurchaseEvent(String contentId, String contentType, String revenue, String clientId, String userId, String playerSessionId, String currencyCode, String eventName) {
     }
@@ -493,6 +492,24 @@ public class MainActivity extends GameActivity implements View.OnKeyListener, Fi
         });
 
         mWorldRecovery = new WorldRecovery(getApplicationContext(), getApplicationContext().getContentResolver());
+
+        pickMedia =
+                registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
+                    if (uri != null) {
+                        String[] projection = {MediaStore.Images.Media.DATA};
+                        Cursor cursor = getContentResolver().query(uri, projection, null, null, null);
+                        if (cursor != null && cursor.moveToFirst()) {
+                            String filePath = cursor.getString(cursor.getColumnIndexOrThrow(projection[0]));
+                            nativeOnPickImageSuccess(mCallback, filePath);
+                            cursor.close();
+                        } else {
+                            nativeOnPickImageCanceled(mCallback);
+                        }
+                    } else {
+                        nativeOnPickImageCanceled(mCallback);
+                    }
+        });
+        this.textInputWidget = createTextWidget();
     }
 
 
@@ -690,65 +707,142 @@ public class MainActivity extends GameActivity implements View.OnKeyListener, Fi
         return getResources().getConfiguration().keyboard == Configuration.KEYBOARD_QWERTY;
     }
 
-    public static class CustomEditText extends androidx.appcompat.widget.AppCompatEditText {
+    public void setupKeyboardViews(String str, int i, boolean z, boolean z2, boolean z3) {
+        this.mPauseTextboxUIUpdates = true;
+        this.textInputWidget.updateFilters(i, !z3);
+        this.textInputWidget.setInputType((z3 ? 131072 : 524288) | (z2 ? 2 : 1));
+        this.textInputWidget.setText(str);
+        this.textInputWidget.setVisibility(0);
+        this.textInputWidget.requestFocus();
+        this.mPauseTextboxUIUpdates = false;
+        getInputMethodManager().showSoftInput(this.textInputWidget, 0);
+    }
 
-        MainActivity activity;
+    public TextInputProxyEditTextbox createTextWidget() {
+        final TextInputProxyEditTextbox textInputProxyEditTextbox = new TextInputProxyEditTextbox(this);
+        textInputProxyEditTextbox.setVisibility(8);
+        textInputProxyEditTextbox.setFocusable(true);
+        textInputProxyEditTextbox.setFocusableInTouchMode(true);
+        textInputProxyEditTextbox.setImeOptions(268435461);
+        textInputProxyEditTextbox.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
+                Log.w("mcpe - keyboard", "onEditorAction: " + i);
+                boolean z = i == 5;
+                boolean z2 = i == 0 && keyEvent != null && keyEvent.getAction() == 0;
+                if (!z && !z2) {
+                    if (i != 7) {
+                        return false;
+                    }
+                    MainActivity.this.nativeBackPressed();
+                    return true;
+                }
+                if (z) {
+                    MainActivity.this.nativeReturnKeyPressed();
+                }
+                String string = textInputProxyEditTextbox.getText().toString();
+                int selectionEnd = textInputProxyEditTextbox.getSelectionEnd();
+                if (selectionEnd < 0 || selectionEnd > string.length()) {
+                    selectionEnd = string.length();
+                }
+                if ((textInputProxyEditTextbox.getInputType() & 131072) == 0) {
+                    return true;
+                }
+                textInputProxyEditTextbox.setText(string.substring(0, selectionEnd) + "\n" + string.substring(selectionEnd, string.length()));
+                textInputProxyEditTextbox.setSelection(Math.min(selectionEnd + 1, textInputProxyEditTextbox.getText().length()));
+                return true;
+            }
+        });
+        textInputProxyEditTextbox.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i2, int i3) {
+            }
 
-        public CustomEditText(MainActivity activity) {
-            super(activity);
-            this.activity = activity;
-        }
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i2, int i3) {
+            }
 
-        @Override
-        public boolean onKeyPreIme(int keyCode, KeyEvent event) {
-            if (keyCode == KeyEvent.KEYCODE_BACK) {
-                activity.hideKeyboard();
-                activity.nativeBackPressed();
+            @Override
+            public void afterTextChanged(Editable editable) {
+                String string = editable.toString();
+                MainActivity.this.mCurrentTextMirror.set(string);
+                int selectionStart = textInputProxyEditTextbox.getSelectionStart();
+                int selectionEnd = textInputProxyEditTextbox.getSelectionEnd();
+                MainActivity.this.mCaretPositionMirror.set(selectionEnd);
+                if (MainActivity.this.mPauseTextboxUIUpdates) {
+                    return;
+                }
+                MainActivity.this.nativeSetTextboxText(string, selectionStart, selectionEnd);
+            }
+        });
+        textInputProxyEditTextbox.setAccessibilityDelegate(new View.AccessibilityDelegate() {
+            @Override
+            public void sendAccessibilityEvent(View view, int i) {
+                super.sendAccessibilityEvent(view, i);
+                if (i == 8192) {
+                    int selectionStart = textInputProxyEditTextbox.getSelectionStart();
+                    int selectionEnd = textInputProxyEditTextbox.getSelectionEnd();
+                    MainActivity.this.mCaretPositionMirror.set(selectionEnd);
+                    if (MainActivity.this.mPauseTextboxUIUpdates) {
+                        return;
+                    }
+                    MainActivity.this.nativeSetTextboxText(textInputProxyEditTextbox.getText().toString(), selectionStart, selectionEnd);
+                }
+            }
+        });
+        textInputProxyEditTextbox.setOnMCPEKeyWatcher(new TextInputProxyEditTextbox.MCPEKeyWatcher() {
+            @Override
+            public boolean onBackKeyPressed() {
+                MainActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Log.w("mcpe - keyboard", "textInputWidget.onBackPressed");
+                        MainActivity.this.nativeBackPressed();
+                    }
+                });
                 return true;
             }
 
-            return super.onKeyPreIme(keyCode, event);
-        }
+            @Override
+            public void onDeleteKeyPressed() {
+                MainActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        MainActivity.this.nativeBackSpacePressed();
+                    }
+                });
+            }
 
-        @Override
-        public void onEditorAction(int actionCode) {
-            if ((actionCode & EditorInfo.IME_MASK_ACTION) == EditorInfo.IME_ACTION_NEXT) {
-                activity.nativeReturnKeyPressed();
-                if (activity.keyboardMultiline) {
-                    String ts = getText().toString();
-                    int i = MathUtils.clamp(getSelectionEnd(), 0, ts.length());
-                    setText(ts.substring(0, i) + "\n" + ts.substring(i));
-                    setSelection(i + 1);
+            @Override
+            public void updateShiftKeyState(final int i) {
+                MainActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        MainActivity.this.nativeShiftKeyPressed(i);
+                    }
+                });
+            }
+        });
+        ((ViewGroup) findViewById(android.R.id.content)).addView(textInputProxyEditTextbox, new ViewGroup.LayoutParams(1, 1));
+        final View rootView = findViewById(android.R.id.content).getRootView();
+        rootView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                Rect rect = new Rect();
+                rootView.getWindowVisibleDisplayFrame(rect);
+                MainActivity.this.virtualKeyboardHeight = rootView.getRootView().getHeight() - rect.height();
+                if (rootView.getRootView().getHeight() - rect.bottom > 0) {
+                    if (MainActivity.this.mIsSoftKeyboardVisible) {
+                        return;
+                    }
+                    MainActivity.this.mIsSoftKeyboardVisible = true;
+                } else if (MainActivity.this.mIsSoftKeyboardVisible) {
+                    MainActivity.this.mIsSoftKeyboardVisible = false;
                 }
-                return;
             }
-            super.onEditorAction(actionCode);
-        }
-
-        @Override
-        public boolean onKeyDown(int keyCode, KeyEvent event) {
-            if (keyCode == KeyEvent.KEYCODE_ENTER) {
-                activity.nativeReturnKeyPressed();
-            }
-            if (keyCode == KeyEvent.KEYCODE_ESCAPE) {
-                activity.nativeBackPressed();
-            }
-            return super.onKeyDown(keyCode, event);
-        }
-
-        @Override
-        protected void onSelectionChanged(int selStart, int selEnd) {
-            super.onSelectionChanged(selStart, selEnd);
-            if (activity != null)
-                activity.kbCursorPos = selStart;
-        }
-
-        @Override
-        public void draw(Canvas canvas) {
-            super.draw(canvas);
-        }
+        });
+        return textInputProxyEditTextbox;
     }
-
 
     public void updateLocalization(final String lang, final String region) {
         runOnUiThread(() -> {
@@ -760,100 +854,99 @@ public class MainActivity extends GameActivity implements View.OnKeyListener, Fi
         });
     }
 
-    private CustomEditText keyboardInput;
-    private boolean showingKeyboard;
-    private boolean keyboardMultiline;
-    private String cachedText;
-
-    public void showKeyboard(final String text, final int maxLen, final boolean limitInput, final boolean onlyNumbers, final boolean isMultiline) {
-        runOnUiThread(() -> {
-            Log.d("Minecraft", "showKeyboard");
-            if (keyboardInput == null) {
-                keyboardInput = new CustomEditText(MainActivity.this);
-
-                keyboardInput.addTextChangedListener(new TextWatcher() {
-                    @Override
-                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-                    }
-
-                    @Override
-                    public void onTextChanged(CharSequence s, int start, int before, int count) {
-                        if (!showingKeyboard)
-                            return;
-
-                        String newText = keyboardInput.getText().toString();
-                        if (!newText.equals(cachedText)) {
-                            cachedText = newText;
-                            nativeSetTextboxText(newText);
-                        }
-                    }
-
-                    @Override
-                    public void afterTextChanged(Editable s) {
-
-                    }
-                });
-
-                keyboardInput.setFocusable(true);
-                keyboardInput.setFocusableInTouchMode(true);
-                ((ViewGroup) findViewById(android.R.id.content)).addView(keyboardInput, 1, 1);
+    public void showKeyboard(final String str, final int i, final boolean z, final boolean z2, final boolean z3) {
+        nativeClearAButtonState();
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                MainActivity.this.setupKeyboardViews(str, i, z, z2, z3);
             }
-            showingKeyboard = false;
-            keyboardInput.setText(text);
-            if (limitInput) {
-                InputFilter[] filterArray = new InputFilter[1];
-                filterArray[0] = new InputFilter.LengthFilter(maxLen);
-                keyboardInput.setFilters(filterArray);
-            }
-            keyboardMultiline = isMultiline;
-            keyboardInput.setInputType(isMultiline ? InputType.TYPE_TEXT_FLAG_MULTI_LINE : InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
-            if (onlyNumbers) {
-                keyboardInput.setInputType(keyboardInput.getInputType() | InputType.TYPE_CLASS_NUMBER);
-            }
-            keyboardInput.setSingleLine(true);
-            keyboardInput.setImeOptions(EditorInfo.IME_FLAG_NO_FULLSCREEN | EditorInfo.IME_FLAG_NO_EXTRACT_UI | EditorInfo.IME_ACTION_NEXT);
-
-            keyboardInput.setVisibility(View.VISIBLE);
-            keyboardInput.setSelection(keyboardInput.getText().length());
-            keyboardInput.requestFocus();
-
-            InputMethodManager mgr = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
-            mgr.showSoftInput(keyboardInput, InputMethodManager.SHOW_FORCED);
-            showingKeyboard = true;
-            cachedText = null;
         });
     }
 
-    public void showKeyboard(String text, int maxLen, boolean limitInput, boolean onlyNumbers) {
-        showKeyboard(text, maxLen, limitInput, onlyNumbers, false);
-    }
-
-    private int kbCursorPos = 0;
-
-    public int getCursorPosition() {
-        return kbCursorPos;
-    }
-
-    public int getCaretPosition() {
-        return kbCursorPos;
-    }
-
     public void hideKeyboard() {
-        runOnUiThread(() -> {
-            if (keyboardInput == null)
-                return;
-            Log.d("Minecraft", "hideKeyboard");
-            InputMethodManager mgr = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
-            mgr.hideSoftInputFromWindow(keyboardInput.getWindowToken(), 0);
-            keyboardInput.setVisibility(View.GONE);
-
-            showingKeyboard = false;
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                MainActivity.this.dismissTextWidget();
+            }
         });
     }
 
     public boolean isSoftKeyboardVisible() {
         return mIsSoftKeyboardVisible;
+    }
+
+    public boolean isTextWidgetActive() {
+        TextInputProxyEditTextbox textInputProxyEditTextbox = this.textInputWidget;
+        return textInputProxyEditTextbox != null && textInputProxyEditTextbox.getVisibility() == 0;
+    }
+
+    public void dismissTextWidget() {
+        if (isTextWidgetActive()) {
+            getInputMethodManager().hideSoftInputFromWindow(this.textInputWidget.getWindowToken(), 0);
+            this.mPauseTextboxUIUpdates = true;
+            this.textInputWidget.setInputType(524288);
+            this.mPauseTextboxUIUpdates = false;
+            this.textInputWidget.setVisibility(8);
+        }
+    }
+
+    public void setTextBoxBackend(final String str) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                MainActivity.this.mPauseTextboxUIUpdates = true;
+                MainActivity.this.textInputWidget.setText(str);
+                MainActivity.this.mPauseTextboxUIUpdates = false;
+            }
+        });
+    }
+
+    public String getTextBoxBackend() {
+        return this.mCurrentTextMirror.get();
+    }
+
+    public int getCaretPosition() {
+        return this.mCaretPositionMirror.get();
+    }
+
+    public void setCaretPosition(final int i) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                int i2 = i;
+                int length = MainActivity.this.textInputWidget.getText().toString().length();
+                if (i2 < 0 || i2 > length) {
+                    i2 = length;
+                }
+                MainActivity.this.mPauseTextboxUIUpdates = true;
+                MainActivity.this.textInputWidget.setSelection(i2);
+                MainActivity.this.mPauseTextboxUIUpdates = false;
+            }
+        });
+    }
+
+    public void setTextBoxSelection(final int i, final int i2) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                int i3 = i;
+                int i4 = i2;
+                int length = MainActivity.this.textInputWidget.getText().toString().length();
+                if (i3 < 0 || i3 > length) {
+                    i3 = length;
+                }
+                if (i4 < i3) {
+                    i4 = i3;
+                } else if (i4 > length) {
+                    i4 = length;
+                }
+                MainActivity.this.mPauseTextboxUIUpdates = true;
+                MainActivity.this.textInputWidget.setSelection(i3, i4);
+                MainActivity.this.mPauseTextboxUIUpdates = false;
+            }
+        });
     }
 
 
@@ -1454,33 +1547,7 @@ public class MainActivity extends GameActivity implements View.OnKeyListener, Fi
         }
     }
 
-    public String getTextBoxBackend() {
-        return cachedText;
-    }
 
-    public void setTextBoxBackend(String text) {
-        runOnUiThread(() -> {
-            if (!showingKeyboard)
-                return;
-            showingKeyboard = false;
-            keyboardInput.setText(text);
-            keyboardInput.setSelection(keyboardInput.getText().length());
-            showingKeyboard = true;
-        });
-    }
-
-
-
-    public void setCaretPosition(int pos) {
-        runOnUiThread(() -> {
-            if (keyboardInput == null)
-                return;
-            int pPos = pos;
-            if (pPos < 0 || pPos >= keyboardInput.length())
-                pPos = keyboardInput.length();
-            keyboardInput.setSelection(pPos);
-        });
-    }
 
     @Override
     public void onPause() {
@@ -1532,7 +1599,8 @@ public class MainActivity extends GameActivity implements View.OnKeyListener, Fi
                 JSONObject jSONObject = new JSONObject(stringExtra);
                 String string = jSONObject.getString("Command");
                 if (string.equals("keyboardResult")) {
-                    nativeSetTextboxText(jSONObject.getString("Text"));
+                    String text = jSONObject.getString("Text");
+                    nativeSetTextboxText(text, text.length(), text.length());
                     return;
                 } else if (!string.equals("fileDialogResult") || mFileDialogCallback == 0) {
                     return;
@@ -1657,8 +1725,10 @@ public class MainActivity extends GameActivity implements View.OnKeyListener, Fi
     void pickImage(long callback) {
         mCallback = callback;
         try {
-            startActivityForResult(new Intent("android.intent.action.PICK", MediaStore.Images.Media.EXTERNAL_CONTENT_URI), RESULT_PICK_IMAGE);
-        } catch (ActivityNotFoundException e) {
+            pickMedia.launch(new PickVisualMediaRequest.Builder()
+                    .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
+                    .build());
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -1715,20 +1785,10 @@ public class MainActivity extends GameActivity implements View.OnKeyListener, Fi
                 if (requestCode == OPEN_FILE_RESULT_CODE || requestCode == SAVE_FILE_RESULT_CODE) {
                     mPickedFileDescriptor = getContentResolver().openFileDescriptor(data, requestCode == OPEN_FILE_RESULT_CODE ? "r" : "w");
                     onPickFileSuccess(requestCode == OPEN_FILE_RESULT_CODE);
-                } else if (requestCode == RESULT_PICK_IMAGE) {
-                    String[] projection = {MediaStore.Images.Media.DATA};
-                    Cursor cursor = getContentResolver().query(data, projection, null, null, null);
-                    if (cursor != null && cursor.moveToFirst()) {
-                        String filePath = cursor.getString(cursor.getColumnIndexOrThrow(projection[0]));
-                        nativeOnPickImageSuccess(mCallback, filePath);
-                        cursor.close();
-                    }
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        } else if (requestCode == RESULT_PICK_IMAGE) {
-            nativeOnPickImageCanceled(mCallback);
         }
     }
 

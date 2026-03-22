@@ -312,8 +312,10 @@ public class MainActivity extends BaseThemedActivity {
         cards.add(new CreditsAdapter.CreditCard("Yami", "Sukrisus", "https://avatars.githubusercontent.com/u/99645769?v=4", "OWNER"));
         cards.add(new CreditsAdapter.CreditCard("VCX", "Viablecobra", "https://avatars.githubusercontent.com/u/88580298?v=4", "I am viable👍🏻"));
         cards.add(new CreditsAdapter.CreditCard("Light", "RadiantByte", "https://avatars.githubusercontent.com/u/198057285?v=4", "💭"));
+        cards.add(new CreditsAdapter.CreditCard("MCPEOVER", "MCPEOVER", "https://avatars.githubusercontent.com/u/118625383?v=4", "MotioBlur dev"));
         cards.add(new CreditsAdapter.CreditCard("Kitsuri", "Kitsuri-Studios", "https://avatars.githubusercontent.com/u/220755073?v=4", "One Place For All Case: Native Development..."));
         cards.add(new CreditsAdapter.CreditCard("GX", "dreamguxiang", "https://avatars.githubusercontent.com/u/62042544?v=4", "No Tag line Needed, Already Perfect"));
+        cards.add(new CreditsAdapter.CreditCard("Fzul","faizul726", "https://avatars.githubusercontent.com/u/162413089?v=4", "🌳 Living life..."));
 
         CreditsAdapter adapter = new CreditsAdapter(this, cards);
         recycler.setAdapter(adapter);

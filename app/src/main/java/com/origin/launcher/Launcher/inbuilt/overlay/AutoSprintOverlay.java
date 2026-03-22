@@ -23,8 +23,11 @@ public class AutoSprintOverlay extends BaseOverlayButton {
 
     @Override
     protected int getIconResource() {
-        return R.drawable.ic_sprint;
+        return R.drawable.ic_sprint_selector;
     }
+
+    @Override
+    protected void onOverlayViewCreated(ImageButton btn) {}
 
     @Override
     protected void onButtonClick() {
@@ -42,7 +45,8 @@ public class AutoSprintOverlay extends BaseOverlayButton {
         if (overlayView != null) {
             ImageButton btn = overlayView.findViewById(R.id.mod_overlay_button);
             if (btn != null) {
-                btn.setAlpha(active ? 1.0f : 0.6f);
+                btn.setActivated(active);
+                btn.setAlpha(getButtonAlpha() * (active ? 1.1f : 1.0f));
                 btn.setBackgroundResource(
                         active ? R.drawable.bg_overlay_button_active
                                : R.drawable.bg_overlay_button
@@ -58,5 +62,18 @@ public class AutoSprintOverlay extends BaseOverlayButton {
             isActive = false;
         }
         super.hide();
+    }
+    
+    private int tickCount = 0;
+    
+    @Override
+    public void tick() {
+        if (!isActive) return;
+        
+        tickCount++;
+        if (tickCount >= 20) { 
+            tickCount = 0;
+            sendKeyDown(sprintKey);
+        }
     }
 }

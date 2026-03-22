@@ -7,6 +7,8 @@ import android.view.KeyEvent;
 import com.origin.launcher.R;
 import com.origin.launcher.Launcher.inbuilt.model.InbuiltMod;
 import com.origin.launcher.Launcher.inbuilt.model.ModIds;
+import com.origin.launcher.Launcher.inbuilt.XeloOverlay.nativemod.NameTagMod;
+import com.origin.launcher.Launcher.inbuilt.XeloOverlay.nativemod.MotionBlurMod;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -22,7 +24,8 @@ public class InbuiltModManager {
     private static final String KEY_OVERLAY_BUTTON_OPACITY_PREFIX = "overlay_button_opacity_";
     private static final String KEY_ZOOM_LEVEL = "zoom_level";
     private static final String KEY_ZOOM_KEYBIND = "zoom_keybind";
-    private static final int DEFAULT_OVERLAY_BUTTON_SIZE = 48;
+    private static final String KEY_ZOOM_HOLD_MODE = "zoom_hold_mode";
+    private static final int DEFAULT_OVERLAY_BUTTON_SIZE = 56;
     private static final int DEFAULT_OVERLAY_BUTTON_OPACITY = 100;
     private static final int DEFAULT_ZOOM_LEVEL = 50;
 
@@ -56,11 +59,11 @@ public class InbuiltModManager {
                 addedMods.contains(ModIds.QUICK_DROP)
         ));
         mods.add(new InbuiltMod(
-            ModIds.CAMERA_PERSPECTIVE,
-            context.getString(R.string.inbuilt_mod_camera),
-            context.getString(R.string.inbuilt_mod_camera_desc),
-            false,
-            addedMods.contains(ModIds.CAMERA_PERSPECTIVE)
+                ModIds.CAMERA_PERSPECTIVE,
+                context.getString(R.string.inbuilt_mod_camera),
+                context.getString(R.string.inbuilt_mod_camera_desc),
+                false,
+                addedMods.contains(ModIds.CAMERA_PERSPECTIVE)
         ));
         mods.add(new InbuiltMod(
                 ModIds.TOGGLE_HUD,
@@ -77,14 +80,21 @@ public class InbuiltModManager {
                 addedMods.contains(ModIds.AUTO_SPRINT)
         ));
         mods.add(new InbuiltMod(ModIds.ZOOM,
-            context.getString(R.string.inbuilt_mod_zoom),
-            context.getString(R.string.inbuilt_mod_zoom_desc), false, addedMods.contains(ModIds.ZOOM)));
+                context.getString(R.string.inbuilt_mod_zoom),
+                context.getString(R.string.inbuilt_mod_zoom_desc), false, addedMods.contains(ModIds.ZOOM)));
         mods.add(new InbuiltMod(ModIds.FPS_DISPLAY,
-            context.getString(R.string.inbuilt_mod_fps_display),
-            context.getString(R.string.inbuilt_mod_fps_display_desc), false, addedMods.contains(ModIds.FPS_DISPLAY)));
+                context.getString(R.string.inbuilt_mod_fps_display),
+                context.getString(R.string.inbuilt_mod_fps_display_desc), false, addedMods.contains(ModIds.FPS_DISPLAY)));
         mods.add(new InbuiltMod(ModIds.CPS_DISPLAY,
-            context.getString(R.string.inbuilt_mod_cps_display),
-            context.getString(R.string.inbuilt_mod_cps_display_desc), false, addedMods.contains(ModIds.CPS_DISPLAY)));
+                context.getString(R.string.inbuilt_mod_cps_display),
+                context.getString(R.string.inbuilt_mod_cps_display_desc), false, addedMods.contains(ModIds.CPS_DISPLAY)));
+        mods.add(new InbuiltMod(
+                ModIds.THIRD_PERSON_NAMETAG,
+                context.getString(R.string.inbuilt_mod_nametag),
+                context.getString(R.string.inbuilt_mod_nametag_desc),
+                false,
+                addedMods.contains(ModIds.THIRD_PERSON_NAMETAG)
+        ));
         return mods;
     }
 
@@ -120,6 +130,16 @@ public class InbuiltModManager {
         savePrefs();
     }
 
+    public void applyAllPatches() {
+        if (addedMods.contains(ModIds.THIRD_PERSON_NAMETAG)) {
+            NameTagMod.patch();
+        }
+    }
+
+    public void removeAllPatches() {
+        NameTagMod.unpatch();
+    }
+
     public boolean isModAdded(String modId) {
         return addedMods.contains(modId);
     }
@@ -131,7 +151,7 @@ public class InbuiltModManager {
     public void setAutoSprintKey(int keyCode) {
         prefs.edit().putInt(KEY_AUTOSPRINT_KEY, keyCode).apply();
     }
-    
+
     public int getZoomLevel() {
         try {
             return prefs.getInt(KEY_ZOOM_LEVEL, DEFAULT_ZOOM_LEVEL);
@@ -144,13 +164,21 @@ public class InbuiltModManager {
     public void setZoomLevel(int level) {
         prefs.edit().putInt(KEY_ZOOM_LEVEL, Math.max(10, Math.min(100, level))).apply();
     }
-    
+
     public int getZoomKeybind() {
         return prefs.getInt(KEY_ZOOM_KEYBIND, KeyEvent.KEYCODE_C);
     }
 
     public void setZoomKeybind(int keyCode) {
         prefs.edit().putInt(KEY_ZOOM_KEYBIND, keyCode).apply();
+    }
+
+    public boolean getZoomHoldMode() {
+        return prefs.getBoolean(KEY_ZOOM_HOLD_MODE, false);
+    }
+
+    public void setZoomHoldMode(boolean holdMode) {
+        prefs.edit().putBoolean(KEY_ZOOM_HOLD_MODE, holdMode).apply();
     }
 
     public int getOverlayButtonSize() {
@@ -180,8 +208,8 @@ public class InbuiltModManager {
     private void savePrefs() {
         prefs.edit().putStringSet(KEY_ADDED_MODS, new HashSet<>(addedMods)).apply();
     }
-    
+
     public void setOverlayButtonLocked(String modId, boolean locked) {
-    prefs.edit().putBoolean("lock_" + modId, locked).apply();
-   }
+        prefs.edit().putBoolean("lock_" + modId, locked).apply();
+    }
 }

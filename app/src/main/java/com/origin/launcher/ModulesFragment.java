@@ -25,6 +25,7 @@ import java.io.InputStream;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.view.Gravity;
 import android.content.Intent;
@@ -42,6 +43,8 @@ public class ModulesFragment extends BaseThemedFragment {
     private LinearLayout modulesContainer;
     private List<ModuleItem> moduleItems;
     private ActivityResultLauncher<Intent> imagePickerLauncher;
+
+    private static final int SWITCH_DISABLED_COLOR = 0xFF757575;
     
     // Module data class
     private static class ModuleItem {
@@ -252,17 +255,14 @@ moduleItems.add(new ModuleItem("Custom CrossHair", "lets you use your own CrossH
             File targetFile = new File(targetDir, "cross_hair.png");
             
             // Copy image from URI to target file
-            InputStream inputStream = requireContext().getContentResolver().openInputStream(imageUri);
-            FileOutputStream outputStream = new FileOutputStream(targetFile);
-            
-            byte[] buffer = new byte[4096];
-            int bytesRead;
-            while ((bytesRead = inputStream.read(buffer)) != -1) {
-                outputStream.write(buffer, 0, bytesRead);
+            try (InputStream inputStream = requireContext().getContentResolver().openInputStream(imageUri);
+                 FileOutputStream outputStream = new FileOutputStream(targetFile)) {
+                byte[] buffer = new byte[4096];
+                int bytesRead;
+                while ((bytesRead = inputStream.read(buffer)) != -1) {
+                    outputStream.write(buffer, 0, bytesRead);
+                }
             }
-            
-            inputStream.close();
-            outputStream.close();
             
             Toast.makeText(requireContext(), "Crosshair uploaded successfully!", Toast.LENGTH_SHORT).show();
             
@@ -367,22 +367,29 @@ private View createModuleView(ModuleItem module) {
         
     } else {
         // Create switch (EXACTLY matching ThemesFragment pattern)
+        int primaryColor = ThemeManager.getInstance().getColor("primary");
+
         MaterialSwitch moduleSwitch = new MaterialSwitch(requireContext());
         moduleSwitch.setChecked(module.isEnabled());
-        moduleSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            module.setEnabled(isChecked);
-            onModuleToggle(module, isChecked);
-        });
 
         // Apply theme colors to the switch
-        int primaryColor = ThemeManager.getInstance().getColor("primary");
-        int surfaceColor = ThemeManager.getInstance().getColor("surface");
         moduleSwitch.setThumbTintList(android.content.res.ColorStateList.valueOf(
-                module.isEnabled() ? primaryColor : surfaceColor
+                module.isEnabled() ? primaryColor : SWITCH_DISABLED_COLOR
         ));
         moduleSwitch.setTrackTintList(android.content.res.ColorStateList.valueOf(
-                module.isEnabled() ? adjustAlpha(primaryColor, 0.5f) : adjustAlpha(surfaceColor, 0.5f)
+                module.isEnabled() ? adjustAlpha(primaryColor, 0.5f) : adjustAlpha(SWITCH_DISABLED_COLOR, 0.5f)
         ));
+
+        moduleSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            module.setEnabled(isChecked);
+            moduleSwitch.setThumbTintList(android.content.res.ColorStateList.valueOf(
+                    isChecked ? primaryColor : SWITCH_DISABLED_COLOR
+            ));
+            moduleSwitch.setTrackTintList(android.content.res.ColorStateList.valueOf(
+                    isChecked ? adjustAlpha(primaryColor, 0.5f) : adjustAlpha(SWITCH_DISABLED_COLOR, 0.5f)
+            ));
+            onModuleToggle(module, isChecked);
+        });
 
         rightContainer.addView(moduleSwitch);
         
@@ -476,7 +483,6 @@ private int adjustAlpha(int color, float factor) {
             defaultConfig.put("no_pumpkin_overlay", false);
             defaultConfig.put("double_tppview", false);
             defaultConfig.put("xelo_title", true);
-
 defaultConfig.put("custom_cross_hair", false);
             
             try (FileWriter writer = new FileWriter(configFile)) {

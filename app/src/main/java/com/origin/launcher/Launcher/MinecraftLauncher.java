@@ -8,8 +8,6 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.widget.Toast;
 
-import com.origin.launcher.Launcher.mods.ModManager;
-import com.origin.launcher.Launcher.mods.ModNativeLoader;
 import com.origin.launcher.versions.GameVersion;
 import com.origin.launcher.FeatureSettings;
 import com.origin.launcher.LoadingDialog;
@@ -146,10 +144,8 @@ if (!shouldLoadPlayFab(version)) {
                     gameManager.loadLibrary("fmod");
                     gameManager.loadLibrary("MediaDecoders_Android");
                     gameManager.loadLibrary("minecraftpe");
-                    gameManager.loadLibrary("xelo");
                     gameManager.loadLibrary("mtbinloader2");
                 }
-                ModNativeLoader.loadEnabledSoMods(ModManager.getInstance(), context.getCacheDir());
 
                 activity.runOnUiThread(() -> {
                     dismissLoading();
