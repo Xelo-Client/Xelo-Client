@@ -15,6 +15,9 @@ import com.google.android.material.tabs.TabLayoutMediator;
 import androidx.viewpager2.widget.ViewPager2;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
+import com.origin.launcher.utils.ThemeUtils;
+import com.origin.launcher.discord.DiscordRPCHelper;
+
 public class VersionsFragment extends BaseThemedFragment {
 
     private TabLayout tabLayout;

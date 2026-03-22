@@ -28,6 +28,7 @@ import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModManager;
 import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModSizeStore;
 import com.origin.launcher.Launcher.inbuilt.model.ModIds;
 import com.origin.launcher.manager.ThemeManager;
+import com.origin.launcher.activity.BaseThemedActivity;
 import com.origin.launcher.R;
 
 import java.util.ArrayList;

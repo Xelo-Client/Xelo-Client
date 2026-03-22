@@ -28,6 +28,9 @@ import okhttp3.WebSocket;
 import okhttp3.WebSocketListener;
 import org.json.JSONObject;
 
+import com.origin.launcher.discord.DiscordManager;
+import com.origin.launcher.activity.BaseThemedActivity;
+
 public class DiscordLoginActivity extends BaseThemedActivity {
     private static final String TAG = "DiscordLoginActivity";
     public static final int DISCORD_LOGIN_REQUEST_CODE = 1001;

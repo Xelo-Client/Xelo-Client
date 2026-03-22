@@ -16,6 +16,10 @@ import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 import java.io.File;
 
+import com.origin.launcher.utils.ThemeUtils;
+import com.origin.launcher.discord.DiscordRPCHelper;
+import com.origin.launcher.utils.VersionsRepository;
+
 public class VersionsStableFragment extends BaseThemedFragment {
 
 

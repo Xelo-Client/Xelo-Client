@@ -11,6 +11,8 @@ import androidx.fragment.app.Fragment;
 import android.util.Log;
 import com.google.android.material.card.MaterialCardView;
 
+import com.origin.launcher.discord.DiscordRPCHelper;
+
 public class SupportFragment extends BaseThemedFragment {
 
     private MaterialCardView githubButton;

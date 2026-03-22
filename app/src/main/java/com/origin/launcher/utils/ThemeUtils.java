@@ -21,6 +21,8 @@ import android.animation.ValueAnimator;
 import android.animation.ArgbEvaluator;
 import com.google.android.material.tabs.TabLayout;
 
+import com.origin.launcher.manager.ThemeManager;
+
 public class ThemeUtils {
     
     /**

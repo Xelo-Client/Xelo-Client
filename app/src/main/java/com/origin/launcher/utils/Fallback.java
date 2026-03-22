@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.origin.launcher.activity.BaseThemedActivity;
+
 public class Fallback extends BaseThemedActivity {
 
     @Override

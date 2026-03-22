@@ -4,7 +4,9 @@ import android.app.*;
 import android.content.*;
 import android.os.*;
 import android.view.ViewGroup;
+
 import com.origin.launcher.utils.FeatureSettings;
+import com.origin.launcher.utils.LogcatOverlay;
 
 public class LogcatOverlayManager {
 

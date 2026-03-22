@@ -11,6 +11,8 @@ import android.os.Bundle;
 import android.util.Log;
 import java.util.List;
 
+import com.origin.launcher.activity.BaseThemedActivity;
+
 public class IntentHandler extends BaseThemedActivity {
     private static final String TAG = "IntentHandler";
 
