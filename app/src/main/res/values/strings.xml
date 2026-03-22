@@ -103,6 +103,8 @@ main menu first</string>
 <string name="mod_menu_title">Mod Menu</string>
 <string name="mod_menu_enable_all">Enable All</string>
 <string name="mod_menu_disable_all">Disable All</string>
+<string name="inbuilt_mod_mod_menu">Mod Menu</string>
+<string name="inbuilt_mod_mod_menu_desc">The mod menu button for accessing all mods in-game</string>
 
 <!-- third person name tag-->
 <string name="inbuilt_mod_nametag">Third Person Name Tag</string>

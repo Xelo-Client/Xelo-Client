@@ -2,6 +2,8 @@ package com.origin.launcher;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.util.Log;
 import org.json.JSONException;
@@ -444,7 +446,7 @@ public class ThemeManager {
      * Notify all listeners of theme change
      */
     private void notifyThemeChanged(String themeName) {
-        for (ThemeChangeListener listener : themeChangeListeners) {
+        for (ThemeChangeListener listener : new ArrayList<>(themeChangeListeners)) {
             try {
                 listener.onThemeChanged(themeName);
             } catch (Exception e) {
@@ -522,6 +524,35 @@ public class ThemeManager {
                    currentColors.containsKey("toggle_ripple");
         } catch (Exception e) {
             return false;
+        }
+    }
+
+    // Returns the normal (unpressed) bitmap for a mod's overlay button from the current theme.
+    // Looks for button/mod_id.png inside the extracted .xtheme folder. Returns null if not found.
+    public Bitmap getOverlayButtonBitmap(String modId) {
+        return loadOverlayButtonBitmap(modId, false);
+    }
+
+    // Returns the pressed bitmap for a mod's overlay button from the current theme.
+    // Looks for button/mod_id_pressed.png inside the extracted .xtheme folder. Returns null if not found.
+    public Bitmap getOverlayButtonPressedBitmap(String modId) {
+        return loadOverlayButtonBitmap(modId, true);
+    }
+
+    private Bitmap loadOverlayButtonBitmap(String modId, boolean pressed) {
+        if (currentThemeName == null || currentThemeName.equals("fallback") || currentThemeName.equals(DEFAULT_THEME)) {
+            return null;
+        }
+        try {
+            File themesDir = new File(context.getExternalFilesDir(null), "themes");
+            File themeDir = new File(themesDir, currentThemeName);
+            String fileName = pressed ? modId + "_pressed.png" : modId + ".png";
+            File imageFile = new File(themeDir, "button/" + fileName);
+            if (!imageFile.exists()) return null;
+            return BitmapFactory.decodeFile(imageFile.getAbsolutePath());
+        } catch (Exception e) {
+            Log.e(TAG, "Error loading overlay button bitmap for: " + modId, e);
+            return null;
         }
     }
 }

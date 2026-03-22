@@ -112,11 +112,13 @@ public class InbuiltOverlayManager {
         overlays.clear();
         int nextY = 150;
 
-        if (modMenuOverlay == null) modMenuOverlay = new ModMenuOverlay(activity);
-        int[] menuPos = getStartPosition("mod_menu", START_X, 10);
-        modMenuOverlay.show(menuPos[0], menuPos[1]);
-        overlays.add(modMenuOverlay);
-        nextY += SPACING;
+        if (modManager.isModAdded(ModIds.MOD_MENU)) {
+            if (modMenuOverlay == null) modMenuOverlay = new ModMenuOverlay(activity);
+            int[] menuPos = getStartPosition(ModIds.MOD_MENU, START_X, 10);
+            modMenuOverlay.show(menuPos[0], menuPos[1]);
+            overlays.add(modMenuOverlay);
+            nextY += SPACING;
+        }
 
         if (modManager.isModAdded(ModIds.QUICK_DROP)) {
             int[] pos = getStartPosition(ModIds.QUICK_DROP, START_X, nextY);
@@ -223,7 +225,7 @@ public class InbuiltOverlayManager {
 
     public void enableAllMods() {
         String[] allIds = {
-            ModIds.QUICK_DROP, ModIds.CAMERA_PERSPECTIVE, ModIds.TOGGLE_HUD,
+            ModIds.MOD_MENU, ModIds.QUICK_DROP, ModIds.CAMERA_PERSPECTIVE, ModIds.TOGGLE_HUD,
             ModIds.AUTO_SPRINT, ModIds.ZOOM, ModIds.FPS_DISPLAY, ModIds.CPS_DISPLAY,
             ModIds.THIRD_PERSON_NAMETAG,
         };
@@ -237,7 +239,7 @@ public class InbuiltOverlayManager {
     public void disableAllMods() {
         modManager.removeAllPatches();
         String[] allIds = {
-            ModIds.QUICK_DROP, ModIds.CAMERA_PERSPECTIVE, ModIds.TOGGLE_HUD,
+            ModIds.MOD_MENU, ModIds.QUICK_DROP, ModIds.CAMERA_PERSPECTIVE, ModIds.TOGGLE_HUD,
             ModIds.AUTO_SPRINT, ModIds.ZOOM, ModIds.FPS_DISPLAY, ModIds.CPS_DISPLAY,
             ModIds.THIRD_PERSON_NAMETAG,
         };

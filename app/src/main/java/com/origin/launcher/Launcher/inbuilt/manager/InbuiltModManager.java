@@ -25,6 +25,7 @@ public class InbuiltModManager {
     private static final String KEY_ZOOM_LEVEL = "zoom_level";
     private static final String KEY_ZOOM_KEYBIND = "zoom_keybind";
     private static final String KEY_ZOOM_HOLD_MODE = "zoom_hold_mode";
+    private static final String KEY_MOD_MENU_MIGRATED = "mod_menu_migrated";
     private static final int DEFAULT_OVERLAY_BUTTON_SIZE = 56;
     private static final int DEFAULT_OVERLAY_BUTTON_OPACITY = 100;
     private static final int DEFAULT_ZOOM_LEVEL = 50;
@@ -36,6 +37,15 @@ public class InbuiltModManager {
     private InbuiltModManager(Context context) {
         prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         addedMods = new HashSet<>(prefs.getStringSet(KEY_ADDED_MODS, new HashSet<>()));
+        migrateModMenu();
+    }
+
+    private void migrateModMenu() {
+        if (!prefs.getBoolean(KEY_MOD_MENU_MIGRATED, false)) {
+            addedMods.add(ModIds.MOD_MENU);
+            savePrefs();
+            prefs.edit().putBoolean(KEY_MOD_MENU_MIGRATED, true).apply();
+        }
     }
 
     public static InbuiltModManager getInstance(Context context) {
@@ -51,6 +61,13 @@ public class InbuiltModManager {
 
     public List<InbuiltMod> getAllMods(Context context) {
         List<InbuiltMod> mods = new ArrayList<>();
+        mods.add(new InbuiltMod(
+                ModIds.MOD_MENU,
+                context.getString(R.string.inbuilt_mod_mod_menu),
+                context.getString(R.string.inbuilt_mod_mod_menu_desc),
+                false,
+                addedMods.contains(ModIds.MOD_MENU)
+        ));
         mods.add(new InbuiltMod(
                 ModIds.QUICK_DROP,
                 context.getString(R.string.inbuilt_mod_quick_drop),

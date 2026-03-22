@@ -2,6 +2,7 @@ package com.origin.launcher;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
@@ -31,6 +32,7 @@ import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModManager;
 import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModSizeStore;
 import com.origin.launcher.Launcher.inbuilt.overlay.InbuiltOverlayManager;
 import com.origin.launcher.Launcher.inbuilt.model.ModIds;
+import com.origin.launcher.ThemeManager;
 import com.origin.launcher.R;
 
 import java.util.ArrayList;
@@ -254,6 +256,7 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
         InbuiltModSizeStore.getInstance().init(getContext().getApplicationContext());
 
         InbuiltModManager gridManager = InbuiltModManager.getInstance(getContext());
+        if (gridManager.isModAdded(ModIds.MOD_MENU)) addModButton(grid, R.drawable.ic_modmenu, ModIds.MOD_MENU);
         if (gridManager.isModAdded(ModIds.AUTO_SPRINT)) addModButton(grid, R.drawable.as_unpress, ModIds.AUTO_SPRINT);
         if (gridManager.isModAdded(ModIds.QUICK_DROP)) addModButton(grid, R.drawable.q_unpress, ModIds.QUICK_DROP);
         if (gridManager.isModAdded(ModIds.TOGGLE_HUD)) addModButton(grid, R.drawable.f1_unpress, ModIds.TOGGLE_HUD);
@@ -361,6 +364,7 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
     private List<InbuiltCustomizeAdapter.Item> getEnabledMods() {
         List<InbuiltCustomizeAdapter.Item> list = new ArrayList<>();
         InbuiltModManager manager = InbuiltModManager.getInstance(getContext());
+        if (manager.isModAdded(ModIds.MOD_MENU)) list.add(new InbuiltCustomizeAdapter.Item(ModIds.MOD_MENU, R.drawable.ic_modmenu));
         if (manager.isModAdded(ModIds.AUTO_SPRINT)) list.add(new InbuiltCustomizeAdapter.Item(ModIds.AUTO_SPRINT, R.drawable.as_unpress));
         if (manager.isModAdded(ModIds.QUICK_DROP)) list.add(new InbuiltCustomizeAdapter.Item(ModIds.QUICK_DROP, R.drawable.q_unpress));
         if (manager.isModAdded(ModIds.TOGGLE_HUD)) list.add(new InbuiltCustomizeAdapter.Item(ModIds.TOGGLE_HUD, R.drawable.f1_unpress));
@@ -503,6 +507,8 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
     private void addModButton(FrameLayout grid, int iconResId, String id) {
         ImageButton btn = new ImageButton(getContext());
         btn.setImageResource(iconResId);
+        Bitmap themedBitmap = ThemeManager.getInstance().getOverlayButtonBitmap(id);
+        if (themedBitmap != null) btn.setImageBitmap(themedBitmap);
         btn.setBackgroundResource(R.drawable.bg_overlay_button);
         btn.setPadding(0, 0, 0, 0);
         btn.setPaddingRelative(0, 0, 0, 0);
@@ -579,13 +585,13 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
             flp.height = defaultSizePx;
             flp.leftMargin = flp.topMargin = flp.rightMargin = flp.bottomMargin = 0;
             c.setLayoutParams(flp);
+            c.setBackgroundResource(R.drawable.bg_overlay_button);
             c.setMinimumWidth(0);
             c.setMinimumHeight(0);
             ((ImageButton) c).setScaleType(ImageView.ScaleType.FIT_CENTER);
             c.setX(0f);
             c.setY(0f);
             c.setAlpha(DEFAULT_OPACITY / 100f);
-            c.setBackgroundResource(R.drawable.bg_overlay_button);
         }
         for (String key : modSizes.keySet()) modSizes.put(key, clampSize(DEFAULT_SIZE_DP));
         for (String key : modOpacity.keySet()) modOpacity.put(key, DEFAULT_OPACITY);
