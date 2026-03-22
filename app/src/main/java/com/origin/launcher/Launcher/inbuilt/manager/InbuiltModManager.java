@@ -1,0 +1,232 @@
+package com.origin.launcher.Launcher.inbuilt.manager;
+
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.view.KeyEvent;
+
+import com.origin.launcher.R;
+import com.origin.launcher.Launcher.inbuilt.model.InbuiltMod;
+import com.origin.launcher.Launcher.inbuilt.model.ModIds;
+import com.origin.launcher.Launcher.inbuilt.XeloOverlay.nativemod.NameTagMod;
+import com.origin.launcher.Launcher.inbuilt.XeloOverlay.nativemod.MotionBlurMod;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+public class InbuiltModManager {
+    private static final String PREFS_NAME = "inbuilt_mods_prefs";
+    private static final String KEY_ADDED_MODS = "added_mods";
+    private static final String KEY_AUTOSPRINT_KEY = "autosprint_key";
+    private static final String KEY_OVERLAY_BUTTON_SIZE_PREFIX = "overlay_button_size_";
+    private static final String KEY_OVERLAY_BUTTON_SIZE_GLOBAL = "overlay_button_size";
+    private static final String KEY_OVERLAY_BUTTON_OPACITY_PREFIX = "overlay_button_opacity_";
+    private static final String KEY_ZOOM_LEVEL = "zoom_level";
+    private static final String KEY_ZOOM_KEYBIND = "zoom_keybind";
+    private static final String KEY_ZOOM_HOLD_MODE = "zoom_hold_mode";
+    private static final String KEY_MOD_MENU_MIGRATED = "mod_menu_migrated";
+    private static final int DEFAULT_OVERLAY_BUTTON_SIZE = 56;
+    private static final int DEFAULT_OVERLAY_BUTTON_OPACITY = 100;
+    private static final int DEFAULT_ZOOM_LEVEL = 50;
+
+    private static volatile InbuiltModManager instance;
+    private final SharedPreferences prefs;
+    private final Set<String> addedMods;
+
+    private InbuiltModManager(Context context) {
+        prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        addedMods = new HashSet<>(prefs.getStringSet(KEY_ADDED_MODS, new HashSet<>()));
+        migrateModMenu();
+    }
+
+    private void migrateModMenu() {
+        if (!prefs.getBoolean(KEY_MOD_MENU_MIGRATED, false)) {
+            addedMods.add(ModIds.MOD_MENU);
+            savePrefs();
+            prefs.edit().putBoolean(KEY_MOD_MENU_MIGRATED, true).apply();
+        }
+    }
+
+    public static InbuiltModManager getInstance(Context context) {
+        if (instance == null) {
+            synchronized (InbuiltModManager.class) {
+                if (instance == null) {
+                    instance = new InbuiltModManager(context.getApplicationContext());
+                }
+            }
+        }
+        return instance;
+    }
+
+    public List<InbuiltMod> getAllMods(Context context) {
+        List<InbuiltMod> mods = new ArrayList<>();
+        mods.add(new InbuiltMod(
+                ModIds.MOD_MENU,
+                context.getString(R.string.inbuilt_mod_mod_menu),
+                context.getString(R.string.inbuilt_mod_mod_menu_desc),
+                false,
+                addedMods.contains(ModIds.MOD_MENU)
+        ));
+        mods.add(new InbuiltMod(
+                ModIds.QUICK_DROP,
+                context.getString(R.string.inbuilt_mod_quick_drop),
+                context.getString(R.string.inbuilt_mod_quick_drop_desc),
+                false,
+                addedMods.contains(ModIds.QUICK_DROP)
+        ));
+        mods.add(new InbuiltMod(
+                ModIds.CAMERA_PERSPECTIVE,
+                context.getString(R.string.inbuilt_mod_camera),
+                context.getString(R.string.inbuilt_mod_camera_desc),
+                false,
+                addedMods.contains(ModIds.CAMERA_PERSPECTIVE)
+        ));
+        mods.add(new InbuiltMod(
+                ModIds.TOGGLE_HUD,
+                context.getString(R.string.inbuilt_mod_hud),
+                context.getString(R.string.inbuilt_mod_hud_desc),
+                false,
+                addedMods.contains(ModIds.TOGGLE_HUD)
+        ));
+        mods.add(new InbuiltMod(
+                ModIds.AUTO_SPRINT,
+                context.getString(R.string.inbuilt_mod_autosprint),
+                context.getString(R.string.inbuilt_mod_autosprint_desc),
+                true,
+                addedMods.contains(ModIds.AUTO_SPRINT)
+        ));
+        mods.add(new InbuiltMod(ModIds.ZOOM,
+                context.getString(R.string.inbuilt_mod_zoom),
+                context.getString(R.string.inbuilt_mod_zoom_desc), false, addedMods.contains(ModIds.ZOOM)));
+        mods.add(new InbuiltMod(ModIds.FPS_DISPLAY,
+                context.getString(R.string.inbuilt_mod_fps_display),
+                context.getString(R.string.inbuilt_mod_fps_display_desc), false, addedMods.contains(ModIds.FPS_DISPLAY)));
+        mods.add(new InbuiltMod(ModIds.CPS_DISPLAY,
+                context.getString(R.string.inbuilt_mod_cps_display),
+                context.getString(R.string.inbuilt_mod_cps_display_desc), false, addedMods.contains(ModIds.CPS_DISPLAY)));
+        mods.add(new InbuiltMod(
+                ModIds.THIRD_PERSON_NAMETAG,
+                context.getString(R.string.inbuilt_mod_nametag),
+                context.getString(R.string.inbuilt_mod_nametag_desc),
+                false,
+                addedMods.contains(ModIds.THIRD_PERSON_NAMETAG)
+        ));
+        return mods;
+    }
+
+    public List<InbuiltMod> getAvailableMods(Context context) {
+        List<InbuiltMod> all = getAllMods(context);
+        List<InbuiltMod> available = new ArrayList<>();
+        for (InbuiltMod mod : all) {
+            if (!addedMods.contains(mod.getId())) {
+                available.add(mod);
+            }
+        }
+        return available;
+    }
+
+    public List<InbuiltMod> getAddedMods(Context context) {
+        List<InbuiltMod> all = getAllMods(context);
+        List<InbuiltMod> added = new ArrayList<>();
+        for (InbuiltMod mod : all) {
+            if (addedMods.contains(mod.getId())) {
+                added.add(mod);
+            }
+        }
+        return added;
+    }
+
+    public void addMod(String modId) {
+        addedMods.add(modId);
+        savePrefs();
+    }
+
+    public void removeMod(String modId) {
+        addedMods.remove(modId);
+        savePrefs();
+    }
+
+    public void applyAllPatches() {
+        if (addedMods.contains(ModIds.THIRD_PERSON_NAMETAG)) {
+            NameTagMod.patch();
+        }
+    }
+
+    public void removeAllPatches() {
+        NameTagMod.unpatch();
+    }
+
+    public boolean isModAdded(String modId) {
+        return addedMods.contains(modId);
+    }
+
+    public int getAutoSprintKey() {
+        return prefs.getInt(KEY_AUTOSPRINT_KEY, KeyEvent.KEYCODE_CTRL_LEFT);
+    }
+
+    public void setAutoSprintKey(int keyCode) {
+        prefs.edit().putInt(KEY_AUTOSPRINT_KEY, keyCode).apply();
+    }
+
+    public int getZoomLevel() {
+        try {
+            return prefs.getInt(KEY_ZOOM_LEVEL, DEFAULT_ZOOM_LEVEL);
+        } catch (ClassCastException e) {
+            prefs.edit().remove(KEY_ZOOM_LEVEL).apply();
+            return DEFAULT_ZOOM_LEVEL;
+        }
+    }
+
+    public void setZoomLevel(int level) {
+        prefs.edit().putInt(KEY_ZOOM_LEVEL, Math.max(10, Math.min(100, level))).apply();
+    }
+
+    public int getZoomKeybind() {
+        return prefs.getInt(KEY_ZOOM_KEYBIND, KeyEvent.KEYCODE_C);
+    }
+
+    public void setZoomKeybind(int keyCode) {
+        prefs.edit().putInt(KEY_ZOOM_KEYBIND, keyCode).apply();
+    }
+
+    public boolean getZoomHoldMode() {
+        return prefs.getBoolean(KEY_ZOOM_HOLD_MODE, false);
+    }
+
+    public void setZoomHoldMode(boolean holdMode) {
+        prefs.edit().putBoolean(KEY_ZOOM_HOLD_MODE, holdMode).apply();
+    }
+
+    public int getOverlayButtonSize() {
+        return prefs.getInt(KEY_OVERLAY_BUTTON_SIZE_GLOBAL, DEFAULT_OVERLAY_BUTTON_SIZE);
+    }
+
+    public void setOverlayButtonSize(int sizeDp) {
+        prefs.edit().putInt(KEY_OVERLAY_BUTTON_SIZE_GLOBAL, sizeDp).apply();
+    }
+
+    public int getOverlayButtonSize(String modId) {
+        return prefs.getInt(KEY_OVERLAY_BUTTON_SIZE_PREFIX + modId, DEFAULT_OVERLAY_BUTTON_SIZE);
+    }
+
+    public void setOverlayButtonSize(String modId, int sizeDp) {
+        prefs.edit().putInt(KEY_OVERLAY_BUTTON_SIZE_PREFIX + modId, sizeDp).apply();
+    }
+
+    public int getOverlayButtonOpacity(String modId) {
+        return prefs.getInt(KEY_OVERLAY_BUTTON_OPACITY_PREFIX + modId, DEFAULT_OVERLAY_BUTTON_OPACITY);
+    }
+
+    public void setOverlayButtonOpacity(String modId, int opacity) {
+        prefs.edit().putInt(KEY_OVERLAY_BUTTON_OPACITY_PREFIX + modId, opacity).apply();
+    }
+
+    private void savePrefs() {
+        prefs.edit().putStringSet(KEY_ADDED_MODS, new HashSet<>(addedMods)).apply();
+    }
+
+    public void setOverlayButtonLocked(String modId, boolean locked) {
+        prefs.edit().putBoolean("lock_" + modId, locked).apply();
+    }
+}
