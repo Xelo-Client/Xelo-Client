@@ -17,6 +17,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 import com.origin.launcher.utils.ThemeUtils;
 import com.origin.launcher.discord.DiscordRPCHelper;
+import com.origin.launcher.R;
 
 public class VersionsFragment extends BaseThemedFragment {
 

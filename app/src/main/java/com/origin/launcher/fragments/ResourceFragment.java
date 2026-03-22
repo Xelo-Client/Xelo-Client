@@ -17,6 +17,7 @@ import com.google.android.material.tabs.TabLayoutMediator;
 
 import com.origin.launcher.utils.ThemeUtils;
 import com.origin.launcher.discord.DiscordRPCHelper;
+import com.origin.launcher.R;
 
 public class ResourceFragment extends BaseThemedFragment {
 

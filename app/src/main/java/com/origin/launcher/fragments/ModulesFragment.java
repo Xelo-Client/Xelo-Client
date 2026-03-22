@@ -35,6 +35,9 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 
 import com.origin.launcher.activity.InbuiltModsActivity;
+import com.origin.launcher.manager.ThemeManager;
+import com.origin.launcher.utils.ThemeUtils;
+import com.origin.launcher.R;
 
 public class ModulesFragment extends BaseThemedFragment {
     

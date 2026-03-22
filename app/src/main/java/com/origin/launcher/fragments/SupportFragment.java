@@ -12,6 +12,7 @@ import android.util.Log;
 import com.google.android.material.card.MaterialCardView;
 
 import com.origin.launcher.discord.DiscordRPCHelper;
+import com.origin.launcher.R;
 
 public class SupportFragment extends BaseThemedFragment {
 

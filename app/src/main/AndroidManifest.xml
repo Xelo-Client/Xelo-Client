@@ -207,7 +207,7 @@
         </provider>
 
         <provider
-    android:name=".XeloDocumentsProvider"
+    android:name=".utils.XeloDocumentsProvider"
     android:authorities="com.origin.launcher.documents"
     android:exported="true"
     android:grantUriPermissions="true"
@@ -219,7 +219,7 @@
 </provider>
 
         <activity
-            android:name=".activity.DiscordLoginActivity"
+            android:name=".discord.DiscordLoginActivity"
             android:exported="false"
             android:theme="@style/Theme.Material3.Dark.NoActionBar.Custom"
             android:windowSoftInputMode="adjustResize" />
