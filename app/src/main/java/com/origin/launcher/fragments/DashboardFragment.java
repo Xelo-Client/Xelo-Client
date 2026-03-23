@@ -195,7 +195,7 @@ public class DashboardFragment extends BaseThemedFragment {
                         R.anim.slide_in_left,   
                         R.anim.slide_out_left 
                     )
-                    .replace(android.R.id.content, new ModulesFragment())
+                    .replace(R.id.fragment_container, new ModulesFragment())
                     .addToBackStack(null)
                     .commit();
             } catch (Exception e) {
@@ -219,7 +219,7 @@ public class DashboardFragment extends BaseThemedFragment {
                             R.anim.slide_in_left,   
                             R.anim.slide_out_left 
                         )
-                        .replace(android.R.id.content, new ResourceFragment())
+                    .replace(R.id.fragment_container, new ResourceFragment())
                         .addToBackStack(null)
                         .commit();
                 } catch (Exception e) {
