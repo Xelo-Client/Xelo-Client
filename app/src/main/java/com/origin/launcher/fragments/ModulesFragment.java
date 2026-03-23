@@ -164,7 +164,7 @@ public class ModulesFragment extends BaseThemedFragment {
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
         );
-        cancelParams.marginEnd = (int) (8 * getResources().getDisplayMetrics().density);
+        cancelParams.setMarginEnd((int) (8 * getResources().getDisplayMetrics().density));
         cancelButton.setLayoutParams(cancelParams);
 
         MaterialButton okButton = new MaterialButton(requireContext());
@@ -291,7 +291,7 @@ public class ModulesFragment extends BaseThemedFragment {
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
         );
-        cancelParams.marginEnd = (int) (8 * getResources().getDisplayMetrics().density);
+        cancelParams.setMarginEnd((int) (8 * getResources().getDisplayMetrics().density));
         cancelButton.setLayoutParams(cancelParams);
 
         MaterialButton okButton = new MaterialButton(requireContext());
