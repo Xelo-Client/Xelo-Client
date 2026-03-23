@@ -11,6 +11,7 @@ import com.google.android.material.card.MaterialCardView;
 
 import com.origin.launcher.manager.ThemeManager;
 import com.origin.launcher.utils.ThemeUtils;
+import com.origin.launcher.R;
 
 public abstract class BaseThemedFragment extends Fragment {
     private static final String TAG = "BaseThemedFragment";

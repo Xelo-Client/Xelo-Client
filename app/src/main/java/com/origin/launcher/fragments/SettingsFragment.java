@@ -26,7 +26,9 @@ import com.origin.launcher.versions.VersionManager;
 import com.origin.launcher.versions.GameVersion;
 import com.origin.launcher.Adapter.VersionAdapter;
 import com.origin.launcher.animation.DynamicAnim;
+import com.origin.launcher.discord.DiscordLoginActivity;
 import com.origin.launcher.discord.DiscordManager;
+import com.origin.launcher.discord.DiscordRPCHelper;
 import com.origin.launcher.R;
 
 public class SettingsFragment extends BaseThemedFragment implements DiscordManager.DiscordLoginCallback, VersionAdapter.OnVersionSelectedListener {

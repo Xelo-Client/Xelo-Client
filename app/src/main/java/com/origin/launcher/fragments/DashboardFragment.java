@@ -60,6 +60,9 @@ import android.content.res.ColorStateList;
 import android.graphics.drawable.RippleDrawable;
 import android.graphics.Color;
 
+import com.origin.launcher.discord.DiscordRPCHelper;
+import com.origin.launcher.R;
+
 public class DashboardFragment extends BaseThemedFragment {
     private File currentRootDir = null; // Store the found root directory
     private static final int IMPORT_REQUEST_CODE = 1002;

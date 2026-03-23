@@ -33,8 +33,10 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import org.json.JSONObject;
 
+import com.origin.launcher.activity.BaseThemedActivity;
 import com.origin.launcher.manager.ThemeManager;
 import com.origin.launcher.utils.ThemeUtils;
+import com.origin.launcher.discord.DiscordRPCHelper;
 import com.origin.launcher.R;
 
 public class ThemesFragment extends BaseThemedFragment {

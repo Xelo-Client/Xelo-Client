@@ -18,6 +18,9 @@ import android.widget.Toast;
 import androidx.fragment.app.Fragment;
 import java.io.File;
 
+import com.origin.launcher.discord.DiscordRPCHelper;
+import com.origin.launcher.R;
+
 public class ResourceAddonsFragment extends BaseThemedFragment {
 
     private WebView myWebView;

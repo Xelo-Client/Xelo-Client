@@ -22,6 +22,7 @@ import com.google.android.material.materialswitch.MaterialSwitch;
 
 import com.origin.launcher.animation.DynamicAnim;
 import com.origin.launcher.Adapter.SettingsAdapter;
+import com.origin.launcher.R;
 
 public class ConfigurationFragment extends BaseThemedFragment {
 

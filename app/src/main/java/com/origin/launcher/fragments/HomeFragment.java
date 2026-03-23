@@ -54,6 +54,7 @@ import android.util.Log;
 import android.widget.Toast;
 import com.origin.launcher.activity.MainActivity;
 import com.origin.launcher.Launcher.MinecraftLauncher;
+import com.origin.launcher.R;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.origin.launcher.versions.VersionManager;
