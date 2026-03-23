@@ -161,11 +161,9 @@ class XeloDocumentsProvider : DocumentsProvider() {
     }
 
     private fun getRootFlags(): Long {
-        var flags: Long = DocumentsContract.Root.FLAG_LOCAL_ONLY.toLong()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            flags = flags or DocumentsContract.Root.FLAG_SUPPORTS_CREATE.toLong() or DocumentsContract.Root.FLAG_SUPPORTS_IS_CHILD.toLong()
-        }
-        return flags
+        return DocumentsContract.Root.FLAG_LOCAL_ONLY.toLong() or
+               DocumentsContract.Root.FLAG_SUPPORTS_CREATE.toLong() or
+               DocumentsContract.Root.FLAG_SUPPORTS_IS_CHILD.toLong()
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -207,9 +205,7 @@ class XeloDocumentsProvider : DocumentsProvider() {
             } else {
                 flags = flags or DocumentsContract.Document.FLAG_SUPPORTS_WRITE.toLong()
             }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                flags = flags or DocumentsContract.Document.FLAG_SUPPORTS_RENAME.toLong()
-            }
+            flags = flags or DocumentsContract.Document.FLAG_SUPPORTS_RENAME.toLong()
         }
 
         if (getTypeForFile(f).startsWith("image/")) {
@@ -234,11 +230,15 @@ class XeloDocumentsProvider : DocumentsProvider() {
         }
     }
 
-    private fun getDocIdForFile(file: File): String = file.absolutePath
+    private fun getDocIdForFile(file: File): String {
+        val path = file.absolutePath
+        val basePath = baseDir.absolutePath
+        return if (path == basePath) "/" else path.substring(basePath.length)
+    }
 
     @Throws(FileNotFoundException::class)
     private fun getFileForDocId(docId: String): File {
-        val file = File(docId)
+        val file = if (docId == "/") baseDir else File(baseDir, docId)
         if (!file.exists()) throw FileNotFoundException("Missing file for $docId")
         return file
     }
