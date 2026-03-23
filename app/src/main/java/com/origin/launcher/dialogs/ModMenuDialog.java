@@ -168,7 +168,7 @@ public class ModMenuDialog {
             if (child instanceof TextView) {
                 ((TextView) child).setTextColor(textColor);
             } else if (child instanceof ImageView) {
-                ((ImageView) child).setColorFilter(textColor);
+                ((ImageView) child).clearColorFilter();
             }
         }
     }

@@ -86,6 +86,10 @@ public class InbuiltOverlayManager {
         return zoomOverlay;
     }
 
+    public ModMenuOverlay getModMenuOverlay() {
+        return modMenuOverlay;
+    }
+
     public static InbuiltOverlayManager getInstance() {
         return instance;
     }

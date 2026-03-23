@@ -22,7 +22,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 
 import com.origin.launcher.R;
-import com.origin.launcher.manager.ThemeManager;
+import com.origin.launcher.ThemeManager;
 import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModManager;
 import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModSizeStore;
 
@@ -175,7 +175,7 @@ public abstract class BaseOverlayButton {
                 initialTouchY = event.getRawY();
                 isDragging = false;
                 touchDownTime = SystemClock.uptimeMillis();
-                v.getParent().requestDisallowInterceptTouchEvent(true);
+                if (v.getParent() != null) v.getParent().requestDisallowInterceptTouchEvent(true);
                 onTouchDown(event);
                 return true;
             case MotionEvent.ACTION_MOVE:
@@ -210,13 +210,13 @@ public abstract class BaseOverlayButton {
                     onTouchUp(event, false);
                 }
                 isDragging = false;
-                v.getParent().requestDisallowInterceptTouchEvent(false);
+                if (v.getParent() != null) v.getParent().requestDisallowInterceptTouchEvent(false);
                 return true;
             case MotionEvent.ACTION_CANCEL:
             case MotionEvent.ACTION_OUTSIDE:
                 onTouchCancel(event);
                 isDragging = false;
-                v.getParent().requestDisallowInterceptTouchEvent(false);
+                if (v.getParent() != null) v.getParent().requestDisallowInterceptTouchEvent(false);
                 return false;
         }
         return false;
@@ -232,7 +232,7 @@ public abstract class BaseOverlayButton {
                 initialTouchY = event.getRawY();
                 isDragging = false;
                 touchDownTime = SystemClock.uptimeMillis();
-                v.getParent().requestDisallowInterceptTouchEvent(true);
+                if (v.getParent() != null) v.getParent().requestDisallowInterceptTouchEvent(true);
                 onTouchDown(event);
                 return true;
             case MotionEvent.ACTION_MOVE:
@@ -267,15 +267,19 @@ public abstract class BaseOverlayButton {
                     onTouchUp(event, false);
                 }
                 isDragging = false;
-                v.getParent().requestDisallowInterceptTouchEvent(false);
+                if (v.getParent() != null) v.getParent().requestDisallowInterceptTouchEvent(false);
                 return true;
             case MotionEvent.ACTION_CANCEL:
                 onTouchCancel(event);
                 isDragging = false;
-                v.getParent().requestDisallowInterceptTouchEvent(false);
+                if (v.getParent() != null) v.getParent().requestDisallowInterceptTouchEvent(false);
                 return true;
         }
         return false;
+    }
+
+    public View getOverlayView() {
+        return overlayView;
     }
 
     protected void onTouchDown(MotionEvent event) {}

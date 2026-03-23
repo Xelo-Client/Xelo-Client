@@ -18,6 +18,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.origin.launcher.R;
 import com.origin.launcher.Launcher.inbuilt.model.ModIds;
+import com.origin.launcher.Launcher.inbuilt.overlay.InbuiltOverlayManager;
+import com.origin.launcher.Launcher.inbuilt.overlay.ModMenuOverlay;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -137,14 +139,19 @@ public class InbuiltCustomizeAdapter extends RecyclerView.Adapter<InbuiltCustomi
             h.modMenuOpacitySeek.setMax(seekMax);
             int modMenuOpacity = callback.getModMenuOpacity(item.id);
             h.modMenuOpacitySeek.setProgress(opacityToProgress(modMenuOpacity));
-            h.modMenuPreviewIcon.setAlpha(modMenuOpacity / 100f);
             h.modMenuOpacitySeek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                 @Override
                 public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                    int newOpacity = progressToOpacity(progress);
-                    h.modMenuPreviewIcon.setAlpha(newOpacity / 100f);
                     if (fromUser) {
+                        int newOpacity = progressToOpacity(progress);
                         callback.onModMenuOpacityChanged(item.id, newOpacity);
+                        InbuiltOverlayManager overlayManager = InbuiltOverlayManager.getInstance();
+                        if (overlayManager != null) {
+                            ModMenuOverlay modMenuOverlay = overlayManager.getModMenuOverlay();
+                            if (modMenuOverlay != null && modMenuOverlay.getOverlayView() != null) {
+                                modMenuOverlay.getOverlayView().setAlpha(newOpacity / 100f);
+                            }
+                        }
                     }
                 }
                 @Override public void onStartTrackingTouch(SeekBar seekBar) {}
@@ -259,7 +266,6 @@ public class InbuiltCustomizeAdapter extends RecyclerView.Adapter<InbuiltCustomi
         Button btnZoomModeHold;
         final LinearLayout modMenuContainer;
         final SeekBar modMenuOpacitySeek;
-        final ImageView modMenuPreviewIcon;
 
         VH(@NonNull View itemView) {
             super(itemView);
@@ -277,7 +283,6 @@ public class InbuiltCustomizeAdapter extends RecyclerView.Adapter<InbuiltCustomi
             btnZoomModeHold = itemView.findViewById(R.id.btn_zoom_mode_hold);
             modMenuContainer = itemView.findViewById(R.id.config_mod_menu_container);
             modMenuOpacitySeek = itemView.findViewById(R.id.mod_menu_opacity_seek);
-            modMenuPreviewIcon = itemView.findViewById(R.id.mod_menu_preview_icon);
         }
     }
 }

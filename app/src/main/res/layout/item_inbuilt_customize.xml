@@ -135,32 +135,6 @@
 
                 </LinearLayout>
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Preview:"
-                        android:textSize="14sp"
-                        android:layout_marginEnd="12dp"
-                        android:textColor="@android:color/white"
-                        android:alpha="0.8" />
-
-                    <ImageView
-                        android:id="@+id/mod_menu_preview_icon"
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        android:src="@drawable/ic_modmenu"
-                        android:scaleType="centerInside"
-                        android:background="@drawable/bg_overlay_button" />
-
-                </LinearLayout>
-
             </LinearLayout>
 
             <LinearLayout
