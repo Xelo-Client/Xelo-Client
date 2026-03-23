@@ -36,6 +36,7 @@
                 android:layout_marginEnd="8dp" />
 
             <TextView
+                android:id="@+id/mod_menu_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Xelo Client"
@@ -57,6 +58,7 @@
     </LinearLayout>
 
     <View
+        android:id="@+id/mod_menu_divider"
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="#40FFFFFF"
