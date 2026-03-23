@@ -3,7 +3,6 @@ package com.origin.launcher.fragments;
 import android.content.DialogInterface;
 import org.jetbrains.annotations.NotNull;
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.View;

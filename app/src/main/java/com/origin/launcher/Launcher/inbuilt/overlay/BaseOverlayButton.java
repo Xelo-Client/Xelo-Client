@@ -22,7 +22,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 
 import com.origin.launcher.R;
-import com.origin.launcher.ThemeManager;
+import com.origin.launcher.manager.ThemeManager;
 import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModManager;
 import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModSizeStore;
 
