@@ -96,7 +96,7 @@ public abstract class BaseThemedActivity extends AppCompatActivity {
     /**
      * Call this method when theme changes to refresh the current activity
      */
-    protected void refreshTheme() {
+    public void refreshTheme() {
         applyThemeToViews();
     }
 }

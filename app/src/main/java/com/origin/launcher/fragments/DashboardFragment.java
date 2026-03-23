@@ -60,6 +60,8 @@ import android.content.res.ColorStateList;
 import android.graphics.drawable.RippleDrawable;
 import android.graphics.Color;
 
+import com.origin.launcher.manager.ThemeManager;
+import com.origin.launcher.utils.ThemeUtils;
 import com.origin.launcher.discord.DiscordRPCHelper;
 import com.origin.launcher.R;
 
