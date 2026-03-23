@@ -26,9 +26,11 @@ public class InbuiltModManager {
     private static final String KEY_ZOOM_KEYBIND = "zoom_keybind";
     private static final String KEY_ZOOM_HOLD_MODE = "zoom_hold_mode";
     private static final String KEY_MOD_MENU_MIGRATED = "mod_menu_migrated";
+    private static final String KEY_MOD_MENU_OPACITY = "mod_menu_opacity";
     private static final int DEFAULT_OVERLAY_BUTTON_SIZE = 56;
     private static final int DEFAULT_OVERLAY_BUTTON_OPACITY = 100;
     private static final int DEFAULT_ZOOM_LEVEL = 50;
+    private static final int DEFAULT_MOD_MENU_OPACITY = 100;
 
     private static volatile InbuiltModManager instance;
     private final SharedPreferences prefs;
@@ -196,6 +198,14 @@ public class InbuiltModManager {
 
     public void setZoomHoldMode(boolean holdMode) {
         prefs.edit().putBoolean(KEY_ZOOM_HOLD_MODE, holdMode).apply();
+    }
+
+    public int getModMenuOpacity() {
+        return prefs.getInt(KEY_MOD_MENU_OPACITY, DEFAULT_MOD_MENU_OPACITY);
+    }
+
+    public void setModMenuOpacity(int opacity) {
+        prefs.edit().putInt(KEY_MOD_MENU_OPACITY, Math.max(20, Math.min(100, opacity))).apply();
     }
 
     public int getOverlayButtonSize() {

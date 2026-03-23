@@ -432,6 +432,16 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
     }
 
     @Override
+    public int getModMenuOpacity(String id) {
+        return InbuiltModManager.getInstance(getContext()).getModMenuOpacity();
+    }
+
+    @Override
+    public void onModMenuOpacityChanged(String id, int opacity) {
+        InbuiltModManager.getInstance(getContext()).setModMenuOpacity(opacity);
+    }
+
+    @Override
     public String getKeyName(String id) {
         int keybind = modZoomKeybinds.getOrDefault(id, KeyEvent.KEYCODE_C);
         if (keybind == KeyEvent.KEYCODE_C) return "C";

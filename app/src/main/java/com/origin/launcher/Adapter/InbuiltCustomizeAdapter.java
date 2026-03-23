@@ -8,9 +8,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -44,6 +45,8 @@ public class InbuiltCustomizeAdapter extends RecyclerView.Adapter<InbuiltCustomi
         void showKeybindDialog(String id);
         boolean getZoomHoldMode(String id);
         void onZoomHoldModeChanged(String id, boolean holdMode);
+        int getModMenuOpacity(String id);
+        void onModMenuOpacityChanged(String id, int opacity);
     }
 
     private final List<Item> items = new ArrayList<>();
@@ -127,6 +130,29 @@ public class InbuiltCustomizeAdapter extends RecyclerView.Adapter<InbuiltCustomi
             @Override public void onStartTrackingTouch(SeekBar seekBar) {}
             @Override public void onStopTrackingTouch(SeekBar seekBar) {}
         });
+
+        if (item.id.equals(ModIds.MOD_MENU)) {
+            h.modMenuContainer.setVisibility(View.VISIBLE);
+            h.modMenuOpacitySeek.setOnSeekBarChangeListener(null);
+            h.modMenuOpacitySeek.setMax(seekMax);
+            int modMenuOpacity = callback.getModMenuOpacity(item.id);
+            h.modMenuOpacitySeek.setProgress(opacityToProgress(modMenuOpacity));
+            h.modMenuPreviewIcon.setAlpha(modMenuOpacity / 100f);
+            h.modMenuOpacitySeek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                    int newOpacity = progressToOpacity(progress);
+                    h.modMenuPreviewIcon.setAlpha(newOpacity / 100f);
+                    if (fromUser) {
+                        callback.onModMenuOpacityChanged(item.id, newOpacity);
+                    }
+                }
+                @Override public void onStartTrackingTouch(SeekBar seekBar) {}
+                @Override public void onStopTrackingTouch(SeekBar seekBar) {}
+            });
+        } else {
+            h.modMenuContainer.setVisibility(View.GONE);
+        }
 
         if (item.id.equals(ModIds.ZOOM)) {
             h.zoomContainer.setVisibility(View.VISIBLE);
@@ -231,6 +257,9 @@ public class InbuiltCustomizeAdapter extends RecyclerView.Adapter<InbuiltCustomi
         Button btnChangeKeybind;
         Button btnZoomModePress;
         Button btnZoomModeHold;
+        final LinearLayout modMenuContainer;
+        final SeekBar modMenuOpacitySeek;
+        final ImageView modMenuPreviewIcon;
 
         VH(@NonNull View itemView) {
             super(itemView);
@@ -246,6 +275,9 @@ public class InbuiltCustomizeAdapter extends RecyclerView.Adapter<InbuiltCustomi
             btnChangeKeybind = itemView.findViewById(R.id.btn_change_keybind);
             btnZoomModePress = itemView.findViewById(R.id.btn_zoom_mode_press);
             btnZoomModeHold = itemView.findViewById(R.id.btn_zoom_mode_hold);
+            modMenuContainer = itemView.findViewById(R.id.config_mod_menu_container);
+            modMenuOpacitySeek = itemView.findViewById(R.id.mod_menu_opacity_seek);
+            modMenuPreviewIcon = itemView.findViewById(R.id.mod_menu_preview_icon);
         }
     }
 }

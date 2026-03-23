@@ -5,6 +5,7 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.GradientDrawable;
 import android.view.View;
 import android.view.Window;
 import android.view.animation.Animation;
@@ -19,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModManager;
 import com.origin.launcher.Launcher.inbuilt.model.ModIds;
 import com.origin.launcher.Adapter.ModMenuAdapter;
+import com.origin.launcher.manager.ThemeManager;
 import com.origin.launcher.R;
 
 import java.util.ArrayList;
@@ -53,11 +55,45 @@ public class ModMenuDialog {
                 (int) (activity.getResources().getDisplayMetrics().widthPixels * 0.80),
                 android.view.ViewGroup.LayoutParams.WRAP_CONTENT
         );
-        
+
         dialog.getWindow().getAttributes().windowAnimations = R.style.ModMenuDialogAnimation;
+
+        ThemeManager themeManager = ThemeManager.getInstance();
+        int surfaceColor = themeManager.getColor("surface");
+        int outlineColor = themeManager.getColor("outline");
+        int primaryColor = themeManager.getColor("primary");
+        int onSurfaceColor = themeManager.getColor("onSurface");
+        int onSurfaceVariantColor = themeManager.getColor("onSurfaceVariant");
+
+        View rootLayout = dialog.findViewById(android.R.id.content).getRootView();
+        View contentRoot = dialog.getWindow().getDecorView().findViewById(android.R.id.content);
+
+        GradientDrawable dialogBg = new GradientDrawable();
+        dialogBg.setShape(GradientDrawable.RECTANGLE);
+        dialogBg.setColor(surfaceColor);
+        dialogBg.setStroke((int) (2 * activity.getResources().getDisplayMetrics().density), outlineColor);
+        dialogBg.setCornerRadius(16 * activity.getResources().getDisplayMetrics().density);
+
+        View dialogRoot = (View) contentRoot.getParent();
+        if (dialogRoot != null) {
+            dialogRoot.setBackground(dialogBg);
+        }
+
+        View divider = dialog.findViewById(R.id.mod_menu_divider);
+        if (divider != null) {
+            divider.setBackgroundColor(outlineColor);
+        }
+
+        TextView titleText = dialog.findViewById(R.id.mod_menu_title);
+        if (titleText != null) {
+            titleText.setTextColor(primaryColor);
+        }
 
         ImageView btnBack = dialog.findViewById(R.id.btn_back);
         ImageView btnWrench = dialog.findViewById(R.id.btn_wrench);
+
+        if (btnBack != null) btnBack.setColorFilter(onSurfaceColor);
+        if (btnWrench != null) btnWrench.setColorFilter(onSurfaceVariantColor);
 
         btnBack.setOnClickListener(v -> {
             animatePop(btnBack);
@@ -71,6 +107,9 @@ public class ModMenuDialog {
                 new InbuiltModsCustomizeDialog(activity, false).show();
             }, 150);
         });
+
+        int modMenuOpacity = InbuiltModManager.getInstance(activity).getModMenuOpacity();
+        dialog.getWindow().getDecorView().setAlpha(modMenuOpacity / 100f);
 
         modManager = InbuiltModManager.getInstance(activity);
 
@@ -96,6 +135,10 @@ public class ModMenuDialog {
         LinearLayout tabQol = dialog.findViewById(R.id.tab_qol);
         LinearLayout tabStats = dialog.findViewById(R.id.tab_stats);
 
+        applyTabColors(tabUtility, primaryColor, true);
+        applyTabColors(tabQol, onSurfaceColor, false);
+        applyTabColors(tabStats, onSurfaceColor, false);
+
         LinearLayout[] tabs = {tabUtility, tabQol, tabStats};
         List<List<ModMenuAdapter.ModEntry>> tabData = Arrays.asList(utilityMods, qolMods, statsMods);
 
@@ -103,23 +146,31 @@ public class ModMenuDialog {
             final int index = i;
             tabs[i].setOnClickListener(v -> {
                 animatePop(tabs[index]);
-                for (LinearLayout t : tabs) {
-                    t.setSelected(false);
-                    ((TextView) t.getChildAt(1)).setTextColor(
-                        activity.getResources().getColor(R.color.onSurface, activity.getTheme()));
+                for (int j = 0; j < tabs.length; j++) {
+                    tabs[j].setSelected(false);
+                    applyTabColors(tabs[j], onSurfaceColor, false);
                 }
                 tabs[index].setSelected(true);
-                ((TextView) tabs[index].getChildAt(1)).setTextColor(
-                    activity.getResources().getColor(R.color.primary, activity.getTheme()));
+                applyTabColors(tabs[index], primaryColor, true);
                 recyclerView.setAdapter(new ModMenuAdapter(tabData.get(index), modManager));
             });
         }
 
         tabUtility.setSelected(true);
-        ((TextView) tabUtility.getChildAt(1)).setTextColor(
-            activity.getResources().getColor(R.color.primary, activity.getTheme()));
 
         dialog.show();
+    }
+
+    private void applyTabColors(LinearLayout tab, int textColor, boolean selected) {
+        if (tab == null) return;
+        for (int i = 0; i < tab.getChildCount(); i++) {
+            View child = tab.getChildAt(i);
+            if (child instanceof TextView) {
+                ((TextView) child).setTextColor(textColor);
+            } else if (child instanceof ImageView) {
+                ((ImageView) child).setColorFilter(textColor);
+            }
+        }
     }
 
     public boolean isShowing() {

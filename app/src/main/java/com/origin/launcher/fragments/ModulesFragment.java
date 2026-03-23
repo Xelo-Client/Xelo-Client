@@ -457,7 +457,7 @@ public class ModulesFragment extends BaseThemedFragment {
     }
 
     private void populateModules() {
-        if (modulesContainer == null) return;
+        if (modulesContainer == null || moduleItems == null) return;
 
         // Clear existing modules
         modulesContainer.removeAllViews();
@@ -856,8 +856,8 @@ public class ModulesFragment extends BaseThemedFragment {
         refreshScrollViewBackground();
 
         // Refresh all module cards
-        if (modulesContainer != null) {
-            populateModules();
+        if (modulesContainer != null && moduleItems != null) {
+            populateModules();  
         }
     }
 

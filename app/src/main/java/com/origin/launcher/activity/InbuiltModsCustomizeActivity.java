@@ -380,6 +380,16 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity implements 
     }
 
     @Override
+    public int getModMenuOpacity(String id) {
+        return InbuiltModManager.getInstance(this).getModMenuOpacity();
+    }
+
+    @Override
+    public void onModMenuOpacityChanged(String id, int opacity) {
+        InbuiltModManager.getInstance(this).setModMenuOpacity(opacity);
+    }
+
+    @Override
     public String getKeyName(String id) {
         int keybind = modZoomKeybinds.getOrDefault(id, KeyEvent.KEYCODE_C);
         if (keybind == KeyEvent.KEYCODE_C) return "C";
