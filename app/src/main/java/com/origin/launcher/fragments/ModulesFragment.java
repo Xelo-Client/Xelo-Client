@@ -161,8 +161,9 @@ public class ModulesFragment extends BaseThemedFragment {
         cancelButton.setTextColor(Color.WHITE);
         cancelButton.setStateListAnimator(null);
         LinearLayout.LayoutParams cancelParams = new LinearLayout.LayoutParams(
+                0,
                 LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
+                1f
         );
         cancelParams.setMarginEnd((int) (8 * getResources().getDisplayMetrics().density));
         cancelButton.setLayoutParams(cancelParams);
@@ -173,8 +174,9 @@ public class ModulesFragment extends BaseThemedFragment {
         okButton.setStateListAnimator(null);
         ThemeUtils.applyThemeToButton(okButton, requireContext());
         LinearLayout.LayoutParams okParams = new LinearLayout.LayoutParams(
+                0,
                 LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
+                1f
         );
         okButton.setLayoutParams(okParams);
 
@@ -211,13 +213,6 @@ public class ModulesFragment extends BaseThemedFragment {
                     if (storageWarningDialog != null) {
                         storageWarningDialog.dismiss();
                         storageWarningDialog = null;
-                    }
-                    try {
-                        requireActivity().getSupportFragmentManager().popBackStack();
-                    } catch (Exception e) {
-                        if (getActivity() != null) {
-                            getActivity().onBackPressed();
-                        }
                     }
                 }
             });
@@ -288,8 +283,9 @@ public class ModulesFragment extends BaseThemedFragment {
         cancelButton.setTextColor(Color.WHITE);
         cancelButton.setStateListAnimator(null);
         LinearLayout.LayoutParams cancelParams = new LinearLayout.LayoutParams(
+                0,
                 LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
+                1f
         );
         cancelParams.setMarginEnd((int) (8 * getResources().getDisplayMetrics().density));
         cancelButton.setLayoutParams(cancelParams);
@@ -300,8 +296,9 @@ public class ModulesFragment extends BaseThemedFragment {
         okButton.setStateListAnimator(null);
         ThemeUtils.applyThemeToButton(okButton, requireContext());
         LinearLayout.LayoutParams okParams = new LinearLayout.LayoutParams(
+                0,
                 LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
+                1f
         );
         okButton.setLayoutParams(okParams);
 
@@ -336,9 +333,13 @@ public class ModulesFragment extends BaseThemedFragment {
                 @Override
                 public void onAnimationEnd(Animation animation) {
                     toggleDialog.dismiss();
-                    moduleSwitch.setOnCheckedChangeListener(null);
-                    moduleSwitch.setChecked(!isChecked);
-                    rebindSwitch(module, moduleSwitch);
+                    try {
+                        requireActivity().getSupportFragmentManager().popBackStack();
+                    } catch (Exception e) {
+                        if (getActivity() != null) {
+                            getActivity().onBackPressed();
+                        }
+                    }
                 }
             });
         });

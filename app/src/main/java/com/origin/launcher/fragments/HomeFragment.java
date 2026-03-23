@@ -19,6 +19,13 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Build;
+import android.os.Environment;
+import android.net.Uri;
+import android.provider.Settings;
+import android.graphics.Color;
+import android.graphics.Typeface;
+import android.graphics.drawable.GradientDrawable;
+import android.view.Gravity;
 import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -45,12 +52,13 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import android.os.Looper;
 import android.content.res.ColorStateList;
-import android.graphics.Color;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
+import androidx.appcompat.app.AlertDialog;
 import com.origin.launcher.manager.ThemeManager;
 import com.origin.launcher.utils.ThemeUtils;
 import android.util.Log;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 import com.origin.launcher.activity.MainActivity;
 import com.origin.launcher.Launcher.MinecraftLauncher;
@@ -66,6 +74,7 @@ import com.origin.launcher.utils.FeatureSettings;
 import com.origin.launcher.manager.ResourcepackHandler;
 import com.origin.launcher.versions.GameVersion;
 import android.app.Activity;
+import androidx.core.content.ContextCompat;
 
 public class HomeFragment extends BaseThemedFragment {
 
@@ -76,77 +85,208 @@ public class HomeFragment extends BaseThemedFragment {
     private com.google.android.material.button.MaterialButton shareLogsButton;
     private MinecraftLauncher minecraftLauncher;
     private VersionManager versionManager;
-    
 
-    
-private void launchGame() {
-    if (mbl2_button == null) return;
-    
-    mbl2_button.setEnabled(false);
-
-    GameVersion version = versionManager != null ? versionManager.getSelectedVersion() : null;
-
-    if (version == null) {
-        mbl2_button.setEnabled(true);
-        showErrorDialog("No Version", "Please select a Minecraft version first.");
-        return;
-    }
-
-    if (!version.isInstalled && !FeatureSettings.getInstance().isVersionIsolationEnabled()) {
-        mbl2_button.setEnabled(true);
-        showVersionIsolationDialog();
-        return;
-    }
-    
-    new Thread(() -> {
-        try {
-            minecraftLauncher.launch(requireActivity().getIntent(), version);
-            requireActivity().runOnUiThread(() -> {
-                mbl2_button.setEnabled(true);
-                if (listener != null) listener.setText("Minecraft launched successfully");
-            });
-        } catch (Exception e) {
-            requireActivity().runOnUiThread(() -> {
-                mbl2_button.setEnabled(true);
-                showErrorDialog("Launch Failed", e.getMessage());
-            });
+    private boolean hasStoragePermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            return Environment.isExternalStorageManager();
+        } else {
+            return ContextCompat.checkSelfPermission(requireContext(),
+                    android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
         }
-    }).start();
-}
+    }
 
-private void showErrorDialog(String title, String message) {
-    new AlertDialog.Builder(requireContext())
-        .setTitle(title)
-        .setMessage(message)
-        .setPositiveButton("OK", null)
-        .show();
-}
+    private void openStoragePermissionSettings() {
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
+                intent.setData(Uri.parse("package:" + requireContext().getPackageName()));
+                startActivity(intent);
+            } else {
+                Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                intent.setData(Uri.parse("package:" + requireContext().getPackageName()));
+                startActivity(intent);
+            }
+        } catch (Exception e) {
+            Intent intent = new Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
+            startActivity(intent);
+        }
+    }
 
-private void showVersionIsolationDialog() {
-    new AlertDialog.Builder(requireContext())
-        .setTitle("Version Isolation Required")
-        .setMessage("Enable version isolation to launch uninstalled versions?")
-        .setPositiveButton("Enable", (dialog, which) -> {
-            FeatureSettings.getInstance().setVersionIsolationEnabled(true);
-            launchGame();
-        })
-        .setNegativeButton("Cancel", null)
-        .show();
-}
+    private void showLaunchStorageWarningDialog() {
+        if (getContext() == null) return;
 
-private void setupManagersAndHandlers() {
-    versionManager = VersionManager.get(requireContext());
-    versionManager.loadAllVersions();
-    minecraftLauncher = new MinecraftLauncher(requireContext());
-}
+        LinearLayout dialogLayout = new LinearLayout(requireContext());
+        dialogLayout.setOrientation(LinearLayout.VERTICAL);
+        int padding = (int) (24 * getResources().getDisplayMetrics().density);
+        dialogLayout.setPadding(padding, padding, padding, padding);
 
-private void checkResourcepack() {
-    if (getActivity() == null) return;
-    ExecutorService executorService = Executors.newSingleThreadExecutor();
-    new ResourcepackHandler((Activity) getActivity(), minecraftLauncher, executorService)
-        .checkIntentForResourcepack();
-}
+        TextView titleText = new TextView(requireContext());
+        titleText.setText("Storage Permission Required");
+        titleText.setTextSize(18);
+        titleText.setTypeface(null, Typeface.BOLD);
+        titleText.setTextColor(ThemeManager.getInstance().getColor("onSurface"));
+        dialogLayout.addView(titleText);
 
+        TextView messageText = new TextView(requireContext());
+        messageText.setText("Xelo Client requires storage access to launch Minecraft and manage game files properly. Without this permission, the game cannot be launched.\n\nPlease grant storage permission to continue.");
+        messageText.setTextSize(14);
+        messageText.setTextColor(ThemeManager.getInstance().getColor("onSurfaceVariant"));
+        LinearLayout.LayoutParams msgParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        msgParams.topMargin = (int) (12 * getResources().getDisplayMetrics().density);
+        messageText.setLayoutParams(msgParams);
+        dialogLayout.addView(messageText);
+
+        LinearLayout buttonRow = new LinearLayout(requireContext());
+        buttonRow.setOrientation(LinearLayout.HORIZONTAL);
+        buttonRow.setGravity(Gravity.END);
+        LinearLayout.LayoutParams rowParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        rowParams.topMargin = (int) (24 * getResources().getDisplayMetrics().density);
+        buttonRow.setLayoutParams(rowParams);
+
+        MaterialButton cancelButton = new MaterialButton(requireContext());
+        cancelButton.setText("Exit");
+        cancelButton.setAllCaps(false);
+        cancelButton.setStateListAnimator(null);
+        GradientDrawable cancelBg = new GradientDrawable();
+        cancelBg.setShape(GradientDrawable.RECTANGLE);
+        cancelBg.setColor(Color.parseColor("#F44336"));
+        cancelBg.setCornerRadius(12 * getResources().getDisplayMetrics().density);
+        cancelButton.setBackground(cancelBg);
+        cancelButton.setBackgroundTintList(null);
+        cancelButton.setTextColor(Color.WHITE);
+        LinearLayout.LayoutParams cancelParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        cancelParams.setMarginEnd((int) (8 * getResources().getDisplayMetrics().density));
+        cancelButton.setLayoutParams(cancelParams);
+
+        MaterialButton okButton = new MaterialButton(requireContext());
+        okButton.setText("Grant Permission");
+        okButton.setAllCaps(false);
+        okButton.setStateListAnimator(null);
+        ThemeUtils.applyThemeToButton(okButton, requireContext());
+        LinearLayout.LayoutParams okParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        okButton.setLayoutParams(okParams);
+
+        buttonRow.addView(cancelButton);
+        buttonRow.addView(okButton);
+        dialogLayout.addView(buttonRow);
+
+        GradientDrawable dialogBg = new GradientDrawable();
+        dialogBg.setShape(GradientDrawable.RECTANGLE);
+        dialogBg.setColor(ThemeManager.getInstance().getColor("surface"));
+        dialogBg.setCornerRadius(16 * getResources().getDisplayMetrics().density);
+        dialogBg.setStroke(
+                (int) (1 * getResources().getDisplayMetrics().density),
+                ThemeManager.getInstance().getColor("outline")
+        );
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setView(dialogLayout);
+        builder.setCancelable(false);
+
+        AlertDialog launchDialog = builder.create();
+        if (launchDialog.getWindow() != null) {
+            launchDialog.getWindow().setBackgroundDrawable(dialogBg);
+        }
+
+        cancelButton.setOnClickListener(v -> {
+            launchDialog.dismiss();
+            if (mbl2_button != null) mbl2_button.setEnabled(true);
+            requireActivity().finish();
+        });
+
+        okButton.setOnClickListener(v -> {
+            launchDialog.dismiss();
+            if (mbl2_button != null) mbl2_button.setEnabled(true);
+            openStoragePermissionSettings();
+        });
+
+        launchDialog.show();
+    }
+
+    private void launchGame() {
+        if (mbl2_button == null) return;
+
+        mbl2_button.setEnabled(false);
+
+        if (!hasStoragePermission()) {
+            showLaunchStorageWarningDialog();
+            return;
+        }
+
+        GameVersion version = versionManager != null ? versionManager.getSelectedVersion() : null;
+
+        if (version == null) {
+            mbl2_button.setEnabled(true);
+            showErrorDialog("No Version", "Please select a Minecraft version first.");
+            return;
+        }
+
+        if (!version.isInstalled && !FeatureSettings.getInstance().isVersionIsolationEnabled()) {
+            mbl2_button.setEnabled(true);
+            showVersionIsolationDialog();
+            return;
+        }
+
+        new Thread(() -> {
+            try {
+                minecraftLauncher.launch(requireActivity().getIntent(), version);
+                requireActivity().runOnUiThread(() -> {
+                    mbl2_button.setEnabled(true);
+                    if (listener != null) listener.setText("Minecraft launched successfully");
+                });
+            } catch (Exception e) {
+                requireActivity().runOnUiThread(() -> {
+                    mbl2_button.setEnabled(true);
+                    showErrorDialog("Launch Failed", e.getMessage());
+                });
+            }
+        }).start();
+    }
+
+    private void showErrorDialog(String title, String message) {
+        new AlertDialog.Builder(requireContext())
+            .setTitle(title)
+            .setMessage(message)
+            .setPositiveButton("OK", null)
+            .show();
+    }
+
+    private void showVersionIsolationDialog() {
+        new AlertDialog.Builder(requireContext())
+            .setTitle("Version Isolation Required")
+            .setMessage("Enable version isolation to launch uninstalled versions?")
+            .setPositiveButton("Enable", (dialog, which) -> {
+                FeatureSettings.getInstance().setVersionIsolationEnabled(true);
+                launchGame();
+            })
+            .setNegativeButton("Cancel", null)
+            .show();
+    }
+
+    private void setupManagersAndHandlers() {
+        versionManager = VersionManager.get(requireContext());
+        versionManager.loadAllVersions();
+        minecraftLauncher = new MinecraftLauncher(requireContext());
+    }
+
+    private void checkResourcepack() {
+        if (getActivity() == null) return;
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        new ResourcepackHandler((Activity) getActivity(), minecraftLauncher, executorService)
+            .checkIntentForResourcepack();
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -160,7 +300,7 @@ private void checkResourcepack() {
 
         // Apply initial theme
         applyInitialTheme(view);
-        
+
         mbl2_button.setOnClickListener(v -> launchGame());
 
         // Long press to clear APK selection
@@ -177,10 +317,10 @@ private void checkResourcepack() {
                 requireActivity().getSupportFragmentManager()
                     .beginTransaction()
                     .setCustomAnimations(
-                        R.anim.slide_fade_in_right,  
-                        R.anim.slide_out_right, 
-                        R.anim.slide_in_left,   
-                        R.anim.slide_out_left 
+                        R.anim.slide_fade_in_right,
+                        R.anim.slide_out_right,
+                        R.anim.slide_in_left,
+                        R.anim.slide_out_left
                     )
                     .replace(R.id.fragment_container, new VersionsFragment())
                     .addToBackStack(null)
@@ -209,22 +349,22 @@ private void checkResourcepack() {
 
         return view;
     }
-    
-@Override
-public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-    super.onViewCreated(view, savedInstanceState);
-    setupManagersAndHandlers();
-    checkResourcepack();
-}
 
-@Override
-public void onDestroyView() {
-    super.onDestroyView();
-    listener = null;
-    mbl2_button = null;
-    versions_button = null;
-    shareLogsButton = null;
-}
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        setupManagersAndHandlers();
+        checkResourcepack();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        listener = null;
+        mbl2_button = null;
+        versions_button = null;
+        shareLogsButton = null;
+    }
 
     /**
      * Apply initial theme to all views
@@ -273,7 +413,7 @@ public void onDestroyView() {
             // Handle error gracefully
         }
     }
-  
+
     @Override
     protected void onApplyTheme() {
         super.onApplyTheme();
@@ -286,10 +426,10 @@ public void onDestroyView() {
     }
 
     private String getPackageNameFromSettings() {
-    VersionManager vm = VersionManager.get(requireContext());
-    GameVersion version = vm.getSelectedVersion();
-    return version != null ? version.packageName : "com.mojang.minecraftpe";
-}
+        VersionManager vm = VersionManager.get(requireContext());
+        GameVersion version = vm.getSelectedVersion();
+        return version != null ? version.packageName : "com.mojang.minecraftpe";
+    }
 
     private String getSelectedApkPath() {
         SharedPreferences prefs = requireContext().getSharedPreferences("selected_apk", 0);
@@ -364,11 +504,11 @@ public void onDestroyView() {
         if (!checkLibCompatibility(inZipStream)) {
             handler.post(() -> alertAndExit("Wrong minecraft architecture", "The minecraft you have installed does not support the same main architecture (" + Build.SUPPORTED_ABIS[0] + ") your device uses, Xelo client cant work with it"));
             return false;
-        }                     
+        }
         Method addNativePath = pathList.getClass().getDeclaredMethod("addNativePath", Collection.class);
         ArrayList<String> libDirList = new ArrayList<>();
         File libdir = new File(mcInfo.nativeLibraryDir);
-        if (libdir.list() == null || libdir.list().length == 0 
+        if (libdir.list() == null || libdir.list().length == 0
          || (mcInfo.flags & ApplicationInfo.FLAG_EXTRACT_NATIVE_LIBS) != ApplicationInfo.FLAG_EXTRACT_NATIVE_LIBS) {
             loadUnextractedLibs(mcInfo);
             libDirList.add(requireActivity().getCodeCacheDir().getAbsolutePath() + "/");
@@ -380,19 +520,19 @@ public void onDestroyView() {
         return true;
     }
 
-    private static Boolean checkLibCompatibility(ZipInputStream zip) throws Exception{
-         ZipEntry ze = null;
-         String requiredLibDir = "lib/" + Build.SUPPORTED_ABIS[0] + "/";
-         while ((ze = zip.getNextEntry()) != null) {
-             if (ze.getName().startsWith(requiredLibDir)) {
-                 return true;
-             }
-         }
-         zip.close();
-         return false;
-     }
+    private static Boolean checkLibCompatibility(ZipInputStream zip) throws Exception {
+        ZipEntry ze = null;
+        String requiredLibDir = "lib/" + Build.SUPPORTED_ABIS[0] + "/";
+        while ((ze = zip.getNextEntry()) != null) {
+            if (ze.getName().startsWith(requiredLibDir)) {
+                return true;
+            }
+        }
+        zip.close();
+        return false;
+    }
 
-     private void alertAndExit(String issue, String description) {
+    private void alertAndExit(String issue, String description) {
         AlertDialog alertDialog = new AlertDialog.Builder(requireActivity()).create();
         alertDialog.setTitle(issue);
         alertDialog.setMessage(description);
@@ -403,8 +543,8 @@ public void onDestroyView() {
                 requireActivity().finish();
             }
         });
-        alertDialog.show();         
-     }
+        alertDialog.show();
+    }
 
     private void loadUnextractedLibs(ApplicationInfo appInfo) throws Exception {
         FileInputStream inStream = new FileInputStream(getApkWithLibs(appInfo));
@@ -418,11 +558,11 @@ public void onDestroyView() {
     }
 
     public String getApkWithLibs(ApplicationInfo pkg) throws PackageManager.NameNotFoundException {
-        String[] sn=pkg.splitSourceDirs;
+        String[] sn = pkg.splitSourceDirs;
         if (sn != null && sn.length > 0) {
-            String cur_abi = Build.SUPPORTED_ABIS[0].replace('-','_');
-            for(String n:sn){
-                if(n.contains(cur_abi)){
+            String cur_abi = Build.SUPPORTED_ABIS[0].replace('-', '_');
+            for (String n : sn) {
+                if (n.contains(cur_abi)) {
                     return n;
                 }
             }
@@ -430,7 +570,7 @@ public void onDestroyView() {
         return pkg.sourceDir;
     }
 
-    private static void extractDir(ApplicationInfo mcInfo, ZipInputStream zip, String zip_folder, String out_folder ) throws Exception{
+    private static void extractDir(ApplicationInfo mcInfo, ZipInputStream zip, String zip_folder, String out_folder) throws Exception {
         ZipEntry ze = null;
         while ((ze = zip.getNextEntry()) != null) {
             if (ze.getName().startsWith(zip_folder) && !ze.getName().contains("c++_shared")) {
