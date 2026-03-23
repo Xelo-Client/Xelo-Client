@@ -1,4 +1,4 @@
-package com.origin.launcher;
+package com.origin.launcher.activity;
 
 import android.content.Intent;
 import android.graphics.Color;

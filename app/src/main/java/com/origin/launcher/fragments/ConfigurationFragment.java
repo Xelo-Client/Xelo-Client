@@ -22,6 +22,11 @@ import com.google.android.material.materialswitch.MaterialSwitch;
 
 import com.origin.launcher.animation.DynamicAnim;
 import com.origin.launcher.Adapter.SettingsAdapter;
+import com.origin.launcher.utils.FeatureSettings;
+import com.origin.launcher.manager.LogcatOverlayManager;
+import com.origin.launcher.manager.ThemeManager;
+import com.origin.launcher.utils.ThemeUtils;
+import com.origin.launcher.discord.DiscordRPCHelper;
 import com.origin.launcher.R;
 
 public class ConfigurationFragment extends BaseThemedFragment {

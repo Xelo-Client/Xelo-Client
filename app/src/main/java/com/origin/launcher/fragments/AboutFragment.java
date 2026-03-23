@@ -32,6 +32,7 @@ import java.util.concurrent.Executors;
 import android.os.Handler;
 import android.os.Looper;
 
+import com.origin.launcher.discord.DiscordRPCHelper;
 import com.origin.launcher.R;
 
 public class AboutFragment extends BaseThemedFragment {

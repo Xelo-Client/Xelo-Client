@@ -60,6 +60,12 @@ import androidx.core.content.ContextCompat;
 import androidx.annotation.NonNull;
 import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModSizeStore;
 import com.origin.launcher.fragments.SettingsFragment;
+import com.origin.launcher.manager.ThemeManager;
+import com.origin.launcher.utils.ThemeUtils;
+import com.origin.launcher.discord.DiscordRPCHelper;
+import com.origin.launcher.discord.DiscordLoginActivity;
+import com.origin.launcher.fragments.DashboardFragment;
+import com.origin.launcher.R;
 
 public class MainActivity extends BaseThemedActivity {
     private static final String TAG = "MainActivity";

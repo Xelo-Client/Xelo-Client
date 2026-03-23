@@ -6,6 +6,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.origin.launcher.activity.BaseThemedActivity;
+import com.origin.launcher.R;
 
 public class Fallback extends BaseThemedActivity {
 

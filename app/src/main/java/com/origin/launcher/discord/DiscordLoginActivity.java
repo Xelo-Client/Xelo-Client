@@ -30,6 +30,7 @@ import org.json.JSONObject;
 
 import com.origin.launcher.discord.DiscordManager;
 import com.origin.launcher.activity.BaseThemedActivity;
+import com.origin.launcher.R;
 
 public class DiscordLoginActivity extends BaseThemedActivity {
     private static final String TAG = "DiscordLoginActivity";

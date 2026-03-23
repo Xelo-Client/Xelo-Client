@@ -5,6 +5,10 @@ import android.util.Log;
 import android.view.View;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.origin.launcher.manager.ThemeManager;
+import com.origin.launcher.utils.ThemeUtils;
+import com.origin.launcher.R;
+
 public abstract class BaseThemedActivity extends AppCompatActivity {
     private static final String TAG = "BaseThemedActivity";
     
