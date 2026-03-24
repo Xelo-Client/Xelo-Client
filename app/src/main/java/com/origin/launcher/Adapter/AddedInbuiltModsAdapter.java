@@ -1,4 +1,4 @@
-package com.origin.launcher.adapter;
+package com.origin.launcher.Adapter;
 
 import android.view.LayoutInflater;
 import android.view.View;

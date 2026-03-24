@@ -4,7 +4,7 @@ import android.app.Activity;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
-import com.origin.launcher.ModMenuDialog;
+import com.origin.launcher.dialogs.ModMenuDialog;
 import com.origin.launcher.R;
 
 public class ModMenuOverlay extends BaseOverlayButton {

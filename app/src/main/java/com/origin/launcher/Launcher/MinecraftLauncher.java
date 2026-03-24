@@ -9,8 +9,8 @@ import android.os.Build;
 import android.widget.Toast;
 
 import com.origin.launcher.versions.GameVersion;
-import com.origin.launcher.FeatureSettings;
-import com.origin.launcher.LoadingDialog;
+import com.origin.launcher.utils.FeatureSettings;
+import com.origin.launcher.dialogs.LoadingDialog;
 import android.util.Log;
 
 import java.io.File;

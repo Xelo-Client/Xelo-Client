@@ -7,13 +7,13 @@ import android.os.Environment
 import android.util.Log
 import androidx.preference.PreferenceManager
 import com.origin.launcher.BuildConfig
-import com.origin.launcher.FeatureSettings
+import com.origin.launcher.utils.FeatureSettings
 import xcrash.ICrashCallback
 import xcrash.XCrash
 import java.io.File
 import android.content.Intent
-import com.origin.launcher.CrashActivity
-import com.origin.launcher.LogcatOverlayManager
+import com.origin.launcher.activity.CrashActivity
+import com.origin.launcher.manager.LogcatOverlayManager
 
 class LauncherApplication : Application() {
 

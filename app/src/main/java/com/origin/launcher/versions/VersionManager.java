@@ -11,8 +11,8 @@ import android.os.Environment;
 import androidx.annotation.NonNull;
 
 import com.origin.launcher.R;
-import com.origin.launcher.MainActivity;
-import com.origin.launcher.ApkUtils;
+import com.origin.launcher.activity.MainActivity;
+import com.origin.launcher.utils.ApkUtils;
 
 import java.io.BufferedInputStream;
 import java.io.File;

@@ -102,6 +102,42 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/config_mod_menu_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Menu Opacity"
+                        android:textSize="14sp"
+                        android:layout_marginEnd="8dp"
+                        android:textColor="@android:color/white"
+                        android:alpha="0.8" />
+
+                    <SeekBar
+                        android:id="@+id/mod_menu_opacity_seek"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:max="100"
+                        android:thumbTint="@android:color/white"
+                        android:progressTint="@android:color/white" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
                 android:id="@+id/config_zoom_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

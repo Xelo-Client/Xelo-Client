@@ -14,7 +14,7 @@ import com.google.android.material.materialswitch.MaterialSwitch;
 import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModManager;
 import com.origin.launcher.Launcher.inbuilt.overlay.InbuiltOverlayManager;
 import com.origin.launcher.R;
-import com.origin.launcher.ThemeManager;
+import com.origin.launcher.manager.ThemeManager;
 
 import java.util.List;
 
