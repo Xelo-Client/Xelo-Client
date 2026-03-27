@@ -48,9 +48,9 @@
 
         <ImageView
             android:id="@+id/btn_wrench"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:src="@drawable/wrench"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:src="@drawable/draw"
             android:layout_marginStart="6dp"
             android:layout_marginEnd="15dp"
             android:contentDescription="Customize" />

@@ -1,28 +1,13 @@
-<vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="64dp"
-    android:height="64dp"
-    android:viewportWidth="64"
-    android:viewportHeight="64">
-
-    <!-- Bar 1 -->
-    <path
-        android:pathData="M18,30 h10 v24 h-10 z"
-        android:fillColor="#000000"
-        android:strokeColor="#808080"
-        android:strokeWidth="2"/>
-
-    <!-- Bar 2 -->
-    <path
-        android:pathData="M30,22 h10 v32 h-10 z"
-        android:fillColor="#000000"
-        android:strokeColor="#808080"
-        android:strokeWidth="2"/>
-
-    <!-- Bar 3 -->
-    <path
-        android:pathData="M42,14 h10 v40 h-10 z"
-        android:fillColor="#000000"
-        android:strokeColor="#808080"
-        android:strokeWidth="2"/>
-
+<vector xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt"
+    android:viewportWidth="960"
+    android:viewportHeight="960"
+    android:width="24dp"
+    android:height="24dp">
+    <group
+        android:translateX="-0"
+        android:translateY="960">
+        <path
+            android:pathData="M280-160v-520H80v-120h520v120H400v520H280Zm360 0v-320H520v-120h360v120H760v320H640Z"
+            android:fillColor="#FFFFFF" />
+    </group>
 </vector>
