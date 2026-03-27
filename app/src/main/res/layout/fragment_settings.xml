@@ -102,76 +102,59 @@
 
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- Minecraft Configuration Card -->
-    <com.google.android.material.card.MaterialCardView
+    <!-- Minecraft Version Card -->
+<com.google.android.material.card.MaterialCardView
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="16dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="8dp"
+    app:cardBackgroundColor="@color/surface"
+    app:strokeWidth="1dp"
+    app:strokeColor="@color/outline">
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="8dp"
-        app:cardBackgroundColor="@color/surface"
-        app:strokeWidth="1dp"
-        app:strokeColor="@color/outline">
+        android:orientation="vertical"
+        android:padding="24dp">
 
-        <LinearLayout
-            android:layout_width="match_parent"
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="24dp">
+            android:text="Minecraft Version"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="@color/onSurface"
+            android:layout_marginBottom="16dp" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Minecraft Configuration"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:textColor="@color/onSurface"
-                android:layout_marginBottom="24dp" />
+        <androidx.recyclerview.widget.RecyclerView
+    android:id="@+id/version_recycler_view"
+    android:layout_width="match_parent"
+    android:layout_height="0dp"
+    android:layout_weight="1"
+    android:maxHeight="300dp"
+    android:visibility="gone"
+    android:clipToPadding="false"
+    android:padding="8dp" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
+        <TextView
+    android:id="@+id/selected_version_text"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="No version selected"
+    android:textSize="16sp"
+    android:textColor="@color/onSurfaceVariant"
+    android:padding="16dp"
+    android:gravity="center_vertical"
+    android:background="@drawable/selected_version_bg"
+    android:layout_marginTop="12dp"
+    android:clickable="true"
+    android:focusable="true" />
 
-                <TextView
-                    android:id="@+id/textview3"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/mc_pkgname"
-                    android:textSize="16sp"
-                    android:textColor="@color/onSurface"
-                    android:layout_marginBottom="12dp" />
+    </LinearLayout>
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Package name of Minecraft"
-                    app:boxCornerRadiusTopStart="12dp"
-                    app:boxCornerRadiusTopEnd="12dp"
-                    app:boxCornerRadiusBottomStart="12dp"
-                    app:boxCornerRadiusBottomEnd="12dp"
-                    app:boxBackgroundColor="@color/surfaceVariant"
-                    app:hintTextColor="@color/onSurfaceVariant"
-                    app:boxStrokeColor="@color/outline"
-                    app:boxStrokeWidth="1dp"
-                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/mc_pkgname"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="com.mojang.minecraftpe"
-                        android:inputType="text"
-                        android:textColor="@color/onSurface"
-                        android:textSize="16sp" />
-
-                </com.google.android.material.textfield.TextInputLayout>
-
-            </LinearLayout>
-
-        </LinearLayout>
-
-    </com.google.android.material.card.MaterialCardView>
+</com.google.android.material.card.MaterialCardView>
 
     <!-- Navigation Cards -->
     <!-- configuration card -->

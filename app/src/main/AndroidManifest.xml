@@ -52,7 +52,7 @@
         android:supportsRtl="true">
 
         <activity
-            android:name=".InbuiltModsActivity"
+            android:name=".activity.InbuiltModsActivity"
             android:theme="@style/Base.Theme.FullScreen"
             android:screenOrientation="portrait"
             android:configChanges="fontScale|density|smallestScreenSize|screenSize|uiMode|screenLayout|orientation|navigation|keyboardHidden|keyboard|touchscreen|locale|mnc|mcc"
@@ -60,7 +60,7 @@
             tools:ignore="DiscouragedApi" />
         
         <activity
-    android:name=".InbuiltModsCustomizeActivity"
+    android:name=".activity.InbuiltModsCustomizeActivity"
     android:theme="@style/Base.Theme.FullScreen"
     android:screenOrientation="sensorLandscape"
     android:exported="false" />
@@ -82,7 +82,7 @@
         </activity>
 
         <activity
-            android:name=".MainActivity"
+            android:name=".activity.MainActivity"
             android:exported="true"
             android:theme="@style/Theme.Material3.Dark.NoActionBar.Custom">
             <intent-filter>
@@ -92,7 +92,7 @@
         </activity>
 
         <activity
-            android:name=".Fallback"
+            android:name=".utils.Fallback"
             android:exported="true"
             android:theme="@style/Theme.AppCompat.DayNight.NoActionBar">
             <intent-filter>
@@ -102,7 +102,7 @@
         </activity>
 
         <activity
-            android:name=".IntentHandler"
+            android:name=".manager.IntentHandler"
             android:alwaysRetainTaskState="true"
             android:configChanges="fontScale|density|smallestScreenSize|screenSize|uiMode|screenLayout|orientation|navigation|keyboardHidden|keyboard|touchscreen|locale|mnc|mcc"
             android:excludeFromRecents="false"
@@ -190,7 +190,7 @@
             tools:replace="android:configChanges,android:exported" />
 
         <activity
-            android:name="com.origin.launcher.CrashActivity"
+            android:name=".activity.CrashActivity"
             android:exported="false"
             android:screenOrientation="sensorLandscape"
             android:theme="@style/Base.Theme.FullScreen"
@@ -207,7 +207,7 @@
         </provider>
 
         <provider
-    android:name=".XeloDocumentsProvider"
+    android:name=".utils.XeloDocumentsProvider"
     android:authorities="com.origin.launcher.documents"
     android:exported="true"
     android:grantUriPermissions="true"
@@ -219,7 +219,7 @@
 </provider>
 
         <activity
-            android:name=".DiscordLoginActivity"
+            android:name=".discord.DiscordLoginActivity"
             android:exported="false"
             android:theme="@style/Theme.Material3.Dark.NoActionBar.Custom"
             android:windowSoftInputMode="adjustResize" />

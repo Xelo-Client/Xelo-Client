@@ -14,18 +14,16 @@
     <FrameLayout
         android:id="@+id/inbuilt_buttons_grid"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent" 
+        android:paddingLeft="0dp"
+        android:paddingTop="0dp"
+        android:clipChildren="false"
+        android:clipToPadding="false" />
 
-    <com.google.android.material.materialswitch.MaterialSwitch
-        android:id="@+id/lock_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="top|end"
-        android:layout_margin="16dp"
-        android:checked="false"
-        android:text="Lock"
-        android:clickable="true"
-        android:focusable="true" />
+    <FrameLayout
+        android:id="@+id/adapter_panel_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
     <LinearLayout
         android:id="@+id/bottom_panel"
@@ -49,10 +47,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Customize"
-                android:textColor="@android:color/black"
+                android:textColor="@android:color/white"
                 android:background="@drawable/rounded_card_background"
-                android:backgroundTint="@android:color/white"
-                app:backgroundTint="@android:color/white"
                 android:paddingLeft="16dp"
                 android:paddingRight="16dp"
                 android:paddingTop="8dp"
@@ -64,10 +60,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Reset"
-                android:textColor="@android:color/black"
+                android:textColor="@android:color/white"
                 android:background="@drawable/rounded_card_background"
-                android:backgroundTint="@android:color/white"
-                app:backgroundTint="@android:color/white"
                 android:paddingLeft="24dp"
                 android:paddingRight="24dp"
                 android:paddingTop="8dp"
@@ -79,10 +73,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Done"
-                android:textColor="@android:color/black"
+                android:textColor="@android:color/white"
                 android:background="@drawable/rounded_card_background"
-                android:backgroundTint="@android:color/white"
-                app:backgroundTint="@android:color/white"
                 android:paddingLeft="24dp"
                 android:paddingRight="24dp"
                 android:paddingTop="8dp"
@@ -90,5 +82,17 @@
 
         </LinearLayout>
     </LinearLayout>
+
+    <com.google.android.material.button.MaterialButton
+    android:id="@+id/lock_button"
+    style="@style/Widget.Material3.Button.OutlinedButton"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="top|end"
+    android:layout_margin="16dp"
+    android:text="Lock"
+    android:textColor="@android:color/white"
+    app:strokeColor="@android:color/black"
+    app:strokeWidth="0dp" />
 
 </FrameLayout>

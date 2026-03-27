@@ -1,0 +1,12 @@
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/tv_version_code_group"
+    android:paddingStart="32dp"
+    android:paddingTop="10dp"
+    android:paddingBottom="6dp"
+    android:textStyle="bold"
+    android:textSize="14sp"
+    android:textColor="@color/onSurface"
+    android:fontFamily="@font/mojangles"
+    android:layout_marginBottom="2dp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"/>

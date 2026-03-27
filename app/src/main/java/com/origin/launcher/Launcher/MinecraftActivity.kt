@@ -10,7 +10,7 @@ import android.widget.Toast
 import com.mojang.minecraftpe.MainActivity
 import com.origin.launcher.Launcher.inbuilt.overlay.InbuiltOverlayManager
 import com.origin.launcher.versions.GameVersion
-import com.origin.launcher.FeatureSettings
+import com.origin.launcher.utils.FeatureSettings
 import java.io.File
 
 class MinecraftActivity : MainActivity() {
@@ -135,7 +135,7 @@ class MinecraftActivity : MainActivity() {
         stopInbuiltModServices()
         super.onDestroy()
 
-        val intent = Intent(applicationContext, com.origin.launcher.MainActivity::class.java)
+        val intent = Intent(applicationContext, com.origin.launcher.activity.MainActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
         startActivity(intent)
 
@@ -164,6 +164,11 @@ class MinecraftActivity : MainActivity() {
         } else {
             super.getFilesDir()
         }
+    }
+    
+    override fun tick() {
+        super.tick()
+        overlayManager?.tick()
     }
 
     override fun getDataDir(): File {

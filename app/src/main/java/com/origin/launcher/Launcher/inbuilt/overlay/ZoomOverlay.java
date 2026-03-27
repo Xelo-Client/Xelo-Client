@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.widget.ImageButton;
 
 import com.origin.launcher.R;
@@ -13,9 +14,22 @@ import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModManager;
 
 public class ZoomOverlay extends BaseOverlayButton {
     private static final String TAG = "ZoomOverlay";
+    private static final long HOLD_THRESHOLD_MS = 300;
+
     private boolean isZooming = false;
     private boolean initialized = false;
+    private boolean isHolding = false;
+
     private final Handler handler = new Handler(Looper.getMainLooper());
+    private final Runnable holdRunnable = () -> {
+        isHolding = true;
+        if (!isZooming) {
+            isZooming = true;
+            applyZoomLevel();
+            ZoomMod.nativeOnKeyDown();
+            updateButtonState(true);
+        }
+    };
 
     public ZoomOverlay(Activity activity) {
         super(activity);
@@ -28,7 +42,7 @@ public class ZoomOverlay extends BaseOverlayButton {
 
     @Override
     protected int getIconResource() {
-        return R.drawable.ic_zoom;
+        return R.drawable.ic_zoom_selector;
     }
 
     @Override
@@ -38,7 +52,7 @@ public class ZoomOverlay extends BaseOverlayButton {
         }
         super.show(startX, startY);
     }
-    
+
     public void initializeForKeyboard() {
         if (!initialized) {
             initializeNative();
@@ -56,19 +70,82 @@ public class ZoomOverlay extends BaseOverlayButton {
             }
         }, 1000);
     }
-    
+
     private void applyZoomLevel() {
         int zoomPercent = InbuiltModManager.getInstance(activity).getZoomLevel();
         long normalFov = 5360000000L;
         long maxZoomFov = 5310000000L;
-        long zoomLevel = normalFov - (long)((normalFov - maxZoomFov) * zoomPercent / 100.0);
+        long zoomLevel = normalFov - (long) ((normalFov - maxZoomFov) * zoomPercent / 100.0);
         ZoomMod.nativeSetZoomLevel(zoomLevel);
+    }
+
+    private boolean isHoldModeEnabled() {
+        return InbuiltModManager.getInstance(activity).getZoomHoldMode();
+    }
+
+    @Override
+    protected void onTouchDown(MotionEvent event) {
+        if (!isHoldModeEnabled() || !initialized) return;
+        isHolding = false;
+        handler.postDelayed(holdRunnable, HOLD_THRESHOLD_MS);
+    }
+
+    @Override
+    protected void onTouchUp(MotionEvent event, boolean wasDragging) {
+        if (!isHoldModeEnabled()) return;
+        handler.removeCallbacks(holdRunnable);
+        if (wasDragging) {
+            if (isHolding && isZooming) {
+                isZooming = false;
+                ZoomMod.nativeOnKeyUp();
+                updateButtonState(false);
+            }
+            isHolding = false;
+            return;
+        }
+        if (isHolding) {
+            if (isZooming) {
+                isZooming = false;
+                ZoomMod.nativeOnKeyUp();
+                updateButtonState(false);
+            }
+            isHolding = false;
+        }
+    }
+
+    @Override
+    protected void onTouchCancel(MotionEvent event) {
+        if (!isHoldModeEnabled()) return;
+        handler.removeCallbacks(holdRunnable);
+        if (isHolding && isZooming) {
+            isZooming = false;
+            ZoomMod.nativeOnKeyUp();
+            updateButtonState(false);
+        }
+        isHolding = false;
+    }
+
+    @Override
+    protected void onDragStarted() {
+        if (!isHoldModeEnabled()) return;
+        handler.removeCallbacks(holdRunnable);
+        if (isHolding && isZooming) {
+            isZooming = false;
+            ZoomMod.nativeOnKeyUp();
+            updateButtonState(false);
+        }
+        isHolding = false;
     }
 
     @Override
     protected void onButtonClick() {
-        toggleZoom();
+        if (!isHoldModeEnabled()) {
+            toggleZoom();
+        }
     }
+
+    @Override
+    protected void onOverlayViewCreated(ImageButton btn) {}
 
     public void onKeyDown() {
         if (!initialized) {
@@ -76,7 +153,6 @@ public class ZoomOverlay extends BaseOverlayButton {
             return;
         }
         if (isZooming) return;
-        
         isZooming = true;
         applyZoomLevel();
         ZoomMod.nativeOnKeyDown();
@@ -85,7 +161,6 @@ public class ZoomOverlay extends BaseOverlayButton {
 
     public void onKeyUp() {
         if (!initialized || !isZooming) return;
-        
         isZooming = false;
         ZoomMod.nativeOnKeyUp();
         updateButtonState(false);
@@ -96,9 +171,7 @@ public class ZoomOverlay extends BaseOverlayButton {
             Log.w(TAG, "Zoom not initialized yet");
             return;
         }
-
         isZooming = !isZooming;
-
         if (isZooming) {
             applyZoomLevel();
             ZoomMod.nativeOnKeyDown();
@@ -112,7 +185,8 @@ public class ZoomOverlay extends BaseOverlayButton {
     private void updateButtonState(boolean active) {
         if (overlayView instanceof ImageButton) {
             ImageButton btn = (ImageButton) overlayView;
-            btn.setAlpha(active ? 1.0f : 0.6f);
+            btn.setActivated(active);
+            btn.setAlpha(getButtonAlpha() * (active ? 1.1f : 1.0f));
             btn.setBackgroundResource(active ? R.drawable.bg_overlay_button_active : R.drawable.bg_overlay_button);
         }
     }
@@ -129,13 +203,14 @@ public class ZoomOverlay extends BaseOverlayButton {
             ZoomMod.nativeOnKeyUp();
             isZooming = false;
         }
+        handler.removeCallbacks(holdRunnable);
         super.hide();
     }
 
     public boolean isZooming() {
         return isZooming;
     }
-    
+
     public boolean isInitialized() {
         return initialized;
     }

@@ -1,20 +1,25 @@
 package com.origin.launcher.Adapter;
 
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.origin.launcher.R;
 import com.origin.launcher.Launcher.inbuilt.model.ModIds;
+import com.origin.launcher.Launcher.inbuilt.overlay.InbuiltOverlayManager;
+import com.origin.launcher.Launcher.inbuilt.overlay.ModMenuOverlay;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +45,10 @@ public class InbuiltCustomizeAdapter extends RecyclerView.Adapter<InbuiltCustomi
         void onZoomChanged(String id, int zoomLevel);
         String getKeyName(String id);
         void showKeybindDialog(String id);
+        boolean getZoomHoldMode(String id);
+        void onZoomHoldModeChanged(String id, boolean holdMode);
+        int getModMenuOpacity(String id);
+        void onModMenuOpacityChanged(String id, int opacity);
     }
 
     private final List<Item> items = new ArrayList<>();
@@ -75,7 +84,12 @@ public class InbuiltCustomizeAdapter extends RecyclerView.Adapter<InbuiltCustomi
     @NonNull
     @Override
     public VH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_inbuilt_customize, parent, false);
+        android.content.Context themedContext = new androidx.appcompat.view.ContextThemeWrapper(
+            parent.getContext(),
+            com.google.android.material.R.style.Theme_Material3_Dark_NoActionBar
+        );
+        View v = LayoutInflater.from(themedContext)
+            .inflate(R.layout.item_inbuilt_customize, parent, false);
         return new VH(v);
     }
 
@@ -119,6 +133,34 @@ public class InbuiltCustomizeAdapter extends RecyclerView.Adapter<InbuiltCustomi
             @Override public void onStopTrackingTouch(SeekBar seekBar) {}
         });
 
+        if (item.id.equals(ModIds.MOD_MENU)) {
+            h.modMenuContainer.setVisibility(View.VISIBLE);
+            h.modMenuOpacitySeek.setOnSeekBarChangeListener(null);
+            h.modMenuOpacitySeek.setMax(seekMax);
+            int modMenuOpacity = callback.getModMenuOpacity(item.id);
+            h.modMenuOpacitySeek.setProgress(opacityToProgress(modMenuOpacity));
+            h.modMenuOpacitySeek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                    if (fromUser) {
+                        int newOpacity = progressToOpacity(progress);
+                        callback.onModMenuOpacityChanged(item.id, newOpacity);
+                        InbuiltOverlayManager overlayManager = InbuiltOverlayManager.getInstance();
+                        if (overlayManager != null) {
+                            ModMenuOverlay modMenuOverlay = overlayManager.getModMenuOverlay();
+                            if (modMenuOverlay != null && modMenuOverlay.getOverlayView() != null) {
+                                modMenuOverlay.getOverlayView().setAlpha(newOpacity / 100f);
+                            }
+                        }
+                    }
+                }
+                @Override public void onStartTrackingTouch(SeekBar seekBar) {}
+                @Override public void onStopTrackingTouch(SeekBar seekBar) {}
+            });
+        } else {
+            h.modMenuContainer.setVisibility(View.GONE);
+        }
+
         if (item.id.equals(ModIds.ZOOM)) {
             h.zoomContainer.setVisibility(View.VISIBLE);
             int currentZoom = callback.getZoomLevel(item.id);
@@ -133,24 +175,56 @@ public class InbuiltCustomizeAdapter extends RecyclerView.Adapter<InbuiltCustomi
                         callback.onZoomChanged(item.id, progress);
                     }
                 }
-                @Override
-                public void onStartTrackingTouch(SeekBar seekBar) {}
-                @Override
-                public void onStopTrackingTouch(SeekBar seekBar) {}
+                @Override public void onStartTrackingTouch(SeekBar seekBar) {}
+                @Override public void onStopTrackingTouch(SeekBar seekBar) {}
             });
 
             h.tvKeybindLabel.setVisibility(View.VISIBLE);
             h.tvKeybind.setVisibility(View.VISIBLE);
             h.btnChangeKeybind.setVisibility(View.VISIBLE);
-            
             h.tvKeybind.setText(callback.getKeyName(item.id));
             h.btnChangeKeybind.setOnClickListener(v -> callback.showKeybindDialog(item.id));
+
+            boolean isHoldMode = callback.getZoomHoldMode(item.id);
+            updateZoomModeButtons(h, isHoldMode);
+
+            h.btnZoomModePress.setOnClickListener(v -> {
+                callback.onZoomHoldModeChanged(item.id, false);
+                updateZoomModeButtons(h, false);
+            });
+
+            h.btnZoomModeHold.setOnClickListener(v -> {
+                callback.onZoomHoldModeChanged(item.id, true);
+                updateZoomModeButtons(h, true);
+            });
+
         } else {
             h.zoomContainer.setVisibility(View.GONE);
             h.tvKeybindLabel.setVisibility(View.GONE);
             h.tvKeybind.setVisibility(View.GONE);
             h.btnChangeKeybind.setVisibility(View.GONE);
         }
+    }
+
+    private void updateZoomModeButtons(VH h, boolean isHoldMode) {
+        styleZoomModeButton(h.btnZoomModePress, !isHoldMode);
+        styleZoomModeButton(h.btnZoomModeHold, isHoldMode);
+    }
+
+    private void styleZoomModeButton(Button btn, boolean selected) {
+        GradientDrawable bg = new GradientDrawable();
+        bg.setShape(GradientDrawable.RECTANGLE);
+        bg.setCornerRadius(16f);
+        if (selected) {
+            bg.setColor(Color.WHITE);
+            btn.setTextColor(Color.BLACK);
+        } else {
+            bg.setColor(Color.TRANSPARENT);
+            bg.setStroke(2, Color.WHITE);
+            btn.setTextColor(Color.WHITE);
+        }
+        btn.setBackground(bg);
+        btn.setBackgroundTintList(null);
     }
 
     @Override
@@ -188,6 +262,10 @@ public class InbuiltCustomizeAdapter extends RecyclerView.Adapter<InbuiltCustomi
         final TextView zoomText;
         TextView tvKeybindLabel, tvKeybind;
         Button btnChangeKeybind;
+        Button btnZoomModePress;
+        Button btnZoomModeHold;
+        final LinearLayout modMenuContainer;
+        final SeekBar modMenuOpacitySeek;
 
         VH(@NonNull View itemView) {
             super(itemView);
@@ -201,6 +279,10 @@ public class InbuiltCustomizeAdapter extends RecyclerView.Adapter<InbuiltCustomi
             tvKeybindLabel = itemView.findViewById(R.id.tv_keybind_label);
             tvKeybind = itemView.findViewById(R.id.tv_keybind);
             btnChangeKeybind = itemView.findViewById(R.id.btn_change_keybind);
+            btnZoomModePress = itemView.findViewById(R.id.btn_zoom_mode_press);
+            btnZoomModeHold = itemView.findViewById(R.id.btn_zoom_mode_hold);
+            modMenuContainer = itemView.findViewById(R.id.config_mod_menu_container);
+            modMenuOpacitySeek = itemView.findViewById(R.id.mod_menu_opacity_seek);
         }
     }
 }

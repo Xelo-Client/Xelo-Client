@@ -96,5 +96,22 @@
 
 Add mods from the
 main menu first</string>
+<string name="game_version_select_title">Select Version</string>
+<string name="back">Back</string>
+
+<!-- mod menu -->
+<string name="mod_menu_title">Mod Menu</string>
+<string name="mod_menu_enable_all">Enable All</string>
+<string name="mod_menu_disable_all">Disable All</string>
+<string name="inbuilt_mod_mod_menu">Mod Menu</string>
+<string name="inbuilt_mod_mod_menu_desc">The mod menu button for accessing all mods in-game</string>
+
+<!-- third person name tag-->
+<string name="inbuilt_mod_nametag">Third Person Name Tag</string>
+<string name="inbuilt_mod_nametag_desc">Shows name tags in third person view</string>
+
+<!-- Motion Blur-->
+<string name="inbuilt_mod_motion_blur">Motion Blur</string>
+<string name="inbuilt_mod_motion_blur_desc">Applies motion blur effect</string>
 
 </resources>

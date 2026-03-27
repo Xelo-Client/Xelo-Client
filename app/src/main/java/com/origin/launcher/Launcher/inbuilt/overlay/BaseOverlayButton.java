@@ -2,7 +2,11 @@ package com.origin.launcher.Launcher.inbuilt.overlay;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.PixelFormat;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.StateListDrawable;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
@@ -18,6 +22,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 
 import com.origin.launcher.R;
+import com.origin.launcher.manager.ThemeManager;
 import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModManager;
 import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModSizeStore;
 
@@ -58,9 +63,28 @@ public abstract class BaseOverlayButton {
 
     protected abstract String getModId();
 
+    public void tick() {}
+
     public void show(int startX, int startY) {
         if (isShowing) return;
-        handler.postDelayed(() -> showInternal(startX, startY), 500);
+        handler.post(() -> showInternal(startX, startY));
+    }
+
+    // Applies themed pressed/unpressed bitmaps if available, otherwise falls back to the default selector drawable
+    private void applyThemedIcon(ImageButton btn) {
+        Bitmap normal = ThemeManager.getInstance().getOverlayButtonBitmap(getModId());
+        Bitmap pressed = ThemeManager.getInstance().getOverlayButtonPressedBitmap(getModId());
+
+        if (normal != null && pressed != null) {
+            // Build a StateListDrawable matching the selector pattern: activated/pressed → pressed bitmap, default → normal bitmap
+            StateListDrawable stateDrawable = new StateListDrawable();
+            stateDrawable.addState(new int[]{android.R.attr.state_activated}, new BitmapDrawable(activity.getResources(), pressed));
+            stateDrawable.addState(new int[]{android.R.attr.state_pressed}, new BitmapDrawable(activity.getResources(), pressed));
+            stateDrawable.addState(new int[]{}, new BitmapDrawable(activity.getResources(), normal));
+            btn.setImageDrawable(stateDrawable);
+        } else {
+            btn.setImageResource(getIconResource());
+        }
     }
 
     private void showInternal(int startX, int startY) {
@@ -68,13 +92,12 @@ public abstract class BaseOverlayButton {
         try {
             overlayView = LayoutInflater.from(activity).inflate(R.layout.overlay_mod_button, null);
             ImageButton btn = (ImageButton) overlayView;
-            btn.setImageResource(getIconResource());
+            applyThemedIcon(btn);
 
             int buttonSize = getButtonSizePx();
-            int padding = (int) (buttonSize * 0.22f);
-            btn.setPadding(padding, padding, padding, padding);
             btn.setScaleType(ImageButton.ScaleType.FIT_CENTER);
             btn.setAlpha(getButtonAlpha());
+            onOverlayViewCreated(btn);
 
             wmParams = new WindowManager.LayoutParams(
                     buttonSize,
@@ -106,13 +129,12 @@ public abstract class BaseOverlayButton {
 
         overlayView = LayoutInflater.from(activity).inflate(R.layout.overlay_mod_button, null);
         ImageButton btn = (ImageButton) overlayView;
-        btn.setImageResource(getIconResource());
+        applyThemedIcon(btn);
 
         int buttonSize = getButtonSizePx();
-        int padding = (int) (buttonSize * 0.22f);
-        btn.setPadding(padding, padding, padding, padding);
         btn.setScaleType(ImageButton.ScaleType.FIT_CENTER);
         btn.setAlpha(getButtonAlpha());
+        onOverlayViewCreated(btn);
 
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
                 buttonSize,
@@ -130,20 +152,18 @@ public abstract class BaseOverlayButton {
 
     public void hide() {
         if (!isShowing || overlayView == null) return;
-        handler.post(() -> {
-            try {
-                if (wmParams != null && windowManager != null) {
-                    windowManager.removeView(overlayView);
-                } else {
-                    ViewGroup rootView = activity.findViewById(android.R.id.content);
-                    if (rootView != null) {
-                        rootView.removeView(overlayView);
-                    }
+        try {
+            if (wmParams != null && windowManager != null) {
+                windowManager.removeView(overlayView);
+            } else {
+                ViewGroup rootView = activity.findViewById(android.R.id.content);
+                if (rootView != null) {
+                    rootView.removeView(overlayView);
                 }
-            } catch (Exception ignored) {}
-            overlayView = null;
-            isShowing = false;
-        });
+            }
+        } catch (Exception ignored) {}
+        overlayView = null;
+        isShowing = false;
     }
 
     private boolean handleTouch(View v, MotionEvent event) {
@@ -155,7 +175,8 @@ public abstract class BaseOverlayButton {
                 initialTouchY = event.getRawY();
                 isDragging = false;
                 touchDownTime = SystemClock.uptimeMillis();
-                v.getParent().requestDisallowInterceptTouchEvent(true);
+                if (v.getParent() != null) v.getParent().requestDisallowInterceptTouchEvent(true);
+                onTouchDown(event);
                 return true;
             case MotionEvent.ACTION_MOVE:
                 if (InbuiltModSizeStore.getInstance().isLocked(getModId())) {
@@ -164,7 +185,10 @@ public abstract class BaseOverlayButton {
                 float dx = event.getRawX() - initialTouchX;
                 float dy = event.getRawY() - initialTouchY;
                 if (Math.abs(dx) > DRAG_THRESHOLD || Math.abs(dy) > DRAG_THRESHOLD) {
-                    isDragging = true;
+                    if (!isDragging) {
+                        isDragging = true;
+                        onDragStarted();
+                    }
                 }
                 if (isDragging && windowManager != null && overlayView != null) {
                     wmParams.x = (int) (initialX + dx);
@@ -174,20 +198,25 @@ public abstract class BaseOverlayButton {
                 return true;
             case MotionEvent.ACTION_UP:
                 long elapsed = SystemClock.uptimeMillis() - touchDownTime;
-                if (isDragging && InbuiltModSizeStore.getInstance().isLocked(getModId())) {
+                if (isDragging) {
                     InbuiltModSizeStore store = InbuiltModSizeStore.getInstance();
                     store.setPositionX(getModId(), wmParams.x);
                     store.setPositionY(getModId(), wmParams.y);
+                    onTouchUp(event, true);
                 } else if (elapsed < TAP_TIMEOUT) {
+                    onTouchUp(event, false);
                     handler.post(this::onButtonClick);
+                } else {
+                    onTouchUp(event, false);
                 }
                 isDragging = false;
-                v.getParent().requestDisallowInterceptTouchEvent(false);
+                if (v.getParent() != null) v.getParent().requestDisallowInterceptTouchEvent(false);
                 return true;
             case MotionEvent.ACTION_CANCEL:
             case MotionEvent.ACTION_OUTSIDE:
+                onTouchCancel(event);
                 isDragging = false;
-                v.getParent().requestDisallowInterceptTouchEvent(false);
+                if (v.getParent() != null) v.getParent().requestDisallowInterceptTouchEvent(false);
                 return false;
         }
         return false;
@@ -203,7 +232,8 @@ public abstract class BaseOverlayButton {
                 initialTouchY = event.getRawY();
                 isDragging = false;
                 touchDownTime = SystemClock.uptimeMillis();
-                v.getParent().requestDisallowInterceptTouchEvent(true);
+                if (v.getParent() != null) v.getParent().requestDisallowInterceptTouchEvent(true);
+                onTouchDown(event);
                 return true;
             case MotionEvent.ACTION_MOVE:
                 if (InbuiltModSizeStore.getInstance().isLocked(getModId())) {
@@ -212,7 +242,10 @@ public abstract class BaseOverlayButton {
                 float dx = event.getRawX() - initialTouchX;
                 float dy = event.getRawY() - initialTouchY;
                 if (Math.abs(dx) > DRAG_THRESHOLD || Math.abs(dy) > DRAG_THRESHOLD) {
-                    isDragging = true;
+                    if (!isDragging) {
+                        isDragging = true;
+                        onDragStarted();
+                    }
                 }
                 if (isDragging) {
                     params.leftMargin = (int) (initialX + dx);
@@ -222,23 +255,37 @@ public abstract class BaseOverlayButton {
                 return true;
             case MotionEvent.ACTION_UP:
                 long elapsed = SystemClock.uptimeMillis() - touchDownTime;
-                if (isDragging && InbuiltModSizeStore.getInstance().isLocked(getModId())) {
+                if (isDragging) {
                     InbuiltModSizeStore store = InbuiltModSizeStore.getInstance();
                     store.setPositionX(getModId(), params.leftMargin);
                     store.setPositionY(getModId(), params.topMargin);
+                    onTouchUp(event, true);
                 } else if (elapsed < TAP_TIMEOUT) {
+                    onTouchUp(event, false);
                     handler.post(this::onButtonClick);
+                } else {
+                    onTouchUp(event, false);
                 }
                 isDragging = false;
-                v.getParent().requestDisallowInterceptTouchEvent(false);
+                if (v.getParent() != null) v.getParent().requestDisallowInterceptTouchEvent(false);
                 return true;
             case MotionEvent.ACTION_CANCEL:
+                onTouchCancel(event);
                 isDragging = false;
-                v.getParent().requestDisallowInterceptTouchEvent(false);
+                if (v.getParent() != null) v.getParent().requestDisallowInterceptTouchEvent(false);
                 return true;
         }
         return false;
     }
+
+    public View getOverlayView() {
+        return overlayView;
+    }
+
+    protected void onTouchDown(MotionEvent event) {}
+    protected void onTouchUp(MotionEvent event, boolean wasDragging) {}
+    protected void onTouchCancel(MotionEvent event) {}
+    protected void onDragStarted() {}
 
     protected void sendKey(int keyCode) {
         handler.post(() -> {
@@ -267,5 +314,6 @@ public abstract class BaseOverlayButton {
     }
 
     protected abstract int getIconResource();
+    protected void onOverlayViewCreated(ImageButton btn) {}
     protected abstract void onButtonClick();
 }
