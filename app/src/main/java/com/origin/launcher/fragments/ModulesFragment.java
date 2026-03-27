@@ -60,6 +60,9 @@ public class ModulesFragment extends BaseThemedFragment {
     private List<ModuleItem> moduleItems;
     private ActivityResultLauncher<Intent> imagePickerLauncher;
     private AlertDialog storageWarningDialog;
+    
+    private MaterialButton uploadCrosshairButton;
+    private View crosshairSpacer;
 
     private static final int SWITCH_DISABLED_COLOR = 0xFF757575;
 
@@ -480,6 +483,9 @@ public class ModulesFragment extends BaseThemedFragment {
             moduleItems.add(new ModuleItem("White Block Outline", "changes the block selection outline to white", "white_block_outline"));
             moduleItems.add(new ModuleItem("No pumpkin overlay", "disables the dark blurry overlay when wearing pumpkin", "no_pumpkin_overlay"));
             moduleItems.add(new ModuleItem("No spyglass overlay", "disables the spyglass overlay when using spyglass", "no_spyglass_overlay"));
+            moduleItems.add(new ModuleItem("No Eating animation", "disables the eating animation of food items", "no_eating_animation"));
+            moduleItems.add(new ModuleItem("No Bow animation", "disables the bow animation", "no_bow_animation"));
+            moduleItems.add(new ModuleItem("Portal optimizer", "optimizes the portal by tweaking", "portal_optimizer"));
             moduleItems.add(new ModuleItem("Custom CrossHair", "lets you use your own CrossHair", "custom_cross_hair"));
 
             // Load current config state and populate modules
@@ -503,18 +509,23 @@ public class ModulesFragment extends BaseThemedFragment {
             // Add upload button after Custom CrossHair module
             if (module.getConfigKey().equals("custom_cross_hair")) {
                 // Add spacing before button
-                View spacer = new View(getContext());
+                crosshairSpacer = new View(getContext()); // Assign to class variable
                 LinearLayout.LayoutParams spacerParams = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     (int) (12 * getResources().getDisplayMetrics().density)
                 );
-                spacer.setLayoutParams(spacerParams);
-                modulesContainer.addView(spacer);
-
+                crosshairSpacer.setLayoutParams(spacerParams);
+                modulesContainer.addView(crosshairSpacer);
+            
                 // Add upload button
-                MaterialButton uploadButton = createUploadButton();
-                modulesContainer.addView(uploadButton);
+                uploadCrosshairButton = createUploadButton(); // Assign to class variable
+                modulesContainer.addView(uploadCrosshairButton);
+            
+                int visibility = module.isEnabled() ? View.VISIBLE : View.GONE;
+                crosshairSpacer.setVisibility(visibility);
+                uploadCrosshairButton.setVisibility(visibility);
             }
+
 
             // Add spacing between cards
             if (i < moduleItems.size() - 1) {
@@ -751,7 +762,15 @@ public class ModulesFragment extends BaseThemedFragment {
         Toast.makeText(requireContext(),
             module.getName() + " " + (isEnabled ? "enabled" : "disabled"),
             Toast.LENGTH_SHORT).show();
+    
+        // --- NEW CODE: Toggle visibility when switch is pressed ---
+        if (module.getConfigKey().equals("custom_cross_hair") && uploadCrosshairButton != null && crosshairSpacer != null) {
+            int visibility = isEnabled ? View.VISIBLE : View.GONE;
+            uploadCrosshairButton.setVisibility(visibility);
+            crosshairSpacer.setVisibility(visibility);
+        }
     }
+
 
     private void loadModuleStates() {
         try {
