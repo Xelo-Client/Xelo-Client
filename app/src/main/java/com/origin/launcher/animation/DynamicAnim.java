@@ -80,34 +80,43 @@ public final class DynamicAnim {
     /**
      * Dialog enter: alpha 0->1 and scale 0.94->1.
      */
-    public static void animateDialogShow(View root) {
-        if (root == null) return;
-        root.setAlpha(0f);
-        root.setScaleX(0.94f);
-        root.setScaleY(0.94f);
-        springAlphaTo(root, 1f).start();
-        springScaleXTo(root, 1f).start();
-        springScaleYTo(root, 1f).start();
+public static void animateDialogShow(View root) {
+    if (root == null) return;
+
+    float startY = 120f;
+
+    root.setAlpha(0f);
+    root.setTranslationY(startY);
+
+    springAlphaTo(root, 1f).start();
+
+    SpringAnimation slideUp = new SpringAnimation(root, DynamicAnimation.TRANSLATION_Y, 0f);
+    slideUp.getSpring()
+            .setDampingRatio(SpringForce.DAMPING_RATIO_LOW_BOUNCY)
+            .setStiffness(SpringForce.STIFFNESS_MEDIUM);
+    slideUp.start();
+}
+
+public static void animateDialogDismiss(View root, @Nullable Runnable onEnd) {
+    if (root == null) {
+        if (onEnd != null) onEnd.run();
+        return;
     }
 
-    /**
-     * Dialog dismiss with spring; call onEnd when finished.
-     */
-    public static void animateDialogDismiss(View root, @Nullable Runnable onEnd) {
-        if (root == null) {
-            if (onEnd != null) onEnd.run();
-            return;
-        }
-        SpringAnimation alphaOut = springAlphaTo(root, 0f);
-        SpringAnimation sxOut = springScaleXTo(root, 0.94f);
-        SpringAnimation syOut = springScaleYTo(root, 0.94f);
-        alphaOut.addEndListener((animation, canceled, value, velocity) -> {
-            if (onEnd != null) onEnd.run();
-        });
-        alphaOut.start();
-        sxOut.start();
-        syOut.start();
-    }
+    float endY = 120f;
+
+    SpringAnimation alphaOut = springAlphaTo(root, 0f);
+    alphaOut.addEndListener((animation, canceled, value, velocity) -> {
+        if (onEnd != null) onEnd.run();
+    });
+    alphaOut.start();
+
+    SpringAnimation slideDown = new SpringAnimation(root, DynamicAnimation.TRANSLATION_Y, endY);
+    slideDown.getSpring()
+            .setDampingRatio(SpringForce.DAMPING_RATIO_NO_BOUNCY)
+            .setStiffness(SpringForce.STIFFNESS_MEDIUM);
+    slideDown.start();
+}
 
     // 递归为所有可点击子视图添加按压缩放反馈
     public static void applyPressScaleRecursively(View root) {

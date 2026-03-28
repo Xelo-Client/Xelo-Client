@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:layout_marginBottom="6dp">
+        android:layout_marginBottom="12dp">
 
         <ImageView
             android:id="@+id/btn_back"
@@ -77,8 +77,8 @@
 
             <LinearLayout
                 android:id="@+id/tab_utility"
-                android:layout_width="34dp"
-                android:layout_height="34dp"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
                 android:orientation="vertical"
                 android:gravity="center"
                 android:padding="8dp"
@@ -108,8 +108,8 @@
 
             <LinearLayout
                 android:id="@+id/tab_qol"
-                android:layout_width="34dp"
-                android:layout_height="34dp"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
                 android:orientation="vertical"
                 android:gravity="center"
                 android:padding="8dp"
@@ -139,8 +139,8 @@
 
             <LinearLayout
                 android:id="@+id/tab_stats"
-                android:layout_width="34dp"
-                android:layout_height="34dp"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
                 android:orientation="vertical"
                 android:gravity="center"
                 android:padding="8dp"
