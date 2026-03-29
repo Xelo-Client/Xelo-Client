@@ -75,10 +75,10 @@
             android:layout_marginEnd="8dp"
             android:orientation="vertical">
 
-            <LinearLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/tab_utility"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:gravity="center"
                 android:padding="8dp"
@@ -99,14 +99,14 @@
                     android:textStyle="bold"
                     android:gravity="center" />
 
-            </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <View
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:layout_weight="1" />
 
-            <LinearLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/tab_qol"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
@@ -130,14 +130,14 @@
                     android:textStyle="bold"
                     android:gravity="center" />
 
-            </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <View
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:layout_weight="1" />
 
-            <LinearLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/tab_stats"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
@@ -161,7 +161,7 @@
                     android:textStyle="bold"
                     android:gravity="center" />
 
-            </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
         </LinearLayout>
 
