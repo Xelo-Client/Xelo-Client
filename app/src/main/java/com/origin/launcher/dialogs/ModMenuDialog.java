@@ -2,7 +2,6 @@ package com.origin.launcher.dialogs;
 
 import android.app.Activity;
 import android.app.Dialog;
-import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.GradientDrawable;
@@ -46,6 +45,11 @@ public class ModMenuDialog {
         view.startAnimation(anim);
     }
 
+    private void dismissWithAnimation() {
+        View animTarget = dialog.getWindow().getDecorView();
+        com.origin.launcher.utils.AnimationUtils.animateDialogDismiss(animTarget, () -> dialog.dismiss());
+    }
+
     public void show() {
         dialog = new Dialog(activity);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -56,8 +60,6 @@ public class ModMenuDialog {
                 android.view.ViewGroup.LayoutParams.WRAP_CONTENT
         );
 
-        dialog.getWindow().getAttributes().windowAnimations = R.style.ModMenuDialogAnimation;
-
         ThemeManager themeManager = ThemeManager.getInstance();
         int surfaceColor = themeManager.getColor("surface");
         int outlineColor = themeManager.getColor("outline");
@@ -65,7 +67,6 @@ public class ModMenuDialog {
         int onSurfaceColor = themeManager.getColor("onSurface");
         int onSurfaceVariantColor = themeManager.getColor("onSurfaceVariant");
 
-        View rootLayout = dialog.findViewById(android.R.id.content).getRootView();
         View contentRoot = dialog.getWindow().getDecorView().findViewById(android.R.id.content);
 
         GradientDrawable dialogBg = new GradientDrawable();
@@ -97,13 +98,13 @@ public class ModMenuDialog {
 
         btnBack.setOnClickListener(v -> {
             animatePop(btnBack);
-            btnBack.postDelayed(() -> dialog.dismiss(), 150);
+            btnBack.postDelayed(this::dismissWithAnimation, 150);
         });
 
         btnWrench.setOnClickListener(v -> {
             animatePop(btnWrench);
             btnWrench.postDelayed(() -> {
-                dialog.dismiss();
+                dismissWithAnimation();
                 new InbuiltModsCustomizeDialog(activity, false).show();
             }, 150);
         });
@@ -159,6 +160,9 @@ public class ModMenuDialog {
         tabUtility.setSelected(true);
 
         dialog.show();
+
+        View animTarget = dialog.getWindow().getDecorView();
+        com.origin.launcher.utils.AnimationUtils.animateDialogShow(animTarget);
     }
 
     private void applyTabColors(LinearLayout tab, int textColor, boolean selected) {
@@ -178,6 +182,6 @@ public class ModMenuDialog {
     }
 
     public void hide() {
-        if (isShowing()) dialog.dismiss();
+        if (isShowing()) dismissWithAnimation();
     }
 }
