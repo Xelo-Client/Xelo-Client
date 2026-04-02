@@ -9,6 +9,8 @@ import android.view.View;
 import android.view.Window;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.ScaleAnimation;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -47,7 +49,23 @@ public class ModMenuDialog {
 
     private void dismissWithAnimation() {
         View animTarget = dialog.getWindow().getDecorView();
-        com.origin.launcher.utils.AnimationUtils.animateDialogDismiss(animTarget, () -> dialog.dismiss());
+        ScaleAnimation scale = new ScaleAnimation(
+            1f, 0.85f, 1f, 0.85f,
+            Animation.RELATIVE_TO_SELF, 0.5f,
+            Animation.RELATIVE_TO_SELF, 0.5f
+        );
+        AlphaAnimation alpha = new AlphaAnimation(1f, 0f);
+        android.view.animation.AnimationSet set = new android.view.animation.AnimationSet(true);
+        set.addAnimation(scale);
+        set.addAnimation(alpha);
+        set.setDuration(180);
+        set.setInterpolator(new android.view.animation.AccelerateInterpolator());
+        set.setAnimationListener(new Animation.AnimationListener() {
+            @Override public void onAnimationStart(Animation a) {}
+            @Override public void onAnimationRepeat(Animation a) {}
+            @Override public void onAnimationEnd(Animation a) { dialog.dismiss(); }
+        });
+        animTarget.startAnimation(set);
     }
 
     public void show() {
@@ -183,7 +201,18 @@ public class ModMenuDialog {
         dialog.show();
 
         View animTarget = dialog.getWindow().getDecorView();
-        com.origin.launcher.utils.AnimationUtils.animateDialogShow(animTarget);
+        ScaleAnimation scale = new ScaleAnimation(
+            0.85f, 1f, 0.85f, 1f,
+            Animation.RELATIVE_TO_SELF, 0.5f,
+            Animation.RELATIVE_TO_SELF, 0.5f
+        );
+        AlphaAnimation alpha = new AlphaAnimation(0f, 1f);
+        android.view.animation.AnimationSet set = new android.view.animation.AnimationSet(true);
+        set.addAnimation(scale);
+        set.addAnimation(alpha);
+        set.setDuration(220);
+        set.setInterpolator(new android.view.animation.DecelerateInterpolator());
+        animTarget.startAnimation(set);
     }
 
     private void applyTabColors(LinearLayout tab, int textColor, boolean selected) {
