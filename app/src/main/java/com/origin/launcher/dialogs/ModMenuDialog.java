@@ -15,7 +15,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -172,15 +171,15 @@ public class ModMenuDialog {
         recyclerView.setLayoutManager(new LinearLayoutManager(activity));
         recyclerView.setAdapter(new ModMenuAdapter(utilityMods, modManager));
 
-        ConstraintLayout tabUtility = dialog.findViewById(R.id.tab_utility);
-        ConstraintLayout tabQol = dialog.findViewById(R.id.tab_qol);
-        ConstraintLayout tabStats = dialog.findViewById(R.id.tab_stats);
+        LinearLayout tabUtility = dialog.findViewById(R.id.tab_utility);
+        LinearLayout tabQol = dialog.findViewById(R.id.tab_qol);
+        LinearLayout tabStats = dialog.findViewById(R.id.tab_stats);
 
         applyTabColors(tabUtility, primaryColor, true);
         applyTabColors(tabQol, onSurfaceColor, false);
         applyTabColors(tabStats, onSurfaceColor, false);
 
-        ConstraintLayout[] tabs = {tabUtility, tabQol, tabStats};
+        LinearLayout[] tabs = {tabUtility, tabQol, tabStats};
         List<List<ModMenuAdapter.ModEntry>> tabData = Arrays.asList(utilityMods, qolMods, statsMods);
 
         for (int i = 0; i < tabs.length; i++) {
@@ -216,7 +215,7 @@ public class ModMenuDialog {
         animTarget.startAnimation(set);
     }
 
-    private void applyTabColors(ConstraintLayout tab, int textColor, boolean selected) {
+    private void applyTabColors(LinearLayout tab, int textColor, boolean selected) {
         if (tab == null) return;
         for (int i = 0; i < tab.getChildCount(); i++) {
             View child = tab.getChildAt(i);

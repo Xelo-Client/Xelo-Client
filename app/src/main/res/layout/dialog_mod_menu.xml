@@ -69,102 +69,104 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
+        <!-- Tab sidebar -->
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_marginEnd="8dp"
             android:orientation="vertical">
 
-            <androidx.constraintlayout.widget.ConstraintLayout
+            <LinearLayout
                 android:id="@+id/tab_utility"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
                 android:orientation="vertical"
                 android:gravity="center"
-                android:padding="8dp"
+                android:padding="4dp"
                 android:background="@drawable/tab_background_selector">
 
                 <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
                     android:src="@drawable/ic_utility"
-                    android:layout_marginBottom="4dp" />
+                    android:layout_marginBottom="3dp" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Utility"
                     android:textColor="@color/primary"
-                    android:textSize="11sp"
+                    android:textSize="9sp"
                     android:textStyle="bold"
                     android:gravity="center" />
 
-            </androidx.constraintlayout.widget.ConstraintLayout>
+            </LinearLayout>
 
             <View
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:layout_weight="1" />
 
-            <androidx.constraintlayout.widget.ConstraintLayout
+            <LinearLayout
                 android:id="@+id/tab_qol"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:orientation="vertical"
                 android:gravity="center"
-                android:padding="8dp"
+                android:padding="4dp"
                 android:background="@drawable/tab_background_selector">
 
                 <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
                     android:src="@drawable/ic_qol"
-                    android:layout_marginBottom="4dp" />
+                    android:layout_marginBottom="3dp" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="QoL"
                     android:textColor="@color/onSurface"
-                    android:textSize="11sp"
+                    android:textSize="9sp"
                     android:textStyle="bold"
                     android:gravity="center" />
 
-            </androidx.constraintlayout.widget.ConstraintLayout>
+            </LinearLayout>
 
             <View
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:layout_weight="1" />
 
-            <androidx.constraintlayout.widget.ConstraintLayout
+            <LinearLayout
                 android:id="@+id/tab_stats"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:orientation="vertical"
                 android:gravity="center"
-                android:padding="8dp"
+                android:padding="4dp"
                 android:background="@drawable/tab_background_selector">
 
                 <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
                     android:src="@drawable/ic_stats"
-                    android:layout_marginBottom="4dp" />
+                    android:layout_marginBottom="3dp" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Stats"
                     android:textColor="@color/onSurface"
-                    android:textSize="11sp"
+                    android:textSize="9sp"
                     android:textStyle="bold"
                     android:gravity="center" />
 
-            </androidx.constraintlayout.widget.ConstraintLayout>
+            </LinearLayout>
 
         </LinearLayout>
 
+        <!-- Mod list -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
