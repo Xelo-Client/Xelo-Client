@@ -62,6 +62,8 @@ public class ModulesFragment extends BaseThemedFragment {
     private AlertDialog storageWarningDialog;
     
     private MaterialButton uploadCrosshairButton;
+    private MaterialButton viewCrosshairButton;
+    private LinearLayout crosshairButtonRow;
     private View crosshairSpacer;
 
     private static final int SWITCH_DISABLED_COLOR = 0xFF757575;
@@ -486,6 +488,7 @@ public class ModulesFragment extends BaseThemedFragment {
             moduleItems.add(new ModuleItem("No Eating animation", "disables the eating animation of food items", "no_eating_animation"));
             moduleItems.add(new ModuleItem("No Bow animation", "disables the bow animation", "no_bow_animation"));
             moduleItems.add(new ModuleItem("Portal optimizer", "optimizes the portal by tweaking", "portal_optimizer"));
+            moduleItems.add(new ModuleItem("Particle single mapping", "optimizes the particles material by enabling culling and disabling particle fog", "psm"));
             moduleItems.add(new ModuleItem("Custom CrossHair", "lets you use your own CrossHair", "custom_cross_hair"));
 
             // Load current config state and populate modules
@@ -508,22 +511,50 @@ public class ModulesFragment extends BaseThemedFragment {
 
             // Add upload button after Custom CrossHair module
             if (module.getConfigKey().equals("custom_cross_hair")) {
-                // Add spacing before button
-                crosshairSpacer = new View(getContext()); // Assign to class variable
+                // Add spacing before button row
+                crosshairSpacer = new View(getContext());
                 LinearLayout.LayoutParams spacerParams = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     (int) (12 * getResources().getDisplayMetrics().density)
                 );
                 crosshairSpacer.setLayoutParams(spacerParams);
                 modulesContainer.addView(crosshairSpacer);
-            
-                // Add upload button
-                uploadCrosshairButton = createUploadButton(); // Assign to class variable
-                modulesContainer.addView(uploadCrosshairButton);
-            
+
+                // Create horizontal button row
+                crosshairButtonRow = new LinearLayout(requireContext());
+                crosshairButtonRow.setOrientation(LinearLayout.HORIZONTAL);
+                LinearLayout.LayoutParams rowParams = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                );
+                crosshairButtonRow.setLayoutParams(rowParams);
+
+                // Upload button (weight 1)
+                uploadCrosshairButton = createUploadButton();
+                LinearLayout.LayoutParams uploadParams = new LinearLayout.LayoutParams(
+                    0,
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    1f
+                );
+                uploadParams.setMarginEnd((int) (8 * getResources().getDisplayMetrics().density));
+                uploadCrosshairButton.setLayoutParams(uploadParams);
+
+                // View crosshair button (weight 1)
+                viewCrosshairButton = createViewCrosshairButton();
+                LinearLayout.LayoutParams viewParams = new LinearLayout.LayoutParams(
+                    0,
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    1f
+                );
+                viewCrosshairButton.setLayoutParams(viewParams);
+
+                crosshairButtonRow.addView(uploadCrosshairButton);
+                crosshairButtonRow.addView(viewCrosshairButton);
+                modulesContainer.addView(crosshairButtonRow);
+
                 int visibility = module.isEnabled() ? View.VISIBLE : View.GONE;
                 crosshairSpacer.setVisibility(visibility);
-                uploadCrosshairButton.setVisibility(visibility);
+                crosshairButtonRow.setVisibility(visibility);
             }
 
 
@@ -540,12 +571,146 @@ public class ModulesFragment extends BaseThemedFragment {
         }
     }
 
+    private MaterialButton createViewCrosshairButton() {
+        MaterialButton viewButton = new MaterialButton(requireContext());
+
+        viewButton.setText("View Crosshair");
+        viewButton.setTextSize(16);
+        viewButton.setAllCaps(false);
+        viewButton.setStateListAnimator(null);
+
+        // Outlined secondary style to distinguish from upload button
+        int primaryColor = ThemeManager.getInstance().getColor("primary");
+        int surfaceColor = ThemeManager.getInstance().getColor("surface");
+        viewButton.setBackgroundColor(surfaceColor);
+        viewButton.setBackgroundTintList(android.content.res.ColorStateList.valueOf(surfaceColor));
+        viewButton.setTextColor(primaryColor);
+        viewButton.setStrokeColor(android.content.res.ColorStateList.valueOf(primaryColor));
+        viewButton.setStrokeWidth((int) (1 * getResources().getDisplayMetrics().density));
+        viewButton.setCornerRadius((int) (8 * getResources().getDisplayMetrics().density));
+
+        int paddingVertical = (int) (12 * getResources().getDisplayMetrics().density);
+        viewButton.setPadding(0, paddingVertical, 0, paddingVertical);
+
+        viewButton.setOnClickListener(v -> showCrosshairPreviewDialog());
+
+        return viewButton;
+    }
+
+    private void showCrosshairPreviewDialog() {
+        if (getContext() == null) return;
+
+        File crosshairFile = new File("/storage/emulated/0/games/xelo_client/custom_cross_hair/cross_hair.png");
+
+        LinearLayout dialogLayout = new LinearLayout(requireContext());
+        dialogLayout.setOrientation(LinearLayout.VERTICAL);
+        int padding = (int) (24 * getResources().getDisplayMetrics().density);
+        dialogLayout.setPadding(padding, padding, padding, padding);
+        dialogLayout.setGravity(Gravity.CENTER_HORIZONTAL);
+
+        // Title
+        TextView titleText = new TextView(requireContext());
+        titleText.setText("Crosshair Preview");
+        titleText.setTextSize(18);
+        titleText.setTypeface(null, Typeface.BOLD);
+        titleText.setTextColor(ThemeManager.getInstance().getColor("onSurface"));
+        dialogLayout.addView(titleText);
+
+        if (crosshairFile.exists()) {
+            // Show the crosshair image
+            ImageView crosshairImage = new ImageView(requireContext());
+            int imageSize = (int) (160 * getResources().getDisplayMetrics().density);
+            LinearLayout.LayoutParams imageParams = new LinearLayout.LayoutParams(imageSize, imageSize);
+            imageParams.topMargin = (int) (20 * getResources().getDisplayMetrics().density);
+            crosshairImage.setLayoutParams(imageParams);
+            crosshairImage.setScaleType(ImageView.ScaleType.FIT_CENTER);
+            crosshairImage.setImageURI(Uri.fromFile(crosshairFile));
+            dialogLayout.addView(crosshairImage);
+        } else {
+            // No file uploaded yet — show placeholder icon + message
+            ImageView placeholderIcon = new ImageView(requireContext());
+            int iconSize = (int) (64 * getResources().getDisplayMetrics().density);
+            LinearLayout.LayoutParams iconParams = new LinearLayout.LayoutParams(iconSize, iconSize);
+            iconParams.topMargin = (int) (20 * getResources().getDisplayMetrics().density);
+            placeholderIcon.setLayoutParams(iconParams);
+            placeholderIcon.setScaleType(ImageView.ScaleType.FIT_CENTER);
+            placeholderIcon.setImageResource(android.R.drawable.ic_menu_close_clear_cancel);
+            placeholderIcon.setColorFilter(ThemeManager.getInstance().getColor("onSurfaceVariant"));
+            dialogLayout.addView(placeholderIcon);
+
+            TextView noFileText = new TextView(requireContext());
+            noFileText.setText("No crosshair uploaded yet.\nUse \"Upload Crosshair\" to add one.");
+            noFileText.setTextSize(13);
+            noFileText.setTextColor(ThemeManager.getInstance().getColor("onSurfaceVariant"));
+            noFileText.setGravity(Gravity.CENTER);
+            LinearLayout.LayoutParams noFileParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            );
+            noFileParams.topMargin = (int) (8 * getResources().getDisplayMetrics().density);
+            noFileText.setLayoutParams(noFileParams);
+            dialogLayout.addView(noFileText);
+        }
+
+        // Close button
+        MaterialButton closeButton = new MaterialButton(requireContext());
+        closeButton.setText("Close");
+        closeButton.setAllCaps(false);
+        closeButton.setStateListAnimator(null);
+        ThemeUtils.applyThemeToButton(closeButton, requireContext());
+        LinearLayout.LayoutParams closeParams = new LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        closeParams.topMargin = (int) (20 * getResources().getDisplayMetrics().density);
+        closeButton.setLayoutParams(closeParams);
+        dialogLayout.addView(closeButton);
+
+        GradientDrawable dialogBg = new GradientDrawable();
+        dialogBg.setShape(GradientDrawable.RECTANGLE);
+        dialogBg.setColor(ThemeManager.getInstance().getColor("surface"));
+        dialogBg.setCornerRadius(16 * getResources().getDisplayMetrics().density);
+        dialogBg.setStroke(
+            (int) (1 * getResources().getDisplayMetrics().density),
+            ThemeManager.getInstance().getColor("outline")
+        );
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setView(dialogLayout);
+        builder.setCancelable(true);
+
+        AlertDialog previewDialog = builder.create();
+        if (previewDialog.getWindow() != null) {
+            previewDialog.getWindow().setBackgroundDrawable(dialogBg);
+        }
+
+        closeButton.setOnClickListener(v -> {
+            Animation popDown = AnimationUtils.loadAnimation(requireContext(), R.anim.pop_down);
+            dialogLayout.startAnimation(popDown);
+            popDown.setAnimationListener(new Animation.AnimationListener() {
+                @Override public void onAnimationStart(Animation animation) {}
+                @Override public void onAnimationRepeat(Animation animation) {}
+                @Override
+                public void onAnimationEnd(Animation animation) {
+                    previewDialog.dismiss();
+                }
+            });
+        });
+
+        previewDialog.show();
+
+        if (previewDialog.getWindow() != null) {
+            Animation popUp = AnimationUtils.loadAnimation(requireContext(), R.anim.pop_up);
+            dialogLayout.startAnimation(popUp);
+        }
+    }
+
     private MaterialButton createUploadButton() {
         MaterialButton uploadButton = new MaterialButton(requireContext());
 
-        // Layout params
+        // Layout params — width/weight are set by the caller (populateModules)
         LinearLayout.LayoutParams buttonParams = new LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT,
             LinearLayout.LayoutParams.WRAP_CONTENT
         );
         uploadButton.setLayoutParams(buttonParams);
@@ -764,9 +929,9 @@ public class ModulesFragment extends BaseThemedFragment {
             Toast.LENGTH_SHORT).show();
     
         // --- NEW CODE: Toggle visibility when switch is pressed ---
-        if (module.getConfigKey().equals("custom_cross_hair") && uploadCrosshairButton != null && crosshairSpacer != null) {
+        if (module.getConfigKey().equals("custom_cross_hair") && crosshairButtonRow != null && crosshairSpacer != null) {
             int visibility = isEnabled ? View.VISIBLE : View.GONE;
-            uploadCrosshairButton.setVisibility(visibility);
+            crosshairButtonRow.setVisibility(visibility);
             crosshairSpacer.setVisibility(visibility);
         }
     }
