@@ -90,8 +90,8 @@ public class ModMenuDialog {
         GradientDrawable dialogBg = new GradientDrawable();
         dialogBg.setShape(GradientDrawable.RECTANGLE);
         dialogBg.setColor(surfaceColor);
-        dialogBg.setStroke((int) (2 * activity.getResources().getDisplayMetrics().density), outlineColor);
-        dialogBg.setCornerRadius(16 * activity.getResources().getDisplayMetrics().density);
+        dialogBg.setStroke((int) (0 * activity.getResources().getDisplayMetrics().density), outlineColor);
+        dialogBg.setCornerRadius(20 * activity.getResources().getDisplayMetrics().density);
 
         View dialogRoot = (View) contentRoot.getParent();
         if (dialogRoot != null) {
