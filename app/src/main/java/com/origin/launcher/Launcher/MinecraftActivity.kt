@@ -135,12 +135,14 @@ class MinecraftActivity : MainActivity() {
         stopInbuiltModServices()
         super.onDestroy()
 
-        val intent = Intent(applicationContext, com.origin.launcher.activity.MainActivity::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-        startActivity(intent)
+        if (isFinishing) {
+            val intent = Intent(applicationContext, org.levimc.launcher.ui.activities.MainActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+            startActivity(intent)
 
         finishAndRemoveTask()
-        android.os.Process.killProcess(android.os.Process.myPid())
+            android.os.Process.killProcess(android.os.Process.myPid())
+        }
     }
 
     override fun getAssets(): AssetManager {
