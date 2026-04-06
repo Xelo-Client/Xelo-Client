@@ -13,6 +13,7 @@ import com.origin.launcher.Launcher.inbuilt.overlay.CpsDisplayOverlay;
 import com.origin.launcher.Launcher.inbuilt.overlay.FpsDisplayOverlay;
 import com.origin.launcher.Launcher.inbuilt.overlay.ModMenuOverlay;
 import com.origin.launcher.Launcher.inbuilt.overlay.QuickDropOverlay;
+import com.origin.launcher.Launcher.inbuilt.overlay.HotbarOneOverlay;
 import com.origin.launcher.Launcher.inbuilt.overlay.ToggleHudOverlay;
 import com.origin.launcher.Launcher.inbuilt.overlay.ZoomOverlay;
 import com.origin.launcher.Launcher.inbuilt.XeloOverlay.nativemod.NameTagMod;
@@ -28,6 +29,7 @@ public class InbuiltOverlayManager {
     private static final int SPACING = 70;
     private static final int START_X = 50;
     private QuickDropOverlay quickDropOverlay;
+    private HotbarOneOverlay hotbarOneOverlay;
     private CameraPerspectiveOverlay cameraPerspectiveOverlay;
     private ToggleHudOverlay toggleHudOverlay;
     private AutoSprintOverlay autoSprintOverlay;
