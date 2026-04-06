@@ -18,6 +18,13 @@ jobs:
         with:
           fetch-depth: 0
           submodules: "recursive"
+      - name: Update submodules (retry)
+        run: |
+          for i in 1 2 3; do
+            git submodule update --init --recursive && break
+            echo "Retry $i..."
+            sleep 10
+          done
 
       - name: Set up JDK 21
         uses: actions/setup-java@v4
