@@ -92,6 +92,13 @@ public class InbuiltModManager {
                 addedMods.contains(ModIds.TOGGLE_HUD)
         ));
         mods.add(new InbuiltMod(
+                ModIds.HOTBAR_ONE,
+                context.getString(R.string.inbuilt_mod_hotbarone),
+                context.getString(R.string.inbuilt_mod_hotbarone_desc),
+                false,
+                addedMods.contains(ModIds.HOTBAR_ONE)
+        ));
+        mods.add(new InbuiltMod(
                 ModIds.AUTO_SPRINT,
                 context.getString(R.string.inbuilt_mod_autosprint),
                 context.getString(R.string.inbuilt_mod_autosprint_desc),

@@ -145,6 +145,13 @@ public class InbuiltOverlayManager {
             overlays.add(toggleHudOverlay);
             nextY += SPACING;
         }
+        if (modManager.isModAdded(ModIds.HOTBAR_ONE)) {
+            int[] pos = getStartPosition(ModIds.HOTBAR_ONE, START_X, nextY);
+            if (HotbarOneOverlay == null) HotbarOneOverlay = new HotbarOneOverlay(activity);
+            HotbarOneOverlay.show(pos[0], pos[1]);
+            overlays.add(HotbarOneOverlay);
+            nextY += SPACING;
+        }
         if (modManager.isModAdded(ModIds.AUTO_SPRINT)) {
             int[] pos = getStartPosition(ModIds.AUTO_SPRINT, START_X, nextY);
             if (autoSprintOverlay == null) autoSprintOverlay = new AutoSprintOverlay(activity, modManager.getAutoSprintKey());
@@ -231,7 +238,7 @@ public class InbuiltOverlayManager {
         String[] allIds = {
             ModIds.MOD_MENU, ModIds.QUICK_DROP, ModIds.CAMERA_PERSPECTIVE, ModIds.TOGGLE_HUD,
             ModIds.AUTO_SPRINT, ModIds.ZOOM, ModIds.FPS_DISPLAY, ModIds.CPS_DISPLAY,
-            ModIds.THIRD_PERSON_NAMETAG,
+            ModIds.THIRD_PERSON_NAMETAG, ModIds.HOTBAR_ONE,
         };
         for (String id : allIds) {
             modManager.addMod(id);
@@ -245,7 +252,7 @@ public class InbuiltOverlayManager {
         String[] allIds = {
             ModIds.MOD_MENU, ModIds.QUICK_DROP, ModIds.CAMERA_PERSPECTIVE, ModIds.TOGGLE_HUD,
             ModIds.AUTO_SPRINT, ModIds.ZOOM, ModIds.FPS_DISPLAY, ModIds.CPS_DISPLAY,
-            ModIds.THIRD_PERSON_NAMETAG,
+            ModIds.THIRD_PERSON_NAMETAG, ModIds.HOTBAR_ONE,
         };
         for (String id : allIds) {
             modManager.removeMod(id);

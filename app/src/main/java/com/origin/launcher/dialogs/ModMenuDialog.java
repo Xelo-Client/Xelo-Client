@@ -134,6 +134,7 @@ public class ModMenuDialog {
 
         utilityMods = new ArrayList<>();
         utilityMods.add(new ModMenuAdapter.ModEntry(ModIds.QUICK_DROP, activity.getString(R.string.inbuilt_mod_quick_drop)));
+        utilityMods.add(new ModMenuAdapter.ModEntry(ModIds.HOTBAR_ONE, activity.getString(R.string.inbuilt_mod_hotbarone)));
         utilityMods.add(new ModMenuAdapter.ModEntry(ModIds.CAMERA_PERSPECTIVE, activity.getString(R.string.inbuilt_mod_camera)));
         utilityMods.add(new ModMenuAdapter.ModEntry(ModIds.TOGGLE_HUD, activity.getString(R.string.inbuilt_mod_hud)));
         utilityMods.add(new ModMenuAdapter.ModEntry(ModIds.AUTO_SPRINT, activity.getString(R.string.inbuilt_mod_autosprint)));

@@ -225,6 +225,7 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity implements 
         if (gridManager.isModAdded(ModIds.AUTO_SPRINT)) addModButton(grid, R.drawable.as_unpress, ModIds.AUTO_SPRINT);
         if (gridManager.isModAdded(ModIds.QUICK_DROP)) addModButton(grid, R.drawable.q_unpress, ModIds.QUICK_DROP);
         if (gridManager.isModAdded(ModIds.TOGGLE_HUD)) addModButton(grid, R.drawable.f1_unpress, ModIds.TOGGLE_HUD);
+        if (gridManager.isModAdded(ModIds.HOTBAR_ONE)) addModButton(grid, R.drawable.h1_unpress, ModIds.HOTBAR_ONE);
         if (gridManager.isModAdded(ModIds.CAMERA_PERSPECTIVE)) addModButton(grid, R.drawable.f5_unpress, ModIds.CAMERA_PERSPECTIVE);
         if (gridManager.isModAdded(ModIds.ZOOM)) addModButton(grid, R.drawable.zoom_unpress, ModIds.ZOOM);
 
@@ -319,6 +320,7 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity implements 
         if (manager.isModAdded(ModIds.AUTO_SPRINT)) list.add(new InbuiltCustomizeAdapter.Item(ModIds.AUTO_SPRINT, R.drawable.as_unpress));
         if (manager.isModAdded(ModIds.QUICK_DROP)) list.add(new InbuiltCustomizeAdapter.Item(ModIds.QUICK_DROP, R.drawable.q_unpress));
         if (manager.isModAdded(ModIds.TOGGLE_HUD)) list.add(new InbuiltCustomizeAdapter.Item(ModIds.TOGGLE_HUD, R.drawable.f1_unpress));
+        if (manager.isModAdded(ModIds.HOTBAR_ONE)) list.add(new InbuiltCustomizeAdapter.Item(ModIds.HOTBAR_ONE, R.drawable.h1_unpress));
         if (manager.isModAdded(ModIds.CAMERA_PERSPECTIVE)) list.add(new InbuiltCustomizeAdapter.Item(ModIds.CAMERA_PERSPECTIVE, R.drawable.f5_unpress));
         if (manager.isModAdded(ModIds.ZOOM)) {
             list.add(new InbuiltCustomizeAdapter.Item(ModIds.ZOOM, R.drawable.zoom_unpress));

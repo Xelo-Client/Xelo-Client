@@ -54,6 +54,8 @@
     <!-- Inbuilt Mods -->
     <string name="inbuilt_mod_quick_drop">Quick Drop</string>
     <string name="inbuilt_mod_quick_drop_desc">Drop items quickly</string>
+    <string name="inbuilt_mod_hotbarone">Hotbar 1</string>
+    <string name="inbuilt_mod_hotbarone_desc">switches to hotbar one</string>
     <string name="inbuilt_mod_camera">Quick Camera Perspective</string>
     <string name="inbuilt_mod_camera_desc">Toggle camera view</string>
     <string name="inbuilt_mod_hud">Hide HUD</string>
