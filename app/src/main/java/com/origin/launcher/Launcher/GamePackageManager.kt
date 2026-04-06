@@ -9,7 +9,11 @@ import android.util.Log
 import com.origin.launcher.versions.GameVersion
 import java.io.File
 import java.io.FileOutputStream
+import java.io.InputStream
+import java.io.IOException
 import java.util.zip.ZipFile
+import android.annotation.SuppressLint
+
 
 class GamePackageManager private constructor(private val context: Context, private val version: GameVersion?) {
 
