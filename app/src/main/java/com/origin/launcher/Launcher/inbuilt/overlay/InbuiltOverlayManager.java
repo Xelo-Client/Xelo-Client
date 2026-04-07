@@ -149,9 +149,12 @@ public class InbuiltOverlayManager {
         }
         if (modManager.isModAdded(ModIds.HOTBAR_ONE)) {
             int[] pos = getStartPosition(ModIds.HOTBAR_ONE, START_X, nextY);
-            if (HotbarOneOverlay == null) HotbarOneOverlay = new HotbarOneOverlay(activity);
-            HotbarOneOverlay.show(pos[0], pos[1]);
-            overlays.add(HotbarOneOverlay);
+
+            if (hotbarOneOverlay == null)
+                hotbarOneOverlay = new HotbarOneOverlay(activity);
+            
+            hotbarOneOverlay.show(pos[0], pos[1]);
+            overlays.add(hotbarOneOverlay);
             nextY += SPACING;
         }
         if (modManager.isModAdded(ModIds.AUTO_SPRINT)) {
