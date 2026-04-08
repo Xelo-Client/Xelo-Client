@@ -98,6 +98,45 @@ public class InbuiltModManager {
                 false,
                 addedMods.contains(ModIds.HOTBAR_ONE)
         ));
+        mods.add(new InbuiltMod(ModIds.HOTBAR_TWO,
+                context.getString(R.string.inbuilt_mod_hotbartwo),
+                context.getString(R.string.inbuilt_mod_hotbartwo_desc),
+                false, addedMods.contains(ModIds.HOTBAR_TWO)));
+        
+        mods.add(new InbuiltMod(ModIds.HOTBAR_THREE,
+                context.getString(R.string.inbuilt_mod_hotbarthree),
+                context.getString(R.string.inbuilt_mod_hotbarthree_desc),
+                false, addedMods.contains(ModIds.HOTBAR_THREE)));
+        
+        mods.add(new InbuiltMod(ModIds.HOTBAR_FOUR,
+                context.getString(R.string.inbuilt_mod_hotbarfour),
+                context.getString(R.string.inbuilt_mod_hotbarfour_desc),
+                false, addedMods.contains(ModIds.HOTBAR_FOUR)));
+        
+        mods.add(new InbuiltMod(ModIds.HOTBAR_FIVE,
+                context.getString(R.string.inbuilt_mod_hotbarfive),
+                context.getString(R.string.inbuilt_mod_hotbarfive_desc),
+                false, addedMods.contains(ModIds.HOTBAR_FIVE)));
+        
+        mods.add(new InbuiltMod(ModIds.HOTBAR_SIX,
+                context.getString(R.string.inbuilt_mod_hotbarsix),
+                context.getString(R.string.inbuilt_mod_hotbarsix_desc),
+                false, addedMods.contains(ModIds.HOTBAR_SIX)));
+        
+        mods.add(new InbuiltMod(ModIds.HOTBAR_SEVEN,
+                context.getString(R.string.inbuilt_mod_hotbarseven),
+                context.getString(R.string.inbuilt_mod_hotbarseven_desc),
+                false, addedMods.contains(ModIds.HOTBAR_SEVEN)));
+        
+        mods.add(new InbuiltMod(ModIds.HOTBAR_EIGHT,
+                context.getString(R.string.inbuilt_mod_hotbareight),
+                context.getString(R.string.inbuilt_mod_hotbareight_desc),
+                false, addedMods.contains(ModIds.HOTBAR_EIGHT)));
+        
+        mods.add(new InbuiltMod(ModIds.HOTBAR_NINE,
+                context.getString(R.string.inbuilt_mod_hotbarnine),
+                context.getString(R.string.inbuilt_mod_hotbarnine_desc),
+                false, addedMods.contains(ModIds.HOTBAR_NINE)));
         mods.add(new InbuiltMod(
                 ModIds.AUTO_SPRINT,
                 context.getString(R.string.inbuilt_mod_autosprint),

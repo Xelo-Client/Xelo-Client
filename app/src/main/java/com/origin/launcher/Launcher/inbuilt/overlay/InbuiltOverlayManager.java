@@ -30,6 +30,14 @@ public class InbuiltOverlayManager {
     private static final int START_X = 50;
     private QuickDropOverlay quickDropOverlay;
     private HotbarOneOverlay hotbarOneOverlay;
+    private HotbarTwoOverlay   hotbarTwoOverlay;
+    private HotbarThreeOverlay hotbarThreeOverlay;
+    private HotbarFourOverlay  hotbarFourOverlay;
+    private HotbarFiveOverlay  hotbarFiveOverlay;
+    private HotbarSixOverlay   hotbarSixOverlay;
+    private HotbarSevenOverlay hotbarSevenOverlay;
+    private HotbarEightOverlay hotbarEightOverlay;
+    private HotbarNineOverlay  hotbarNineOverlay;
     private CameraPerspectiveOverlay cameraPerspectiveOverlay;
     private ToggleHudOverlay toggleHudOverlay;
     private AutoSprintOverlay autoSprintOverlay;
@@ -157,6 +165,63 @@ public class InbuiltOverlayManager {
             overlays.add(hotbarOneOverlay);
             nextY += SPACING;
         }
+        
+if (modManager.isModAdded(ModIds.HOTBAR_TWO)) {
+    int[] pos = getStartPosition(ModIds.HOTBAR_TWO, START_X, nextY);
+    if (hotbarTwoOverlay == null) hotbarTwoOverlay = new HotbarTwoOverlay(activity);
+    hotbarTwoOverlay.show(pos[0], pos[1]);
+    overlays.add(hotbarTwoOverlay);
+    nextY += SPACING;
+}
+if (modManager.isModAdded(ModIds.HOTBAR_THREE)) {
+    int[] pos = getStartPosition(ModIds.HOTBAR_THREE, START_X, nextY);
+    if (hotbarThreeOverlay == null) hotbarThreeOverlay = new HotbarThreeOverlay(activity);
+    hotbarThreeOverlay.show(pos[0], pos[1]);
+    overlays.add(hotbarThreeOverlay);
+    nextY += SPACING;
+}
+if (modManager.isModAdded(ModIds.HOTBAR_FOUR)) {
+    int[] pos = getStartPosition(ModIds.HOTBAR_FOUR, START_X, nextY);
+    if (hotbarFourOverlay == null) hotbarFourOverlay = new HotbarFourOverlay(activity);
+    hotbarFourOverlay.show(pos[0], pos[1]);
+    overlays.add(hotbarFourOverlay);
+    nextY += SPACING;
+}
+if (modManager.isModAdded(ModIds.HOTBAR_FIVE)) {
+    int[] pos = getStartPosition(ModIds.HOTBAR_FIVE, START_X, nextY);
+    if (hotbarFiveOverlay == null) hotbarFiveOverlay = new HotbarFiveOverlay(activity);
+    hotbarFiveOverlay.show(pos[0], pos[1]);
+    overlays.add(hotbarFiveOverlay);
+    nextY += SPACING;
+}
+if (modManager.isModAdded(ModIds.HOTBAR_SIX)) {
+    int[] pos = getStartPosition(ModIds.HOTBAR_SIX, START_X, nextY);
+    if (hotbarSixOverlay == null) hotbarSixOverlay = new HotbarSixOverlay(activity);
+    hotbarSixOverlay.show(pos[0], pos[1]);
+    overlays.add(hotbarSixOverlay);
+    nextY += SPACING;
+}
+if (modManager.isModAdded(ModIds.HOTBAR_SEVEN)) {
+    int[] pos = getStartPosition(ModIds.HOTBAR_SEVEN, START_X, nextY);
+    if (hotbarSevenOverlay == null) hotbarSevenOverlay = new HotbarSevenOverlay(activity);
+    hotbarSevenOverlay.show(pos[0], pos[1]);
+    overlays.add(hotbarSevenOverlay);
+    nextY += SPACING;
+}
+if (modManager.isModAdded(ModIds.HOTBAR_EIGHT)) {
+    int[] pos = getStartPosition(ModIds.HOTBAR_EIGHT, START_X, nextY);
+    if (hotbarEightOverlay == null) hotbarEightOverlay = new HotbarEightOverlay(activity);
+    hotbarEightOverlay.show(pos[0], pos[1]);
+    overlays.add(hotbarEightOverlay);
+    nextY += SPACING;
+}
+if (modManager.isModAdded(ModIds.HOTBAR_NINE)) {
+    int[] pos = getStartPosition(ModIds.HOTBAR_NINE, START_X, nextY);
+    if (hotbarNineOverlay == null) hotbarNineOverlay = new HotbarNineOverlay(activity);
+    hotbarNineOverlay.show(pos[0], pos[1]);
+    overlays.add(hotbarNineOverlay);
+    nextY += SPACING;
+}
         if (modManager.isModAdded(ModIds.AUTO_SPRINT)) {
             int[] pos = getStartPosition(ModIds.AUTO_SPRINT, START_X, nextY);
             if (autoSprintOverlay == null) autoSprintOverlay = new AutoSprintOverlay(activity, modManager.getAutoSprintKey());
@@ -257,7 +322,10 @@ public class InbuiltOverlayManager {
         String[] allIds = {
             ModIds.MOD_MENU, ModIds.QUICK_DROP, ModIds.CAMERA_PERSPECTIVE, ModIds.TOGGLE_HUD,
             ModIds.AUTO_SPRINT, ModIds.ZOOM, ModIds.FPS_DISPLAY, ModIds.CPS_DISPLAY,
-            ModIds.THIRD_PERSON_NAMETAG, ModIds.HOTBAR_ONE,
+            ModIds.THIRD_PERSON_NAMETAG,
+            ModIds.HOTBAR_ONE, ModIds.HOTBAR_TWO, ModIds.HOTBAR_THREE, ModIds.HOTBAR_FOUR,
+            ModIds.HOTBAR_FIVE, ModIds.HOTBAR_SIX, ModIds.HOTBAR_SEVEN, ModIds.HOTBAR_EIGHT,
+            ModIds.HOTBAR_NINE,
         };
         for (String id : allIds) {
             modManager.removeMod(id);
