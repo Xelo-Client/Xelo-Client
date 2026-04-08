@@ -135,6 +135,14 @@ public class ModMenuDialog {
         utilityMods = new ArrayList<>();
         utilityMods.add(new ModMenuAdapter.ModEntry(ModIds.QUICK_DROP, activity.getString(R.string.inbuilt_mod_quick_drop)));
         utilityMods.add(new ModMenuAdapter.ModEntry(ModIds.HOTBAR_ONE, activity.getString(R.string.inbuilt_mod_hotbarone)));
+        utilityMods.add(new ModMenuAdapter.ModEntry(ModIds.HOTBAR_TWO,   activity.getString(R.string.inbuilt_mod_hotbartwo)));
+        utilityMods.add(new ModMenuAdapter.ModEntry(ModIds.HOTBAR_THREE, activity.getString(R.string.inbuilt_mod_hotbarthree)));
+        utilityMods.add(new ModMenuAdapter.ModEntry(ModIds.HOTBAR_FOUR,  activity.getString(R.string.inbuilt_mod_hotbarfour)));
+        utilityMods.add(new ModMenuAdapter.ModEntry(ModIds.HOTBAR_FIVE,  activity.getString(R.string.inbuilt_mod_hotbarfive)));
+        utilityMods.add(new ModMenuAdapter.ModEntry(ModIds.HOTBAR_SIX,   activity.getString(R.string.inbuilt_mod_hotbarsix)));
+        utilityMods.add(new ModMenuAdapter.ModEntry(ModIds.HOTBAR_SEVEN, activity.getString(R.string.inbuilt_mod_hotbarseven)));
+        utilityMods.add(new ModMenuAdapter.ModEntry(ModIds.HOTBAR_EIGHT, activity.getString(R.string.inbuilt_mod_hotbareight)));
+        utilityMods.add(new ModMenuAdapter.ModEntry(ModIds.HOTBAR_NINE,  activity.getString(R.string.inbuilt_mod_hotbarnine)));
         utilityMods.add(new ModMenuAdapter.ModEntry(ModIds.CAMERA_PERSPECTIVE, activity.getString(R.string.inbuilt_mod_camera)));
         utilityMods.add(new ModMenuAdapter.ModEntry(ModIds.TOGGLE_HUD, activity.getString(R.string.inbuilt_mod_hud)));
         utilityMods.add(new ModMenuAdapter.ModEntry(ModIds.AUTO_SPRINT, activity.getString(R.string.inbuilt_mod_autosprint)));

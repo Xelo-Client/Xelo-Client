@@ -261,6 +261,21 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
         if (gridManager.isModAdded(ModIds.QUICK_DROP)) addModButton(grid, R.drawable.q_unpress, ModIds.QUICK_DROP);
         if (gridManager.isModAdded(ModIds.TOGGLE_HUD)) addModButton(grid, R.drawable.f1_unpress, ModIds.TOGGLE_HUD);
         if (gridManager.isModAdded(ModIds.HOTBAR_ONE)) addModButton(grid, R.drawable.h1_unpress, ModIds.HOTBAR_ONE);
+        if (gridManager.isModAdded(ModIds.HOTBAR_TWO)) addModButton(grid, R.drawable.h2_unpress, ModIds.HOTBAR_TWO);
+        if (gridManager.isModAdded(ModIds.HOTBAR_THREE))
+            addModButton(grid, R.drawable.h3_unpress, ModIds.HOTBAR_THREE);
+        if (gridManager.isModAdded(ModIds.HOTBAR_FOUR))
+            addModButton(grid, R.drawable.h4_unpress, ModIds.HOTBAR_FOUR);
+        if (gridManager.isModAdded(ModIds.HOTBAR_FIVE))
+            addModButton(grid, R.drawable.h5_unpress, ModIds.HOTBAR_FIVE);
+        if (gridManager.isModAdded(ModIds.HOTBAR_SIX))
+            addModButton(grid, R.drawable.h6_unpress, ModIds.HOTBAR_SIX);
+        if (gridManager.isModAdded(ModIds.HOTBAR_SEVEN))
+            addModButton(grid, R.drawable.h7_unpress, ModIds.HOTBAR_SEVEN);
+        if (gridManager.isModAdded(ModIds.HOTBAR_EIGHT))
+            addModButton(grid, R.drawable.h8_unpress, ModIds.HOTBAR_EIGHT);
+        if (gridManager.isModAdded(ModIds.HOTBAR_NINE))
+            addModButton(grid, R.drawable.h9_unpress, ModIds.HOTBAR_NINE);
         if (gridManager.isModAdded(ModIds.CAMERA_PERSPECTIVE)) addModButton(grid, R.drawable.f5_unpress, ModIds.CAMERA_PERSPECTIVE);
         if (gridManager.isModAdded(ModIds.ZOOM)) addModButton(grid, R.drawable.zoom_unpress, ModIds.ZOOM);
 
@@ -370,6 +385,21 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
         if (manager.isModAdded(ModIds.QUICK_DROP)) list.add(new InbuiltCustomizeAdapter.Item(ModIds.QUICK_DROP, R.drawable.q_unpress));
         if (manager.isModAdded(ModIds.TOGGLE_HUD)) list.add(new InbuiltCustomizeAdapter.Item(ModIds.TOGGLE_HUD, R.drawable.f1_unpress));
         if (manager.isModAdded(ModIds.HOTBAR_ONE)) list.add(new InbuiltCustomizeAdapter.Item(ModIds.HOTBAR_ONE, R.drawable.h1_unpress));
+        if (manager.isModAdded(ModIds.HOTBAR_TWO)) list.add(new InbuiltCustomizeAdapter.Item(ModIds.HOTBAR_TWO,   R.drawable.h2_unpress));
+        if (manager.isModAdded(ModIds.HOTBAR_THREE))
+            list.add(new InbuiltCustomizeAdapter.Item(ModIds.HOTBAR_THREE, R.drawable.h3_unpress));
+        if (manager.isModAdded(ModIds.HOTBAR_FOUR))
+            list.add(new InbuiltCustomizeAdapter.Item(ModIds.HOTBAR_FOUR,  R.drawable.h4_unpress));
+        if (manager.isModAdded(ModIds.HOTBAR_FIVE))
+            list.add(new InbuiltCustomizeAdapter.Item(ModIds.HOTBAR_FIVE,  R.drawable.h5_unpress));
+        if (manager.isModAdded(ModIds.HOTBAR_SIX))
+            list.add(new InbuiltCustomizeAdapter.Item(ModIds.HOTBAR_SIX,   R.drawable.h6_unpress));
+        if (manager.isModAdded(ModIds.HOTBAR_SEVEN))
+            list.add(new InbuiltCustomizeAdapter.Item(ModIds.HOTBAR_SEVEN, R.drawable.h7_unpress));
+        if (manager.isModAdded(ModIds.HOTBAR_EIGHT))
+            list.add(new InbuiltCustomizeAdapter.Item(ModIds.HOTBAR_EIGHT, R.drawable.h8_unpress));
+        if (manager.isModAdded(ModIds.HOTBAR_NINE))
+            list.add(new InbuiltCustomizeAdapter.Item(ModIds.HOTBAR_NINE,  R.drawable.h9_unpress));
         if (manager.isModAdded(ModIds.CAMERA_PERSPECTIVE)) list.add(new InbuiltCustomizeAdapter.Item(ModIds.CAMERA_PERSPECTIVE, R.drawable.f5_unpress));
         if (manager.isModAdded(ModIds.ZOOM)) {
             list.add(new InbuiltCustomizeAdapter.Item(ModIds.ZOOM, R.drawable.zoom_unpress));
