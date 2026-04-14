@@ -147,7 +147,7 @@ public class DashboardFragment extends BaseThemedFragment {
 
     private void showBackupSourceDialog() {
         float dp = requireContext().getResources().getDisplayMetrics().density;
-        int colorPrimary    = ContextCompat.getColor(requireContext(), R.color.background);
+        int colorPrimary    = ContextCompat.getColor(requireContext(), R.color.primary);
         int colorOnPrimary  = ContextCompat.getColor(requireContext(), R.color.onPrimary);
         int colorOutline    = ContextCompat.getColor(requireContext(), R.color.outline);
         int colorOnSurface  = ContextCompat.getColor(requireContext(), R.color.onSurface);
@@ -213,7 +213,7 @@ public class DashboardFragment extends BaseThemedFragment {
         android.widget.LinearLayout.LayoutParams cancelParams = new android.widget.LinearLayout.LayoutParams(
             android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
             android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
-        cancelParams.marginEnd = (int)(8 * dp);
+        androidx.core.view.MarginLayoutParamsCompat.setMarginEnd(cancelParams, (int)(8 * dp));
 
         android.widget.Button btnInternal = new android.widget.Button(requireContext());
         btnInternal.setText("Internal");
@@ -225,7 +225,7 @@ public class DashboardFragment extends BaseThemedFragment {
         android.widget.LinearLayout.LayoutParams internalParams = new android.widget.LinearLayout.LayoutParams(
             android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
             android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
-        internalParams.marginEnd = (int)(8 * dp);
+        androidx.core.view.MarginLayoutParamsCompat.setMarginEnd(internalParams, (int)(8 * dp));
 
         android.widget.Button btnExternal = new android.widget.Button(requireContext());
         btnExternal.setText("External");
