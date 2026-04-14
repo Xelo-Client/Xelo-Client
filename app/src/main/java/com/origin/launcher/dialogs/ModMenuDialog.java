@@ -148,13 +148,13 @@ public class ModMenuDialog {
         utilityMods.add(new ModMenuAdapter.ModEntry(ModIds.AUTO_SPRINT, activity.getString(R.string.inbuilt_mod_autosprint)));
         utilityMods.add(new ModMenuAdapter.ModEntry(ModIds.ZOOM, activity.getString(R.string.inbuilt_mod_zoom)));
         // Resource pack / visual utility mods
-        utilityMods.add(new ModMenuAdapter.ModEntry("custom_cross_hair", "Custom CrossHair"));
+        /*utilityMods.add(new ModMenuAdapter.ModEntry("custom_cross_hair", "Custom CrossHair"));
         utilityMods.add(new ModMenuAdapter.ModEntry("white_block_outline", "White Block Outline"));
         utilityMods.add(new ModMenuAdapter.ModEntry("java_clouds", "Java Fancy Clouds"));
         utilityMods.add(new ModMenuAdapter.ModEntry("java_cubemap", "Java Cubemap"));
         utilityMods.add(new ModMenuAdapter.ModEntry("classic_skins", "Classic Vanilla Skins"));
         utilityMods.add(new ModMenuAdapter.ModEntry("xelo_title", "Xelo Title"));
-        utilityMods.add(new ModMenuAdapter.ModEntry("double_tppview", "2x TPP View"));
+        utilityMods.add(new ModMenuAdapter.ModEntry("double_tppview", "2x TPP View")); */
 
         statsMods = new ArrayList<>();
         statsMods.add(new ModMenuAdapter.ModEntry(ModIds.FPS_DISPLAY, activity.getString(R.string.inbuilt_mod_fps_display)));
@@ -163,7 +163,7 @@ public class ModMenuDialog {
         qolMods = new ArrayList<>();
         qolMods.add(new ModMenuAdapter.ModEntry(ModIds.THIRD_PERSON_NAMETAG, activity.getString(R.string.inbuilt_mod_nametag)));
         // Performance / visual QoL mods
-        qolMods.add(new ModMenuAdapter.ModEntry("Nohurtcam", "No Hurt Cam"));
+        /*qolMods.add(new ModMenuAdapter.ModEntry("Nohurtcam", "No Hurt Cam"));
         qolMods.add(new ModMenuAdapter.ModEntry("Nofog", "No Fog"));
         qolMods.add(new ModMenuAdapter.ModEntry("better_brightness", "Better Brightness"));
         qolMods.add(new ModMenuAdapter.ModEntry("particles_disabler", "Particles Disabler"));
@@ -174,7 +174,7 @@ public class ModMenuDialog {
         qolMods.add(new ModMenuAdapter.ModEntry("no_eating_animation", "No Eating Animation"));
         qolMods.add(new ModMenuAdapter.ModEntry("no_bow_animation", "No Bow Animation"));
         qolMods.add(new ModMenuAdapter.ModEntry("portal_optimizer", "Portal Optimizer"));
-        qolMods.add(new ModMenuAdapter.ModEntry("psm", "Particle Single Mapping"));
+        qolMods.add(new ModMenuAdapter.ModEntry("psm", "Particle Single Mapping"));*/
 
         recyclerView = dialog.findViewById(R.id.mod_recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(activity));

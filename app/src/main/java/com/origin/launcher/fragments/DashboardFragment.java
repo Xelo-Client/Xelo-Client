@@ -28,6 +28,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
@@ -69,7 +70,10 @@ public class DashboardFragment extends BaseThemedFragment {
     private File currentRootDir = null; // Store the found root directory
     private static final int IMPORT_REQUEST_CODE = 1002;
     private static final int EXPORT_REQUEST_CODE = 1003;
-    
+
+    // Backup source selection: true = external, false = internal
+    private boolean backupFromExternal = true;
+
     // Options.txt editor variables
     private File optionsFile;
     private String originalOptionsContent = "";
@@ -147,11 +151,7 @@ public class DashboardFragment extends BaseThemedFragment {
             ThemeUtils.applyThemeToButton(backupButton, requireContext());
             backupButton.setOnClickListener(v -> {
                 if (hasStoragePermission()) {
-                    if (currentRootDir != null) {
-                        openSaveLocationChooser();
-                    } else {
-                        Toast.makeText(requireContext(), "No Minecraft data found to backup", Toast.LENGTH_LONG).show();
-                    }
+                    showBackupSourceDialog();
                 } else {
                     requestStoragePermissions();
                 }
@@ -180,7 +180,53 @@ public class DashboardFragment extends BaseThemedFragment {
 
         return view;
     }
-    
+
+    private void showBackupSourceDialog() {
+        String externalPath = getContext().getExternalFilesDir(null) + "/games/com.mojang/";
+        String internalPath = getContext().getFilesDir() + "/games/com.mojang/";
+
+        new AlertDialog.Builder(requireContext())
+            .setTitle("Create Backup")
+            .setMessage("Choose the source folder to backup:")
+            .setPositiveButton("External Folder", (dialog, which) -> {
+                File externalDir = resolveExternalBackupDir();
+                if (externalDir != null) {
+                    currentRootDir = externalDir;
+                    openSaveLocationChooser();
+                } else {
+                    Toast.makeText(requireContext(), "External app folder not found", Toast.LENGTH_LONG).show();
+                }
+            })
+            .setNegativeButton("Internal Folder", (dialog, which) -> {
+                File internalDir = resolveInternalBackupDir();
+                if (internalDir != null) {
+                    currentRootDir = internalDir;
+                    openSaveLocationChooser();
+                } else {
+                    Toast.makeText(requireContext(), "Internal app folder not found", Toast.LENGTH_LONG).show();
+                }
+            })
+            .setNeutralButton("Cancel", null)
+            .show();
+    }
+
+    private File resolveExternalBackupDir() {
+        File extBase = getContext().getExternalFilesDir(null);
+        if (extBase == null) return null;
+        File candidate = new File(extBase, "games/com.mojang/");
+        if (candidate.exists() && candidate.isDirectory()) return candidate;
+        File[] files = candidate.listFiles();
+        if (files != null && files.length > 0) return candidate;
+        return null;
+    }
+
+    private File resolveInternalBackupDir() {
+        File intBase = getContext().getFilesDir();
+        File candidate = new File(intBase, "games/com.mojang/");
+        if (candidate.exists() && candidate.isDirectory()) return candidate;
+        return candidate; // return even if empty so user can still attempt
+    }
+
     private void initializeModulesButton(View view) {
     modulesButton = view.findViewById(R.id.modules_button);
     
@@ -361,7 +407,7 @@ public class DashboardFragment extends BaseThemedFragment {
             
             editOptionsButton.setOnClickListener(v -> {
                 if (hasStoragePermission()) {
-                    openOptionsEditor();
+                    openOptionsEditorFragment();
                 } else {
                     requestStoragePermissions();
                 }
@@ -463,6 +509,25 @@ public class DashboardFragment extends BaseThemedFragment {
                 v.getParent().requestDisallowInterceptTouchEvent(true);
                 return false;
             });
+        }
+    }
+
+    private void openOptionsEditorFragment() {
+        try {
+            requireActivity().getSupportFragmentManager()
+                .beginTransaction()
+                .setCustomAnimations(
+                    R.anim.slide_fade_in_right,
+                    R.anim.slide_out_right,
+                    R.anim.slide_in_left,
+                    R.anim.slide_out_left
+                )
+                .replace(R.id.fragment_container, new OptionsEditorFragment())
+                .addToBackStack(null)
+                .commit();
+        } catch (Exception e) {
+            Toast.makeText(requireContext(), "Failed to open options editor", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
         }
     }
 
@@ -711,7 +776,7 @@ public class DashboardFragment extends BaseThemedFragment {
     private void importBackup(Uri zipUri) {
         try {
             // Use the specific target directory
-            File targetDir = new File("/storage/emulated/0/Android/data/com.origin.launcher/files/games/com.mojang/");
+            File targetDir = new File(requireContext().getFilesDir(), "games/com.mojang/");
             
             // Create directory if it doesn't exist
             if (!targetDir.exists()) {

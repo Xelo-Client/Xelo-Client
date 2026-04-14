@@ -472,11 +472,11 @@ public class ModulesFragment extends BaseThemedFragment {
             ));
 
             moduleItems.add(new ModuleItem("No hurt cam", "allows you to toggle the in-game hurt cam", "Nohurtcam"));
-            moduleItems.add(new ModuleItem("No Fog", "(Doesnt work with fullbright) allows you to toggle the in-game fog", "Nofog"));
+            //moduleItems.add(new ModuleItem("No Fog", "(Doesnt work with fullbright) allows you to toggle the in-game fog", "Nofog"));
             moduleItems.add(new ModuleItem("Better Brightness", "allows you to see in the dark", "better_brightness"));
             moduleItems.add(new ModuleItem("Particles Disabler", "allows you to toggle the in-game particles", "particles_disabler"));
             moduleItems.add(new ModuleItem("Java Fancy Clouds", "Changes the clouds to Java Fancy Clouds", "java_clouds"));
-            moduleItems.add(new ModuleItem("Java Cubemap", "improves the in-game cubemap bringing it abit lower", "java_cubemap"));
+            //moduleItems.add(new ModuleItem("Java Cubemap", "improves the in-game cubemap bringing it abit lower", "java_cubemap"));
             moduleItems.add(new ModuleItem("Classic Vanilla skins", "Disables the newly added skins by mojang", "classic_skins"));
             moduleItems.add(new ModuleItem("No flipbook animation", "optimizes your fps by disabling block animation", "no_flipbook_animations"));
             moduleItems.add(new ModuleItem("No Shadows", "optimizes your fps by disabling shadows", "no_shadows"));
@@ -488,7 +488,7 @@ public class ModulesFragment extends BaseThemedFragment {
             moduleItems.add(new ModuleItem("No Eating animation", "disables the eating animation of food items", "no_eating_animation"));
             moduleItems.add(new ModuleItem("No Bow animation", "disables the bow animation", "no_bow_animation"));
             moduleItems.add(new ModuleItem("Portal optimizer", "optimizes the portal by tweaking", "portal_optimizer"));
-            moduleItems.add(new ModuleItem("Particle single mapping", "optimizes the particles material by enabling culling and disabling particle fog", "psm"));
+            //moduleItems.add(new ModuleItem("Particle single mapping", "optimizes the particles material by enabling culling and disabling particle fog", "psm"));
             moduleItems.add(new ModuleItem("Custom CrossHair", "lets you use your own CrossHair", "custom_cross_hair"));
 
             // Load current config state and populate modules
@@ -988,11 +988,11 @@ public class ModulesFragment extends BaseThemedFragment {
 
             JSONObject defaultConfig = new JSONObject();
             defaultConfig.put("Nohurtcam", false);
-            defaultConfig.put("Nofog", false);
+            //defaultConfig.put("Nofog", false);
             defaultConfig.put("better_brightness", false);
             defaultConfig.put("particles_disabler", false);
             defaultConfig.put("java_clouds", false);
-            defaultConfig.put("java_cubemap", false);
+            //defaultConfig.put("java_cubemap", false);
             defaultConfig.put("classic_skins", false);
             defaultConfig.put("white_block_outline", false);
             defaultConfig.put("no_flipbook_animations", false);
