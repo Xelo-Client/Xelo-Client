@@ -146,29 +146,135 @@ public class DashboardFragment extends BaseThemedFragment {
     }
 
     private void showBackupSourceDialog() {
-        new AlertDialog.Builder(requireContext())
-            .setTitle("Create Backup")
-            .setMessage("Choose the source folder to backup:")
-            .setPositiveButton("External Folder", (dialog, which) -> {
-                File externalDir = resolveExternalBackupDir();
-                if (externalDir != null) {
-                    currentRootDir = externalDir;
-                    openSaveLocationChooser();
-                } else {
-                    Toast.makeText(requireContext(), "External app folder not found", Toast.LENGTH_LONG).show();
-                }
-            })
-            .setNegativeButton("Internal Folder", (dialog, which) -> {
-                File internalDir = resolveInternalBackupDir();
-                if (internalDir != null) {
-                    currentRootDir = internalDir;
-                    openSaveLocationChooser();
-                } else {
-                    Toast.makeText(requireContext(), "Internal app folder not found", Toast.LENGTH_LONG).show();
-                }
-            })
-            .setNeutralButton("Cancel", null)
-            .show();
+        float dp = requireContext().getResources().getDisplayMetrics().density;
+        int colorPrimary    = ContextCompat.getColor(requireContext(), R.color.background);
+        int colorOnPrimary  = ContextCompat.getColor(requireContext(), R.color.onPrimary);
+        int colorOutline    = ContextCompat.getColor(requireContext(), R.color.outline);
+        int colorOnSurface  = ContextCompat.getColor(requireContext(), R.color.onSurface);
+        int colorSurfVar    = ContextCompat.getColor(requireContext(), R.color.surfaceVariant);
+
+        android.widget.LinearLayout root = new android.widget.LinearLayout(requireContext());
+        root.setOrientation(android.widget.LinearLayout.VERTICAL);
+        root.setPadding((int)(24*dp), (int)(28*dp), (int)(24*dp), (int)(20*dp));
+
+        android.graphics.drawable.GradientDrawable dialogBg = new android.graphics.drawable.GradientDrawable();
+        dialogBg.setColor(colorPrimary);
+        dialogBg.setCornerRadius(28 * dp);
+        dialogBg.setStroke((int)(1.5f * dp), colorOutline);
+        root.setBackground(dialogBg);
+
+        android.widget.TextView title = new android.widget.TextView(requireContext());
+        title.setText("Create Backup");
+        title.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 20);
+        title.setTypeface(null, android.graphics.Typeface.BOLD);
+        title.setTextColor(colorOnPrimary);
+        android.widget.LinearLayout.LayoutParams titleParams = new android.widget.LinearLayout.LayoutParams(
+            android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
+            android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+        titleParams.bottomMargin = (int)(6 * dp);
+        root.addView(title, titleParams);
+
+        android.widget.TextView subtitle = new android.widget.TextView(requireContext());
+        subtitle.setText("Choose the source folder to backup");
+        subtitle.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 14);
+        subtitle.setTextColor(colorOnPrimary);
+        subtitle.setAlpha(0.7f);
+        android.widget.LinearLayout.LayoutParams subParams = new android.widget.LinearLayout.LayoutParams(
+            android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
+            android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+        subParams.bottomMargin = (int)(24 * dp);
+        root.addView(subtitle, subParams);
+
+        android.widget.LinearLayout btnRow = new android.widget.LinearLayout(requireContext());
+        btnRow.setOrientation(android.widget.LinearLayout.HORIZONTAL);
+        btnRow.setGravity(android.view.Gravity.END);
+
+        android.graphics.drawable.GradientDrawable cancelBg = new android.graphics.drawable.GradientDrawable();
+        cancelBg.setColor(android.graphics.Color.TRANSPARENT);
+        cancelBg.setCornerRadius(50 * dp);
+        cancelBg.setStroke((int)(1 * dp), colorOutline);
+
+        android.graphics.drawable.GradientDrawable internalBg = new android.graphics.drawable.GradientDrawable();
+        internalBg.setColor(colorSurfVar);
+        internalBg.setCornerRadius(50 * dp);
+        internalBg.setStroke((int)(1 * dp), colorOutline);
+
+        android.graphics.drawable.GradientDrawable externalBg = new android.graphics.drawable.GradientDrawable();
+        externalBg.setColor(colorOnPrimary);
+        externalBg.setCornerRadius(50 * dp);
+
+        android.widget.Button btnCancel = new android.widget.Button(requireContext());
+        btnCancel.setText("Cancel");
+        btnCancel.setTextColor(colorOnPrimary);
+        btnCancel.setBackground(cancelBg);
+        btnCancel.setAllCaps(false);
+        btnCancel.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 14);
+        btnCancel.setPadding((int)(16*dp), (int)(10*dp), (int)(16*dp), (int)(10*dp));
+        android.widget.LinearLayout.LayoutParams cancelParams = new android.widget.LinearLayout.LayoutParams(
+            android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
+            android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+        cancelParams.marginEnd = (int)(8 * dp);
+
+        android.widget.Button btnInternal = new android.widget.Button(requireContext());
+        btnInternal.setText("Internal");
+        btnInternal.setTextColor(colorOnSurface);
+        btnInternal.setBackground(internalBg);
+        btnInternal.setAllCaps(false);
+        btnInternal.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 14);
+        btnInternal.setPadding((int)(16*dp), (int)(10*dp), (int)(16*dp), (int)(10*dp));
+        android.widget.LinearLayout.LayoutParams internalParams = new android.widget.LinearLayout.LayoutParams(
+            android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
+            android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+        internalParams.marginEnd = (int)(8 * dp);
+
+        android.widget.Button btnExternal = new android.widget.Button(requireContext());
+        btnExternal.setText("External");
+        btnExternal.setTextColor(colorPrimary);
+        btnExternal.setBackground(externalBg);
+        btnExternal.setAllCaps(false);
+        btnExternal.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 14);
+        btnExternal.setTypeface(null, android.graphics.Typeface.BOLD);
+        btnExternal.setPadding((int)(16*dp), (int)(10*dp), (int)(16*dp), (int)(10*dp));
+
+        btnRow.addView(btnCancel, cancelParams);
+        btnRow.addView(btnInternal, internalParams);
+        btnRow.addView(btnExternal);
+        root.addView(btnRow);
+
+        AlertDialog dialog = new AlertDialog.Builder(requireContext())
+            .setView(root)
+            .create();
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(
+                new android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT));
+        }
+
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+
+        btnInternal.setOnClickListener(v -> {
+            dialog.dismiss();
+            File internalDir = resolveInternalBackupDir();
+            if (internalDir != null) {
+                currentRootDir = internalDir;
+                openSaveLocationChooser();
+            } else {
+                Toast.makeText(requireContext(), "Internal app folder not found", Toast.LENGTH_LONG).show();
+            }
+        });
+
+        btnExternal.setOnClickListener(v -> {
+            dialog.dismiss();
+            File externalDir = resolveExternalBackupDir();
+            if (externalDir != null) {
+                currentRootDir = externalDir;
+                openSaveLocationChooser();
+            } else {
+                Toast.makeText(requireContext(), "External app folder not found", Toast.LENGTH_LONG).show();
+            }
+        });
+
+        dialog.show();
     }
 
     private File resolveExternalBackupDir() {
@@ -345,29 +451,20 @@ public class DashboardFragment extends BaseThemedFragment {
     // (All the existing methods for options editor, file management, etc.)
 
     private void initializeOptionsEditor(View view) {
-        // Initialize options.txt file path
-        File optionsFile = new File("/storage/emulated/0/Android/data/com.origin.launcher/files/games/com.mojang/minecraftpe/options.txt");
-
         // Get UI elements
         editOptionsButton = view.findViewById(R.id.editOptionsButton);
         TextView optionsNotFoundText = view.findViewById(R.id.optionsNotFoundText);
 
-        // Check if options.txt exists
-        if (optionsFile.exists()) {
-            editOptionsButton.setVisibility(View.VISIBLE);
-            optionsNotFoundText.setVisibility(View.GONE);
+        editOptionsButton.setVisibility(View.VISIBLE);
+        if (optionsNotFoundText != null) optionsNotFoundText.setVisibility(View.GONE);
 
-            editOptionsButton.setOnClickListener(v -> {
-                if (hasStoragePermission()) {
-                    openOptionsEditorFragment();
-                } else {
-                    requestStoragePermissions();
-                }
-            });
-        } else {
-            editOptionsButton.setVisibility(View.GONE);
-            optionsNotFoundText.setVisibility(View.VISIBLE);
-        }
+        editOptionsButton.setOnClickListener(v -> {
+            if (hasStoragePermission()) {
+                openOptionsEditorFragment();
+            } else {
+                requestStoragePermissions();
+            }
+        });
     }
 
     private void openOptionsEditorFragment() {
