@@ -182,8 +182,7 @@ public class OptionsEditorFragment extends BaseThemedFragment {
             try (BufferedReader reader = new BufferedReader(new FileReader(optionsFile))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    content.append(line).append("
-");
+                    content.append(line).append("\n");
                 }
             }
 
