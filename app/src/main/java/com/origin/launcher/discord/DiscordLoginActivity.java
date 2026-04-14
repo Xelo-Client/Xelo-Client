@@ -205,7 +205,7 @@ public class DiscordLoginActivity extends BaseThemedActivity {
 
     // biometric api
     private void onBiometricAuthSuccess() {
-        String savedToken = DiscordManager.getInstance().getSavedToken(this);
+        String savedToken = new DiscordManager(this).getStoredToken();
         if (savedToken != null && !savedToken.isEmpty()) {
             Log.d(TAG, "Biometric auth success, found saved token, validating...");
             mainHandler.post(() -> {
