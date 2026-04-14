@@ -1,16 +1,11 @@
 package com.origin.launcher.fragments;
 
-import android.Manifest;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.Settings;
 import android.text.Editable;
 import android.text.Spannable;
-import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
 import android.text.TextWatcher;
 import android.text.style.BackgroundColorSpan;
 import android.view.KeyEvent;
@@ -21,10 +16,7 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
-import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
@@ -40,6 +32,7 @@ import java.util.Stack;
 
 import com.origin.launcher.R;
 import com.origin.launcher.utils.ThemeUtils;
+import com.origin.launcher.versions.VersionManager;
 
 public class OptionsEditorFragment extends BaseThemedFragment {
 
@@ -47,9 +40,6 @@ public class OptionsEditorFragment extends BaseThemedFragment {
     private static final int SOURCE_EXTERNAL = 0;
     private static final int SOURCE_INTERNAL = 1;
     private static final int SOURCE_VERSION_ISOLATION = 2;
-
-    private static final String VERSION_ISOLATION_PATH =
-        "/storage/emulated/0/games/xelo_client/minecraft/minecraftpe/options.txt";
 
     private int currentSource = SOURCE_EXTERNAL;
 
@@ -95,6 +85,7 @@ public class OptionsEditorFragment extends BaseThemedFragment {
         ThemeUtils.applyThemeToButton(btnSource, requireContext());
         ThemeUtils.applyThemeToButton(btnBack, requireContext());
 
+        syncSourceFromVersionManager();
         resolveOptionsFile();
         updateSourceLabel();
         loadFileIntoEditor();
@@ -137,20 +128,30 @@ public class OptionsEditorFragment extends BaseThemedFragment {
         return view;
     }
 
+    private void syncSourceFromVersionManager() {
+        switch (VersionManager.get(requireContext()).getStorageType()) {
+            case EXTERNAL: currentSource = SOURCE_EXTERNAL; break;
+            case INTERNAL: currentSource = SOURCE_INTERNAL; break;
+            case VERSION_ISOLATION: currentSource = SOURCE_VERSION_ISOLATION; break;
+        }
+    }
+
     private void resolveOptionsFile() {
+        VersionManager vm = VersionManager.get(requireContext());
+        VersionManager.StorageType previous = vm.getStorageType();
         switch (currentSource) {
             case SOURCE_EXTERNAL:
-                File extBase = requireContext().getExternalFilesDir(null);
-                optionsFile = new File(extBase, "games/com.mojang/minecraftpe/options.txt");
+                vm.setStorageType(VersionManager.StorageType.EXTERNAL);
                 break;
             case SOURCE_INTERNAL:
-                File intBase = requireContext().getFilesDir();
-                optionsFile = new File(intBase, "games/com.mojang/minecraftpe/options.txt");
+                vm.setStorageType(VersionManager.StorageType.INTERNAL);
                 break;
             case SOURCE_VERSION_ISOLATION:
-                optionsFile = new File(VERSION_ISOLATION_PATH);
+                vm.setStorageType(VersionManager.StorageType.VERSION_ISOLATION);
                 break;
         }
+        optionsFile = vm.getOptionsFile();
+        vm.setStorageType(previous);
     }
 
     private void updateSourceLabel() {
@@ -163,7 +164,7 @@ public class OptionsEditorFragment extends BaseThemedFragment {
                 sourceLabel.setText("Source: Internal (" + (optionsFile != null ? optionsFile.getAbsolutePath() : "N/A") + ")");
                 break;
             case SOURCE_VERSION_ISOLATION:
-                sourceLabel.setText("Source: Version Isolation (" + VERSION_ISOLATION_PATH + ")");
+                sourceLabel.setText("Source: Version Isolation (" + (optionsFile != null ? optionsFile.getAbsolutePath() : "N/A") + ")");
                 break;
         }
     }
@@ -181,7 +182,8 @@ public class OptionsEditorFragment extends BaseThemedFragment {
             try (BufferedReader reader = new BufferedReader(new FileReader(optionsFile))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    content.append(line).append("\n");
+                    content.append(line).append("
+");
                 }
             }
 
@@ -369,26 +371,23 @@ public class OptionsEditorFragment extends BaseThemedFragment {
             return;
         }
 
-        // Update current search term and find all matches
         currentSearchTerm = searchTerm;
         findAllMatches(searchTerm);
 
-        String text = textEditor.getText().toString();
-        SpannableString spannable = new SpannableString(text);
-
-        // Highlight all matches
+        SpannableStringBuilder ssb = new SpannableStringBuilder(textEditor.getText());
+        BackgroundColorSpan[] old = ssb.getSpans(0, ssb.length(), BackgroundColorSpan.class);
+        for (BackgroundColorSpan span : old) ssb.removeSpan(span);
         for (int matchIndex : searchMatches) {
-            spannable.setSpan(
-                new BackgroundColorSpan(0xFFFFFF00), // Yellow highlight color
+            ssb.setSpan(
+                new BackgroundColorSpan(0xFFFFFF00),
                 matchIndex,
                 matchIndex + searchTerm.length(),
                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
             );
         }
-
-        textEditor.setText(spannable);
-
-        // Reset match index when search term changes
+        int cursor = textEditor.getSelectionStart();
+        textEditor.setText(ssb);
+        textEditor.setSelection(Math.min(cursor, ssb.length()));
         currentMatchIndex = -1;
     }
 
@@ -409,9 +408,12 @@ public class OptionsEditorFragment extends BaseThemedFragment {
         searchMatches.clear();
         currentMatchIndex = -1;
         currentSearchTerm = "";
-        // Clear highlighting by resetting text
-        String plain = textEditor.getText().toString();
-        textEditor.setText(plain);
+        SpannableStringBuilder ssb = new SpannableStringBuilder(textEditor.getText());
+        BackgroundColorSpan[] spans = ssb.getSpans(0, ssb.length(), BackgroundColorSpan.class);
+        for (BackgroundColorSpan span : spans) ssb.removeSpan(span);
+        int cursor = textEditor.getSelectionStart();
+        textEditor.setText(ssb);
+        textEditor.setSelection(Math.min(cursor, ssb.length()));
     }
 
     private void findNextMatch(String searchTerm) {
@@ -444,23 +446,17 @@ public class OptionsEditorFragment extends BaseThemedFragment {
     }
 
     private void scrollToPosition(int position) {
-        // Get the layout of the EditText
         android.text.Layout layout = textEditor.getLayout();
-        if (layout != null) {
-            // Get the line number for the position
-            int line = layout.getLineForOffset(position);
+        if (layout == null) return;
+        int line = layout.getLineForOffset(position);
+        int lineTop = layout.getLineTop(line);
+        int lineBottom = layout.getLineBottom(line);
+        int editorHeight = textEditor.getHeight();
+        int scrollY = Math.max(0, lineTop - (editorHeight / 2) + ((lineBottom - lineTop) / 2));
 
-            // Get the Y coordinate of the line
-            int lineTop = layout.getLineTop(line);
-            int lineBottom = layout.getLineBottom(line);
-            int lineHeight = lineBottom - lineTop;
-
-            // Calculate scroll position to center the line in view
-            int editorHeight = textEditor.getHeight();
-            int scrollY = Math.max(0, lineTop - (editorHeight / 2) + (lineHeight / 2));
-
-            // Scroll to the calculated position
-            textEditor.scrollTo(0, scrollY);
+        View parent = (View) textEditor.getParent();
+        if (parent instanceof android.widget.ScrollView) {
+            ((android.widget.ScrollView) parent).smoothScrollTo(0, scrollY);
         }
     }
 

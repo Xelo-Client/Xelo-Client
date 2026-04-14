@@ -43,14 +43,12 @@ import com.origin.launcher.manager.ThemeManager;
 import com.origin.launcher.utils.ThemeUtils;
 import com.origin.launcher.discord.DiscordRPCHelper;
 import com.origin.launcher.R;
+import com.origin.launcher.versions.VersionManager;
 
 public class DashboardFragment extends BaseThemedFragment {
     private File currentRootDir = null; // Store the found root directory
     private static final int IMPORT_REQUEST_CODE = 1002;
     private static final int EXPORT_REQUEST_CODE = 1003;
-
-    // Backup source selection: true = external, false = internal
-    private boolean backupFromExternal = true;
 
     private MaterialButton editOptionsButton;
 
@@ -69,28 +67,15 @@ public class DashboardFragment extends BaseThemedFragment {
         if (folderRecyclerView != null) {
             folderRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-            // File management root - try multiple possible paths
-            String[] possiblePaths = {
-                "/storage/emulated/0/Android/data/com.origin.launcher/files/games/com.mojang/",
-                "/storage/emulated/0/games/com.mojang/",
-                "/storage/emulated/0/Android/data/com.mojang.minecraftpe/files/games/com.mojang/",
-                getContext().getExternalFilesDir(null) + "/games/com.mojang/"
-            };
-
-            File rootDir = null;
-            String rootPath = null;
-
-            for (String path : possiblePaths) {
-                File testDir = new File(path);
-                if (testDir.exists() && testDir.isDirectory()) {
-                    File[] testFiles = testDir.listFiles();
-                    if (testFiles != null && testFiles.length > 0) {
-                        rootDir = testDir;
-                        rootPath = path;
-                        currentRootDir = testDir; // Store for later use
-                        break;
-                    }
-                }
+            // File management root - resolved from VersionManager storage type
+            File rootDir = VersionManager.get(requireContext()).getGameDataDir();
+            if (rootDir != null && !rootDir.exists()) rootDir.mkdirs();
+            currentRootDir = rootDir;
+            
+            TextView storageSourceLabel = view.findViewById(R.id.storageSourceLabel);
+            if (storageSourceLabel != null) {
+                String type = VersionManager.get(requireContext()).getStorageType().name();
+            storageSourceLabel.setText("Storage: " + type);
             }
 
             List<String> folderNames = new ArrayList<>();
@@ -127,7 +112,7 @@ public class DashboardFragment extends BaseThemedFragment {
             ThemeUtils.applyThemeToButton(importButton, requireContext());
             importButton.setOnClickListener(v -> {
                 if (hasStoragePermission()) {
-                    openFileChooser();
+                    showImportDestinationDialog();
                 } else {
                     requestStoragePermissions();
                 }
@@ -182,26 +167,70 @@ public class DashboardFragment extends BaseThemedFragment {
         android.widget.LinearLayout.LayoutParams subParams = new android.widget.LinearLayout.LayoutParams(
             android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
             android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
-        subParams.bottomMargin = (int)(24 * dp);
+        subParams.bottomMargin = (int)(16 * dp);
         root.addView(subtitle, subParams);
 
-        android.widget.LinearLayout btnRow = new android.widget.LinearLayout(requireContext());
-        btnRow.setOrientation(android.widget.LinearLayout.HORIZONTAL);
-        btnRow.setGravity(android.view.Gravity.END);
+        android.graphics.drawable.GradientDrawable optionBg = new android.graphics.drawable.GradientDrawable();
+        optionBg.setColor(colorSurfVar);
+        optionBg.setCornerRadius(50 * dp);
+        optionBg.setStroke((int)(1 * dp), colorOutline);
+
+        android.graphics.drawable.GradientDrawable optionBgExternal = new android.graphics.drawable.GradientDrawable();
+        optionBgExternal.setColor(colorOnPrimary);
+        optionBgExternal.setCornerRadius(50 * dp);
+
+        android.graphics.drawable.GradientDrawable optionBgIsolation = new android.graphics.drawable.GradientDrawable();
+        optionBgIsolation.setColor(colorSurfVar);
+        optionBgIsolation.setCornerRadius(50 * dp);
+        optionBgIsolation.setStroke((int)(1 * dp), colorOutline);
+
+        android.widget.LinearLayout.LayoutParams optionParams = new android.widget.LinearLayout.LayoutParams(
+            android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+            android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+        optionParams.bottomMargin = (int)(8 * dp);
+
+        android.widget.Button btnInternal = new android.widget.Button(requireContext());
+        btnInternal.setText("Internal");
+        btnInternal.setTextColor(colorOnSurface);
+        btnInternal.setBackground(optionBg);
+        btnInternal.setAllCaps(false);
+        btnInternal.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 14);
+        btnInternal.setPadding((int)(16*dp), (int)(10*dp), (int)(16*dp), (int)(10*dp));
+
+        android.widget.Button btnExternal = new android.widget.Button(requireContext());
+        btnExternal.setText("External");
+        btnExternal.setTextColor(colorPrimary);
+        btnExternal.setBackground(optionBgExternal);
+        btnExternal.setAllCaps(false);
+        btnExternal.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 14);
+        btnExternal.setTypeface(null, android.graphics.Typeface.BOLD);
+        btnExternal.setPadding((int)(16*dp), (int)(10*dp), (int)(16*dp), (int)(10*dp));
+
+        android.widget.Button btnVersionIsolation = new android.widget.Button(requireContext());
+        btnVersionIsolation.setText("Version Isolation");
+        btnVersionIsolation.setTextColor(colorOnSurface);
+        btnVersionIsolation.setBackground(optionBgIsolation);
+        btnVersionIsolation.setAllCaps(false);
+        btnVersionIsolation.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 14);
+        btnVersionIsolation.setPadding((int)(16*dp), (int)(10*dp), (int)(16*dp), (int)(10*dp));
+
+        root.addView(btnInternal, optionParams);
+        root.addView(btnExternal, optionParams);
+
+        android.widget.LinearLayout.LayoutParams isolationParams = new android.widget.LinearLayout.LayoutParams(
+            android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+            android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+        isolationParams.bottomMargin = (int)(16 * dp);
+        root.addView(btnVersionIsolation, isolationParams);
 
         android.graphics.drawable.GradientDrawable cancelBg = new android.graphics.drawable.GradientDrawable();
         cancelBg.setColor(android.graphics.Color.TRANSPARENT);
         cancelBg.setCornerRadius(50 * dp);
         cancelBg.setStroke((int)(1 * dp), colorOutline);
 
-        android.graphics.drawable.GradientDrawable internalBg = new android.graphics.drawable.GradientDrawable();
-        internalBg.setColor(colorSurfVar);
-        internalBg.setCornerRadius(50 * dp);
-        internalBg.setStroke((int)(1 * dp), colorOutline);
-
-        android.graphics.drawable.GradientDrawable externalBg = new android.graphics.drawable.GradientDrawable();
-        externalBg.setColor(colorOnPrimary);
-        externalBg.setCornerRadius(50 * dp);
+        android.widget.LinearLayout cancelRow = new android.widget.LinearLayout(requireContext());
+        cancelRow.setOrientation(android.widget.LinearLayout.HORIZONTAL);
+        cancelRow.setGravity(android.view.Gravity.END);
 
         android.widget.Button btnCancel = new android.widget.Button(requireContext());
         btnCancel.setText("Cancel");
@@ -210,36 +239,9 @@ public class DashboardFragment extends BaseThemedFragment {
         btnCancel.setAllCaps(false);
         btnCancel.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 14);
         btnCancel.setPadding((int)(16*dp), (int)(10*dp), (int)(16*dp), (int)(10*dp));
-        android.widget.LinearLayout.LayoutParams cancelParams = new android.widget.LinearLayout.LayoutParams(
-            android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
-            android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
-        androidx.core.view.MarginLayoutParamsCompat.setMarginEnd(cancelParams, (int)(8 * dp));
 
-        android.widget.Button btnInternal = new android.widget.Button(requireContext());
-        btnInternal.setText("Internal");
-        btnInternal.setTextColor(colorOnSurface);
-        btnInternal.setBackground(internalBg);
-        btnInternal.setAllCaps(false);
-        btnInternal.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 14);
-        btnInternal.setPadding((int)(16*dp), (int)(10*dp), (int)(16*dp), (int)(10*dp));
-        android.widget.LinearLayout.LayoutParams internalParams = new android.widget.LinearLayout.LayoutParams(
-            android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
-            android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
-        androidx.core.view.MarginLayoutParamsCompat.setMarginEnd(internalParams, (int)(8 * dp));
-
-        android.widget.Button btnExternal = new android.widget.Button(requireContext());
-        btnExternal.setText("External");
-        btnExternal.setTextColor(colorPrimary);
-        btnExternal.setBackground(externalBg);
-        btnExternal.setAllCaps(false);
-        btnExternal.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 14);
-        btnExternal.setTypeface(null, android.graphics.Typeface.BOLD);
-        btnExternal.setPadding((int)(16*dp), (int)(10*dp), (int)(16*dp), (int)(10*dp));
-
-        btnRow.addView(btnCancel, cancelParams);
-        btnRow.addView(btnInternal, internalParams);
-        btnRow.addView(btnExternal);
-        root.addView(btnRow);
+        cancelRow.addView(btnCancel);
+        root.addView(cancelRow);
 
         AlertDialog dialog = new AlertDialog.Builder(requireContext())
             .setView(root)
@@ -254,9 +256,9 @@ public class DashboardFragment extends BaseThemedFragment {
 
         btnInternal.setOnClickListener(v -> {
             dialog.dismiss();
-            File internalDir = resolveInternalBackupDir();
-            if (internalDir != null) {
-                currentRootDir = internalDir;
+            File dir = resolveBackupDir(VersionManager.StorageType.INTERNAL);
+            if (dir != null) {
+                currentRootDir = dir;
                 openSaveLocationChooser();
             } else {
                 Toast.makeText(requireContext(), "Internal app folder not found", Toast.LENGTH_LONG).show();
@@ -265,33 +267,182 @@ public class DashboardFragment extends BaseThemedFragment {
 
         btnExternal.setOnClickListener(v -> {
             dialog.dismiss();
-            File externalDir = resolveExternalBackupDir();
-            if (externalDir != null) {
-                currentRootDir = externalDir;
+            File dir = resolveBackupDir(VersionManager.StorageType.EXTERNAL);
+            if (dir != null) {
+                currentRootDir = dir;
                 openSaveLocationChooser();
             } else {
                 Toast.makeText(requireContext(), "External app folder not found", Toast.LENGTH_LONG).show();
             }
         });
 
+        btnVersionIsolation.setOnClickListener(v -> {
+            dialog.dismiss();
+            File dir = resolveBackupDir(VersionManager.StorageType.VERSION_ISOLATION);
+            if (dir != null) {
+                currentRootDir = dir;
+                openSaveLocationChooser();
+            } else {
+                Toast.makeText(requireContext(), "Version isolation folder not found", Toast.LENGTH_LONG).show();
+            }
+        });
+
         dialog.show();
     }
 
-    private File resolveExternalBackupDir() {
-        File extBase = getContext().getExternalFilesDir(null);
-        if (extBase == null) return null;
-        File candidate = new File(extBase, "games/com.mojang/");
-        if (candidate.exists() && candidate.isDirectory()) return candidate;
-        File[] files = candidate.listFiles();
-        if (files != null && files.length > 0) return candidate;
-        return null;
+    private void showImportDestinationDialog() {
+        float dp = requireContext().getResources().getDisplayMetrics().density;
+        int colorPrimary    = ContextCompat.getColor(requireContext(), R.color.primary);
+        int colorOnPrimary  = ContextCompat.getColor(requireContext(), R.color.onPrimary);
+        int colorOutline    = ContextCompat.getColor(requireContext(), R.color.outline);
+        int colorOnSurface  = ContextCompat.getColor(requireContext(), R.color.onSurface);
+        int colorSurfVar    = ContextCompat.getColor(requireContext(), R.color.surfaceVariant);
+
+        android.widget.LinearLayout root = new android.widget.LinearLayout(requireContext());
+        root.setOrientation(android.widget.LinearLayout.VERTICAL);
+        root.setPadding((int)(24*dp), (int)(28*dp), (int)(24*dp), (int)(20*dp));
+
+        android.graphics.drawable.GradientDrawable dialogBg = new android.graphics.drawable.GradientDrawable();
+        dialogBg.setColor(colorPrimary);
+        dialogBg.setCornerRadius(28 * dp);
+        dialogBg.setStroke((int)(1.5f * dp), colorOutline);
+        root.setBackground(dialogBg);
+
+        android.widget.TextView title = new android.widget.TextView(requireContext());
+        title.setText("Import Backup");
+        title.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 20);
+        title.setTypeface(null, android.graphics.Typeface.BOLD);
+        title.setTextColor(colorOnPrimary);
+        android.widget.LinearLayout.LayoutParams titleParams = new android.widget.LinearLayout.LayoutParams(
+            android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
+            android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+        titleParams.bottomMargin = (int)(6 * dp);
+        root.addView(title, titleParams);
+
+        android.widget.TextView subtitle = new android.widget.TextView(requireContext());
+        subtitle.setText("Choose the destination folder to import into");
+        subtitle.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 14);
+        subtitle.setTextColor(colorOnPrimary);
+        subtitle.setAlpha(0.7f);
+        android.widget.LinearLayout.LayoutParams subParams = new android.widget.LinearLayout.LayoutParams(
+            android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
+            android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+        subParams.bottomMargin = (int)(16 * dp);
+        root.addView(subtitle, subParams);
+
+        android.graphics.drawable.GradientDrawable optionBg = new android.graphics.drawable.GradientDrawable();
+        optionBg.setColor(colorSurfVar);
+        optionBg.setCornerRadius(50 * dp);
+        optionBg.setStroke((int)(1 * dp), colorOutline);
+
+        android.graphics.drawable.GradientDrawable optionBgExternal = new android.graphics.drawable.GradientDrawable();
+        optionBgExternal.setColor(colorOnPrimary);
+        optionBgExternal.setCornerRadius(50 * dp);
+
+        android.graphics.drawable.GradientDrawable optionBgIsolation = new android.graphics.drawable.GradientDrawable();
+        optionBgIsolation.setColor(colorSurfVar);
+        optionBgIsolation.setCornerRadius(50 * dp);
+        optionBgIsolation.setStroke((int)(1 * dp), colorOutline);
+
+        android.widget.LinearLayout.LayoutParams optionParams = new android.widget.LinearLayout.LayoutParams(
+            android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+            android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+        optionParams.bottomMargin = (int)(8 * dp);
+
+        android.widget.Button btnInternal = new android.widget.Button(requireContext());
+        btnInternal.setText("Internal");
+        btnInternal.setTextColor(colorOnSurface);
+        btnInternal.setBackground(optionBg);
+        btnInternal.setAllCaps(false);
+        btnInternal.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 14);
+        btnInternal.setPadding((int)(16*dp), (int)(10*dp), (int)(16*dp), (int)(10*dp));
+
+        android.widget.Button btnExternal = new android.widget.Button(requireContext());
+        btnExternal.setText("External");
+        btnExternal.setTextColor(colorPrimary);
+        btnExternal.setBackground(optionBgExternal);
+        btnExternal.setAllCaps(false);
+        btnExternal.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 14);
+        btnExternal.setTypeface(null, android.graphics.Typeface.BOLD);
+        btnExternal.setPadding((int)(16*dp), (int)(10*dp), (int)(16*dp), (int)(10*dp));
+
+        android.widget.Button btnVersionIsolation = new android.widget.Button(requireContext());
+        btnVersionIsolation.setText("Version Isolation");
+        btnVersionIsolation.setTextColor(colorOnSurface);
+        btnVersionIsolation.setBackground(optionBgIsolation);
+        btnVersionIsolation.setAllCaps(false);
+        btnVersionIsolation.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 14);
+        btnVersionIsolation.setPadding((int)(16*dp), (int)(10*dp), (int)(16*dp), (int)(10*dp));
+
+        root.addView(btnInternal, optionParams);
+        root.addView(btnExternal, optionParams);
+
+        android.widget.LinearLayout.LayoutParams isolationParams = new android.widget.LinearLayout.LayoutParams(
+            android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+            android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+        isolationParams.bottomMargin = (int)(16 * dp);
+        root.addView(btnVersionIsolation, isolationParams);
+
+        android.graphics.drawable.GradientDrawable cancelBg = new android.graphics.drawable.GradientDrawable();
+        cancelBg.setColor(android.graphics.Color.TRANSPARENT);
+        cancelBg.setCornerRadius(50 * dp);
+        cancelBg.setStroke((int)(1 * dp), colorOutline);
+
+        android.widget.LinearLayout cancelRow = new android.widget.LinearLayout(requireContext());
+        cancelRow.setOrientation(android.widget.LinearLayout.HORIZONTAL);
+        cancelRow.setGravity(android.view.Gravity.END);
+
+        android.widget.Button btnCancel = new android.widget.Button(requireContext());
+        btnCancel.setText("Cancel");
+        btnCancel.setTextColor(colorOnPrimary);
+        btnCancel.setBackground(cancelBg);
+        btnCancel.setAllCaps(false);
+        btnCancel.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 14);
+        btnCancel.setPadding((int)(16*dp), (int)(10*dp), (int)(16*dp), (int)(10*dp));
+
+        cancelRow.addView(btnCancel);
+        root.addView(cancelRow);
+
+        AlertDialog dialog = new AlertDialog.Builder(requireContext())
+            .setView(root)
+            .create();
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(
+                new android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT));
+        }
+
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+
+        btnInternal.setOnClickListener(v -> {
+            dialog.dismiss();
+            currentRootDir = resolveBackupDir(VersionManager.StorageType.INTERNAL);
+            openFileChooser();
+        });
+
+        btnExternal.setOnClickListener(v -> {
+            dialog.dismiss();
+            currentRootDir = resolveBackupDir(VersionManager.StorageType.EXTERNAL);
+            openFileChooser();
+        });
+
+        btnVersionIsolation.setOnClickListener(v -> {
+            dialog.dismiss();
+            currentRootDir = resolveBackupDir(VersionManager.StorageType.VERSION_ISOLATION);
+            openFileChooser();
+        });
+
+        dialog.show();
     }
 
-    private File resolveInternalBackupDir() {
-        File intBase = getContext().getFilesDir();
-        File candidate = new File(intBase, "games/com.mojang/");
-        if (candidate.exists() && candidate.isDirectory()) return candidate;
-        return candidate; // return even if empty so user can still attempt
+    private File resolveBackupDir(VersionManager.StorageType storageType) {
+        VersionManager vm = VersionManager.get(requireContext());
+        VersionManager.StorageType previous = vm.getStorageType();
+        vm.setStorageType(storageType);
+        File dir = vm.getGameDataDir();
+        vm.setStorageType(previous);
+        if (dir != null && !dir.exists()) dir.mkdirs();
+        return dir;
     }
 
     private void initializeModulesButton(View view) {
@@ -519,8 +670,10 @@ public class DashboardFragment extends BaseThemedFragment {
 
     private void importBackup(Uri zipUri) {
         try {
-            // Use the specific target directory
-            File targetDir = new File(requireContext().getFilesDir(), "games/com.mojang/");
+            // Use the target directory selected by the user in showImportDestinationDialog
+            File targetDir = currentRootDir != null
+                ? currentRootDir
+                : new File(requireContext().getFilesDir(), "games/com.mojang/");
 
             // Create directory if it doesn't exist
             if (!targetDir.exists()) {
@@ -612,26 +765,10 @@ public class DashboardFragment extends BaseThemedFragment {
     private void refreshFolderList() {
         RecyclerView folderRecyclerView = getView().findViewById(R.id.folderRecyclerView);
         if (folderRecyclerView != null) {
-            // Re-scan for folders
-            String[] possiblePaths = {
-                "/storage/emulated/0/Android/data/com.origin.launcher/files/games/com.mojang/",
-                "/storage/emulated/0/games/com.mojang/",
-                "/storage/emulated/0/Android/data/com.mojang.minecraftpe/files/games/com.mojang/",
-                getContext().getExternalFilesDir(null) + "/games/com.mojang/"
-            };
-
-            File rootDir = null;
-            for (String path : possiblePaths) {
-                File testDir = new File(path);
-                if (testDir.exists() && testDir.isDirectory()) {
-                    File[] testFiles = testDir.listFiles();
-                    if (testFiles != null && testFiles.length > 0) {
-                        rootDir = testDir;
-                        currentRootDir = testDir;
-                        break;
-                    }
-                }
-            }
+            // Re-scan for folders using VersionManager storage type
+            File rootDir = VersionManager.get(requireContext()).getGameDataDir();
+            if (rootDir != null && !rootDir.exists()) rootDir.mkdirs();
+            currentRootDir = rootDir;
 
             List<String> folderNames = new ArrayList<>();
             if (rootDir != null && rootDir.exists() && rootDir.isDirectory()) {
