@@ -50,4 +50,12 @@
         android:text="Back"
         app:icon="@android:drawable/ic_menu_revert" />
 
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/biometric_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Login with Fingerprint"
+        android:visibility="gone"
+        app:icon="@drawable/ic_fingerprint" />
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
