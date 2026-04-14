@@ -33,6 +33,7 @@ import java.util.Stack;
 import com.origin.launcher.R;
 import com.origin.launcher.utils.ThemeUtils;
 import com.origin.launcher.versions.VersionManager;
+import com.origin.launcher.versions.GameVersion;
 
 public class OptionsEditorFragment extends BaseThemedFragment {
 
@@ -85,7 +86,6 @@ public class OptionsEditorFragment extends BaseThemedFragment {
         ThemeUtils.applyThemeToButton(btnSource, requireContext());
         ThemeUtils.applyThemeToButton(btnBack, requireContext());
 
-        syncSourceFromVersionManager();
         resolveOptionsFile();
         updateSourceLabel();
         loadFileIntoEditor();
@@ -128,30 +128,40 @@ public class OptionsEditorFragment extends BaseThemedFragment {
         return view;
     }
 
-    private void syncSourceFromVersionManager() {
-        switch (VersionManager.get(requireContext()).getStorageType()) {
-            case EXTERNAL: currentSource = SOURCE_EXTERNAL; break;
-            case INTERNAL: currentSource = SOURCE_INTERNAL; break;
-            case VERSION_ISOLATION: currentSource = SOURCE_VERSION_ISOLATION; break;
-        }
-    }
-
     private void resolveOptionsFile() {
-        VersionManager vm = VersionManager.get(requireContext());
-        VersionManager.StorageType previous = vm.getStorageType();
         switch (currentSource) {
-            case SOURCE_EXTERNAL:
-                vm.setStorageType(VersionManager.StorageType.EXTERNAL);
+            case SOURCE_EXTERNAL: {
+                File extBase = requireContext().getExternalFilesDir(null);
+                if (extBase != null) {
+                    optionsFile = new File(extBase, "games/com.mojang/minecraftpe/options.txt");
+                } else {
+                    // Fallback to the standard Minecraft external path
+                    optionsFile = new File(
+                        "/storage/emulated/0/Android/data/com.mojang.minecraftpe/files/games/com.mojang/minecraftpe/options.txt"
+                    );
+                }
                 break;
-            case SOURCE_INTERNAL:
-                vm.setStorageType(VersionManager.StorageType.INTERNAL);
+            }
+            case SOURCE_INTERNAL: {
+                optionsFile = new File(
+                    requireContext().getFilesDir(),
+                    "games/com.mojang/minecraftpe/options.txt"
+                );
                 break;
-            case SOURCE_VERSION_ISOLATION:
-                vm.setStorageType(VersionManager.StorageType.VERSION_ISOLATION);
+            }
+            case SOURCE_VERSION_ISOLATION: {
+                GameVersion v = VersionManager.get(requireContext()).getSelectedVersion();
+                if (v != null) {
+                    optionsFile = new File(v.versionDir, "games/com.mojang/minecraftpe/options.txt");
+                } else {
+                    optionsFile = null;
+                }
+                break;
+            }
+            default:
+                optionsFile = null;
                 break;
         }
-        optionsFile = vm.getOptionsFile();
-        vm.setStorageType(previous);
     }
 
     private void updateSourceLabel() {

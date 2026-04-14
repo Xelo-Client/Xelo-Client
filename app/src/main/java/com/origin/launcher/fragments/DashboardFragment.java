@@ -44,11 +44,16 @@ import com.origin.launcher.utils.ThemeUtils;
 import com.origin.launcher.discord.DiscordRPCHelper;
 import com.origin.launcher.R;
 import com.origin.launcher.versions.VersionManager;
+import com.origin.launcher.versions.GameVersion;
 
 public class DashboardFragment extends BaseThemedFragment {
     private File currentRootDir = null; // Store the found root directory
     private static final int IMPORT_REQUEST_CODE = 1002;
     private static final int EXPORT_REQUEST_CODE = 1003;
+
+    private static final int SOURCE_INTERNAL = 0;
+    private static final int SOURCE_EXTERNAL = 1;
+    private static final int SOURCE_VERSION_ISOLATION = 2;
 
     private MaterialButton editOptionsButton;
 
@@ -67,15 +72,25 @@ public class DashboardFragment extends BaseThemedFragment {
         if (folderRecyclerView != null) {
             folderRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-            // File management root - resolved from VersionManager storage type
-            File rootDir = VersionManager.get(requireContext()).getGameDataDir();
-            if (rootDir != null && !rootDir.exists()) rootDir.mkdirs();
-            currentRootDir = rootDir;
-            
-            TextView storageSourceLabel = view.findViewById(R.id.storageSourceLabel);
-            if (storageSourceLabel != null) {
-                String type = VersionManager.get(requireContext()).getStorageType().name();
-            storageSourceLabel.setText("Storage: " + type);
+            // File management root - try multiple possible paths
+            String[] possiblePaths = {
+                "/storage/emulated/0/Android/data/com.origin.launcher/files/games/com.mojang/",
+                "/storage/emulated/0/games/com.mojang/",
+                "/storage/emulated/0/Android/data/com.mojang.minecraftpe/files/games/com.mojang/",
+                getContext().getExternalFilesDir(null) + "/games/com.mojang/"
+            };
+
+            File rootDir = null;
+            for (String path : possiblePaths) {
+                File testDir = new File(path);
+                if (testDir.exists() && testDir.isDirectory()) {
+                    File[] testFiles = testDir.listFiles();
+                    if (testFiles != null && testFiles.length > 0) {
+                        rootDir = testDir;
+                        currentRootDir = testDir; // Store for later use
+                        break;
+                    }
+                }
             }
 
             List<String> folderNames = new ArrayList<>();
@@ -256,7 +271,7 @@ public class DashboardFragment extends BaseThemedFragment {
 
         btnInternal.setOnClickListener(v -> {
             dialog.dismiss();
-            File dir = resolveBackupDir(VersionManager.StorageType.INTERNAL);
+            File dir = resolveBackupDir(SOURCE_INTERNAL);
             if (dir != null) {
                 currentRootDir = dir;
                 openSaveLocationChooser();
@@ -267,7 +282,7 @@ public class DashboardFragment extends BaseThemedFragment {
 
         btnExternal.setOnClickListener(v -> {
             dialog.dismiss();
-            File dir = resolveBackupDir(VersionManager.StorageType.EXTERNAL);
+            File dir = resolveBackupDir(SOURCE_EXTERNAL);
             if (dir != null) {
                 currentRootDir = dir;
                 openSaveLocationChooser();
@@ -278,7 +293,7 @@ public class DashboardFragment extends BaseThemedFragment {
 
         btnVersionIsolation.setOnClickListener(v -> {
             dialog.dismiss();
-            File dir = resolveBackupDir(VersionManager.StorageType.VERSION_ISOLATION);
+            File dir = resolveBackupDir(SOURCE_VERSION_ISOLATION);
             if (dir != null) {
                 currentRootDir = dir;
                 openSaveLocationChooser();
@@ -416,33 +431,49 @@ public class DashboardFragment extends BaseThemedFragment {
 
         btnInternal.setOnClickListener(v -> {
             dialog.dismiss();
-            currentRootDir = resolveBackupDir(VersionManager.StorageType.INTERNAL);
+            currentRootDir = resolveBackupDir(SOURCE_INTERNAL);
             openFileChooser();
         });
 
         btnExternal.setOnClickListener(v -> {
             dialog.dismiss();
-            currentRootDir = resolveBackupDir(VersionManager.StorageType.EXTERNAL);
+            currentRootDir = resolveBackupDir(SOURCE_EXTERNAL);
             openFileChooser();
         });
 
         btnVersionIsolation.setOnClickListener(v -> {
             dialog.dismiss();
-            currentRootDir = resolveBackupDir(VersionManager.StorageType.VERSION_ISOLATION);
+            currentRootDir = resolveBackupDir(SOURCE_VERSION_ISOLATION);
             openFileChooser();
         });
 
         dialog.show();
     }
 
-    private File resolveBackupDir(VersionManager.StorageType storageType) {
-        VersionManager vm = VersionManager.get(requireContext());
-        VersionManager.StorageType previous = vm.getStorageType();
-        vm.setStorageType(storageType);
-        File dir = vm.getGameDataDir();
-        vm.setStorageType(previous);
-        if (dir != null && !dir.exists()) dir.mkdirs();
-        return dir;
+    private File resolveBackupDir(int sourceType) {
+        switch (sourceType) {
+            case SOURCE_INTERNAL: {
+                File dir = new File(requireContext().getFilesDir(), "games/com.mojang");
+                if (!dir.exists()) dir.mkdirs();
+                return dir;
+            }
+            case SOURCE_EXTERNAL: {
+                File extBase = requireContext().getExternalFilesDir(null);
+                if (extBase == null) return null;
+                File dir = new File(extBase, "games/com.mojang");
+                if (!dir.exists()) dir.mkdirs();
+                return dir;
+            }
+            case SOURCE_VERSION_ISOLATION: {
+                GameVersion v = VersionManager.get(requireContext()).getSelectedVersion();
+                if (v == null) return null;
+                File dir = new File(v.versionDir, "games/com.mojang");
+                if (!dir.exists()) dir.mkdirs();
+                return dir;
+            }
+            default:
+                return null;
+        }
     }
 
     private void initializeModulesButton(View view) {
@@ -673,7 +704,7 @@ public class DashboardFragment extends BaseThemedFragment {
             // Use the target directory selected by the user in showImportDestinationDialog
             File targetDir = currentRootDir != null
                 ? currentRootDir
-                : new File(requireContext().getFilesDir(), "games/com.mojang/");
+                : new File(requireContext().getFilesDir(), "games/com.mojang");
 
             // Create directory if it doesn't exist
             if (!targetDir.exists()) {
@@ -765,10 +796,26 @@ public class DashboardFragment extends BaseThemedFragment {
     private void refreshFolderList() {
         RecyclerView folderRecyclerView = getView().findViewById(R.id.folderRecyclerView);
         if (folderRecyclerView != null) {
-            // Re-scan for folders using VersionManager storage type
-            File rootDir = VersionManager.get(requireContext()).getGameDataDir();
-            if (rootDir != null && !rootDir.exists()) rootDir.mkdirs();
-            currentRootDir = rootDir;
+            // Re-scan for folders
+            String[] possiblePaths = {
+                "/storage/emulated/0/Android/data/com.origin.launcher/files/games/com.mojang/",
+                "/storage/emulated/0/games/com.mojang/",
+                "/storage/emulated/0/Android/data/com.mojang.minecraftpe/files/games/com.mojang/",
+                getContext().getExternalFilesDir(null) + "/games/com.mojang/"
+            };
+
+            File rootDir = null;
+            for (String path : possiblePaths) {
+                File testDir = new File(path);
+                if (testDir.exists() && testDir.isDirectory()) {
+                    File[] testFiles = testDir.listFiles();
+                    if (testFiles != null && testFiles.length > 0) {
+                        rootDir = testDir;
+                        currentRootDir = testDir;
+                        break;
+                    }
+                }
+            }
 
             List<String> folderNames = new ArrayList<>();
             if (rootDir != null && rootDir.exists() && rootDir.isDirectory()) {
