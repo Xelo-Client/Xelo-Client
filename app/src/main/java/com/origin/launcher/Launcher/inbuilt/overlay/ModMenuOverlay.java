@@ -3,6 +3,7 @@ package com.origin.launcher.Launcher.inbuilt.overlay;
 import android.app.Activity;
 import android.os.Handler;
 import android.os.Looper;
+import android.view.View;
 import android.widget.ImageButton;
 import com.origin.launcher.Launcher.inbuilt.XeloOverlay.nativemod.PauseScreenNative;
 import com.origin.launcher.dialogs.ModMenuDialog;
@@ -63,17 +64,19 @@ public class ModMenuOverlay extends BaseOverlayButton {
     }
 
     private void showOverlay() {
-        ImageButton btn = getOverlayButton();
+        if (overlayView == null) return;
+        ImageButton btn = overlayView.findViewById(R.id.mod_overlay_button);
         if (btn != null) {
-            activity.runOnUiThread(() -> btn.setVisibility(android.view.View.VISIBLE));
+            activity.runOnUiThread(() -> btn.setVisibility(View.VISIBLE));
         }
     }
 
     private void hideOverlay() {
-        ImageButton btn = getOverlayButton();
+        if (overlayView == null) return;
+        ImageButton btn = overlayView.findViewById(R.id.mod_overlay_button);
         if (btn != null) {
             activity.runOnUiThread(() -> {
-                btn.setVisibility(android.view.View.GONE);
+                btn.setVisibility(View.GONE);
                 if (dialog != null && dialog.isShowing()) {
                     dialog.hide();
                 }
@@ -81,12 +84,11 @@ public class ModMenuOverlay extends BaseOverlayButton {
         }
     }
 
-    @Override
-    public void onDestroy() {
+    public void destroy() {
         handler.removeCallbacks(pausePoller);
         if (dialog != null && dialog.isShowing()) {
             dialog.hide();
         }
-        super.onDestroy();
+        hide();
     }
 }
