@@ -5,10 +5,12 @@ import android.os.Handler;
 import android.os.Looper;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
+import android.view.View;
 import android.widget.ImageButton;
 
 import com.origin.launcher.R;
 import com.origin.launcher.Launcher.inbuilt.model.ModIds;
+import com.origin.launcher.Launcher.inbuilt.XeloOverlay.nativemod.PauseScreenNative;
 import com.origin.launcher.dialogs.ButtonStyleDialog;
 
 public class QuickDropOverlay extends BaseOverlayButton {
@@ -16,12 +18,31 @@ public class QuickDropOverlay extends BaseOverlayButton {
     private static final long HOLD_THRESHOLD_MS = 300;
 
     private boolean isHolding = false;
+    private boolean lastPauseState = false;
+
     private final Handler handler = new Handler(Looper.getMainLooper());
+
     private final Runnable holdRunnable = () -> {
         isHolding = true;
         sendKeyDown(KeyEvent.KEYCODE_CTRL_LEFT);
         sendKeyDown(KeyEvent.KEYCODE_Q);
         updateButtonState(true);
+    };
+
+    private final Runnable pausePoller = new Runnable() {
+        @Override
+        public void run() {
+            boolean paused = PauseScreenNative.isPauseVisible();
+            if (paused != lastPauseState) {
+                lastPauseState = paused;
+                if (paused) {
+                    hideDuringPause();
+                } else {
+                    showAfterPause();
+                }
+            }
+            handler.postDelayed(this, 50);
+        }
     };
 
     public QuickDropOverlay(Activity activity) {
@@ -40,7 +61,10 @@ public class QuickDropOverlay extends BaseOverlayButton {
     }
 
     @Override
-    protected void onOverlayViewCreated(ImageButton btn) {}
+    protected void onOverlayViewCreated(ImageButton btn) {
+        handler.removeCallbacks(pausePoller);
+        handler.post(pausePoller);
+    }
 
     @Override
     protected void onTouchDown(MotionEvent event) {
@@ -109,5 +133,36 @@ public class QuickDropOverlay extends BaseOverlayButton {
                 );
             }
         }
+    }
+
+    private void hideDuringPause() {
+        if (overlayView == null) return;
+        ImageButton btn = overlayView.findViewById(R.id.mod_overlay_button);
+        if (btn != null) {
+            activity.runOnUiThread(() -> {
+                btn.setVisibility(View.GONE);
+                handler.removeCallbacks(holdRunnable);
+                if (isHolding) {
+                    sendKeyUp(KeyEvent.KEYCODE_Q);
+                    sendKeyUp(KeyEvent.KEYCODE_CTRL_LEFT);
+                    updateButtonState(false);
+                    isHolding = false;
+                }
+            });
+        }
+    }
+
+    private void showAfterPause() {
+        if (overlayView == null) return;
+        ImageButton btn = overlayView.findViewById(R.id.mod_overlay_button);
+        if (btn != null) {
+            activity.runOnUiThread(() -> btn.setVisibility(View.VISIBLE));
+        }
+    }
+
+    public void destroy() {
+        handler.removeCallbacks(holdRunnable);
+        handler.removeCallbacks(pausePoller);
+        hide();
     }
 }

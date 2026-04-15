@@ -27,7 +27,7 @@ public class ModMenuOverlay extends BaseOverlayButton {
                     hideOverlay();
                 }
             }
-            handler.postDelayed(this, 100);
+            handler.postDelayed(this, 50);
         }
     };
 

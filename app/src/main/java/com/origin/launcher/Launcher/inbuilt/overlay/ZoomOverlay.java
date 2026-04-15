@@ -5,10 +5,12 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.View;
 import android.widget.ImageButton;
 
 import com.origin.launcher.R;
 import com.origin.launcher.Launcher.inbuilt.model.ModIds;
+import com.origin.launcher.Launcher.inbuilt.XeloOverlay.nativemod.PauseScreenNative;
 import com.origin.launcher.Launcher.inbuilt.XeloOverlay.nativemod.ZoomMod;
 import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModManager;
 import com.origin.launcher.dialogs.ButtonStyleDialog;
@@ -20,8 +22,10 @@ public class ZoomOverlay extends BaseOverlayButton {
     private boolean isZooming = false;
     private boolean initialized = false;
     private boolean isHolding = false;
+    private boolean lastPauseState = false;
 
     private final Handler handler = new Handler(Looper.getMainLooper());
+
     private final Runnable holdRunnable = () -> {
         isHolding = true;
         if (!isZooming) {
@@ -29,6 +33,22 @@ public class ZoomOverlay extends BaseOverlayButton {
             applyZoomLevel();
             ZoomMod.nativeOnKeyDown();
             updateButtonState(true);
+        }
+    };
+
+    private final Runnable pausePoller = new Runnable() {
+        @Override
+        public void run() {
+            boolean paused = PauseScreenNative.isPauseVisible();
+            if (paused != lastPauseState) {
+                lastPauseState = paused;
+                if (paused) {
+                    hideDuringPause();
+                } else {
+                    showAfterPause();
+                }
+            }
+            handler.postDelayed(this, 50);
         }
     };
 
@@ -147,7 +167,10 @@ public class ZoomOverlay extends BaseOverlayButton {
     }
 
     @Override
-    protected void onOverlayViewCreated(ImageButton btn) {}
+    protected void onOverlayViewCreated(ImageButton btn) {
+        handler.removeCallbacks(pausePoller);
+        handler.post(pausePoller);
+    }
 
     public void onKeyDown() {
         if (!initialized) {
@@ -193,6 +216,25 @@ public class ZoomOverlay extends BaseOverlayButton {
         }
     }
 
+    private void hideDuringPause() {
+        if (overlayView == null) return;
+        activity.runOnUiThread(() -> {
+            overlayView.setVisibility(View.GONE);
+            handler.removeCallbacks(holdRunnable);
+            if (isZooming && initialized) {
+                isZooming = false;
+                ZoomMod.nativeOnKeyUp();
+                updateButtonState(false);
+            }
+            isHolding = false;
+        });
+    }
+
+    private void showAfterPause() {
+        if (overlayView == null) return;
+        activity.runOnUiThread(() -> overlayView.setVisibility(View.VISIBLE));
+    }
+
     public void onScroll(float delta) {
         if (initialized && isZooming) {
             ZoomMod.nativeOnScroll(delta);
@@ -207,6 +249,12 @@ public class ZoomOverlay extends BaseOverlayButton {
         }
         handler.removeCallbacks(holdRunnable);
         super.hide();
+    }
+
+    public void destroy() {
+        handler.removeCallbacks(holdRunnable);
+        handler.removeCallbacks(pausePoller);
+        hide();
     }
 
     public boolean isZooming() {
