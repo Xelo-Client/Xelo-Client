@@ -27,6 +27,7 @@ import com.origin.launcher.Adapter.InbuiltCustomizeAdapter;
 import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModManager;
 import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModSizeStore;
 import com.origin.launcher.Launcher.inbuilt.model.ModIds;
+import com.origin.launcher.dialogs.ButtonStyleDialog;
 import com.origin.launcher.manager.ThemeManager;
 import com.origin.launcher.activity.BaseThemedActivity;
 import com.origin.launcher.R;
@@ -380,7 +381,10 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity implements 
             FrameLayout.LayoutParams flp = (FrameLayout.LayoutParams) btn.getLayoutParams();
             flp.width = px;
             flp.height = px;
-            flp.leftMargin = flp.topMargin = flp.rightMargin = flp.bottomMargin = 0;
+            flp.leftMargin = 0;
+            flp.topMargin = 0;
+            flp.rightMargin = 0;
+            flp.bottomMargin = 0;
             btn.setLayoutParams(flp);
             btn.requestLayout();
             btn.invalidate();
@@ -419,6 +423,68 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity implements 
     @Override
     public void onModMenuOpacityChanged(String id, int opacity) {
         InbuiltModManager.getInstance(this).setModMenuOpacity(opacity);
+    }
+
+    @Override
+    public boolean getButtonStyle(String id) {
+        return ButtonStyleDialog.isUsingPng(this, id);
+    }
+
+    @Override
+    public void onButtonStyleChanged(String id, boolean usePng) {
+        ButtonStyleDialog.setPng(this, id, usePng);
+        View btn = modButtons.get(id);
+        if (btn instanceof ImageButton) {
+            Bitmap themedBitmap = ThemeManager.getInstance().getOverlayButtonBitmap(id);
+            if (themedBitmap != null && usePng) {
+                ((ImageButton) btn).setImageBitmap(themedBitmap);
+            } else {
+                int iconRes = usePng
+                    ? getPngIconForMod(id)
+                    : getNativeIconForMod(id);
+                ((ImageButton) btn).setImageResource(iconRes);
+            }
+        }
+    }
+
+    private int getPngIconForMod(String id) {
+        switch (id) {
+            case ModIds.AUTO_SPRINT: return R.drawable.as_unpress;
+            case ModIds.QUICK_DROP: return R.drawable.q_unpress;
+            case ModIds.TOGGLE_HUD: return R.drawable.f1_unpress;
+            case ModIds.CAMERA_PERSPECTIVE: return R.drawable.f5_unpress;
+            case ModIds.ZOOM: return R.drawable.zoom_unpress;
+            case ModIds.HOTBAR_ONE: return R.drawable.h1_unpress;
+            case ModIds.HOTBAR_TWO: return R.drawable.h2_unpress;
+            case ModIds.HOTBAR_THREE: return R.drawable.h3_unpress;
+            case ModIds.HOTBAR_FOUR: return R.drawable.h4_unpress;
+            case ModIds.HOTBAR_FIVE: return R.drawable.h5_unpress;
+            case ModIds.HOTBAR_SIX: return R.drawable.h6_unpress;
+            case ModIds.HOTBAR_SEVEN: return R.drawable.h7_unpress;
+            case ModIds.HOTBAR_EIGHT: return R.drawable.h8_unpress;
+            case ModIds.HOTBAR_NINE: return R.drawable.h9_unpress;
+            default: return R.drawable.as_unpress;
+        }
+    }
+
+    private int getNativeIconForMod(String id) {
+        switch (id) {
+            case ModIds.AUTO_SPRINT: return R.drawable.ic_sprint;
+            case ModIds.QUICK_DROP: return R.drawable.ic_quick_drop;
+            case ModIds.TOGGLE_HUD: return R.drawable.ic_hud;
+            case ModIds.CAMERA_PERSPECTIVE: return R.drawable.ic_camera;
+            case ModIds.ZOOM: return R.drawable.ic_zoom;
+            case ModIds.HOTBAR_ONE:
+            case ModIds.HOTBAR_TWO:
+            case ModIds.HOTBAR_THREE:
+            case ModIds.HOTBAR_FOUR:
+            case ModIds.HOTBAR_FIVE:
+            case ModIds.HOTBAR_SIX:
+            case ModIds.HOTBAR_SEVEN:
+            case ModIds.HOTBAR_EIGHT:
+            case ModIds.HOTBAR_NINE: return R.drawable.ic_hud;
+            default: return R.drawable.ic_sprint;
+        }
     }
 
     @Override

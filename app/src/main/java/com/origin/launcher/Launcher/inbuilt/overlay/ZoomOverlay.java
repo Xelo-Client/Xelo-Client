@@ -11,10 +11,11 @@ import com.origin.launcher.R;
 import com.origin.launcher.Launcher.inbuilt.model.ModIds;
 import com.origin.launcher.Launcher.inbuilt.XeloOverlay.nativemod.ZoomMod;
 import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModManager;
+import com.origin.launcher.dialogs.ButtonStyleDialog;
 
 public class ZoomOverlay extends BaseOverlayButton {
     private static final String TAG = "ZoomOverlay";
-    private static final long HOLD_THRESHOLD_MS = 300;
+    private static final long HOLD_THRESHOLD_MS = 150;
 
     private boolean isZooming = false;
     private boolean initialized = false;
@@ -42,7 +43,8 @@ public class ZoomOverlay extends BaseOverlayButton {
 
     @Override
     protected int getIconResource() {
-        return R.drawable.ic_zoom_selector;
+        boolean usePng = ButtonStyleDialog.isUsingPng(activity, ModIds.ZOOM);
+        return usePng ? R.drawable.ic_zoom_selector : R.drawable.ic_zoom;
     }
 
     @Override

@@ -50,22 +50,24 @@ public class ModMenuDialog {
     private void dismissWithAnimation() {
         View animTarget = dialog.getWindow().getDecorView();
         ScaleAnimation scale = new ScaleAnimation(
-            1f, 0.85f, 1f, 0.85f,
-            Animation.RELATIVE_TO_SELF, 0.5f,
-            Animation.RELATIVE_TO_SELF, 0.5f
+        1f, 0.85f, 1f, 0.85f,
+        Animation.RELATIVE_TO_SELF, 0.5f,
+        Animation.RELATIVE_TO_SELF, 0.5f
         );
         AlphaAnimation alpha = new AlphaAnimation(1f, 0f);
         android.view.animation.AnimationSet set = new android.view.animation.AnimationSet(true);
         set.addAnimation(scale);
         set.addAnimation(alpha);
         set.setDuration(180);
+        set.setFillAfter(true);
         set.setInterpolator(new android.view.animation.AccelerateInterpolator());
-        set.setAnimationListener(new Animation.AnimationListener() {
-            @Override public void onAnimationStart(Animation a) {}
-            @Override public void onAnimationRepeat(Animation a) {}
-            @Override public void onAnimationEnd(Animation a) { dialog.dismiss(); }
-        });
         animTarget.startAnimation(set);
+
+        animTarget.postDelayed(() -> {
+        if (dialog != null && dialog.isShowing()) {
+            dialog.dismiss();
+            }
+        }, 180);
     }
 
     public void show() {
@@ -114,10 +116,13 @@ public class ModMenuDialog {
         if (btnBack != null) btnBack.setColorFilter(onSurfaceColor);
         if (btnWrench != null) btnWrench.setColorFilter(onSurfaceVariantColor);
 
+        if (btnBack != null) {
+        btnBack.setColorFilter(onSurfaceColor);
         btnBack.setOnClickListener(v -> {
-            animatePop(btnBack);
-            btnBack.postDelayed(this::dismissWithAnimation, 150);
-        });
+        animatePop(btnBack);
+        btnBack.postDelayed(this::dismissWithAnimation, 150);
+                });
+        }
 
         btnWrench.setOnClickListener(v -> {
             animatePop(btnWrench);

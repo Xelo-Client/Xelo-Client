@@ -2,7 +2,6 @@ package com.origin.launcher.Adapter;
 
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,10 +20,30 @@ import com.origin.launcher.Launcher.inbuilt.model.ModIds;
 import com.origin.launcher.Launcher.inbuilt.overlay.InbuiltOverlayManager;
 import com.origin.launcher.Launcher.inbuilt.overlay.ModMenuOverlay;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class InbuiltCustomizeAdapter extends RecyclerView.Adapter<InbuiltCustomizeAdapter.VH> {
+
+    private static final Set<String> STYLE_SUPPORTED_MODS = new HashSet<>(Arrays.asList(
+        ModIds.AUTO_SPRINT,
+        ModIds.QUICK_DROP,
+        ModIds.TOGGLE_HUD,
+        ModIds.CAMERA_PERSPECTIVE,
+        ModIds.ZOOM,
+        ModIds.HOTBAR_ONE,
+        ModIds.HOTBAR_TWO,
+        ModIds.HOTBAR_THREE,
+        ModIds.HOTBAR_FOUR,
+        ModIds.HOTBAR_FIVE,
+        ModIds.HOTBAR_SIX,
+        ModIds.HOTBAR_SEVEN,
+        ModIds.HOTBAR_EIGHT,
+        ModIds.HOTBAR_NINE
+    ));
 
     public static class Item {
         public final String id;
@@ -49,6 +68,8 @@ public class InbuiltCustomizeAdapter extends RecyclerView.Adapter<InbuiltCustomi
         void onZoomHoldModeChanged(String id, boolean holdMode);
         int getModMenuOpacity(String id);
         void onModMenuOpacityChanged(String id, int opacity);
+        boolean getButtonStyle(String id);
+        void onButtonStyleChanged(String id, boolean usePng);
     }
 
     private final List<Item> items = new ArrayList<>();
@@ -133,6 +154,22 @@ public class InbuiltCustomizeAdapter extends RecyclerView.Adapter<InbuiltCustomi
             @Override public void onStopTrackingTouch(SeekBar seekBar) {}
         });
 
+        if (STYLE_SUPPORTED_MODS.contains(item.id)) {
+            h.buttonStyleContainer.setVisibility(View.VISIBLE);
+            boolean usePng = callback.getButtonStyle(item.id);
+            updateStyleButtons(h, usePng);
+            h.btnStyleNative.setOnClickListener(v -> {
+                callback.onButtonStyleChanged(item.id, false);
+                updateStyleButtons(h, false);
+            });
+            h.btnStylePng.setOnClickListener(v -> {
+                callback.onButtonStyleChanged(item.id, true);
+                updateStyleButtons(h, true);
+            });
+        } else {
+            h.buttonStyleContainer.setVisibility(View.GONE);
+        }
+
         if (item.id.equals(ModIds.MOD_MENU)) {
             h.modMenuContainer.setVisibility(View.VISIBLE);
             h.modMenuOpacitySeek.setOnSeekBarChangeListener(null);
@@ -206,9 +243,30 @@ public class InbuiltCustomizeAdapter extends RecyclerView.Adapter<InbuiltCustomi
         }
     }
 
+    private void updateStyleButtons(VH h, boolean usePng) {
+        styleToggleButton(h.btnStyleNative, !usePng);
+        styleToggleButton(h.btnStylePng, usePng);
+    }
+
     private void updateZoomModeButtons(VH h, boolean isHoldMode) {
         styleZoomModeButton(h.btnZoomModePress, !isHoldMode);
         styleZoomModeButton(h.btnZoomModeHold, isHoldMode);
+    }
+
+    private void styleToggleButton(Button btn, boolean selected) {
+        GradientDrawable bg = new GradientDrawable();
+        bg.setShape(GradientDrawable.RECTANGLE);
+        bg.setCornerRadius(16f);
+        if (selected) {
+            bg.setColor(Color.WHITE);
+            btn.setTextColor(Color.BLACK);
+        } else {
+            bg.setColor(Color.TRANSPARENT);
+            bg.setStroke(2, Color.WHITE);
+            btn.setTextColor(Color.WHITE);
+        }
+        btn.setBackground(bg);
+        btn.setBackgroundTintList(null);
     }
 
     private void styleZoomModeButton(Button btn, boolean selected) {
@@ -257,6 +315,9 @@ public class InbuiltCustomizeAdapter extends RecyclerView.Adapter<InbuiltCustomi
         final ImageButton icon;
         final SeekBar sizeSeek;
         final SeekBar opacitySeek;
+        final LinearLayout buttonStyleContainer;
+        final Button btnStyleNative;
+        final Button btnStylePng;
         final LinearLayout zoomContainer;
         final SeekBar zoomSeek;
         final TextView zoomText;
@@ -273,6 +334,9 @@ public class InbuiltCustomizeAdapter extends RecyclerView.Adapter<InbuiltCustomi
             icon = itemView.findViewById(R.id.mod_icon);
             sizeSeek = itemView.findViewById(R.id.size_seek);
             opacitySeek = itemView.findViewById(R.id.opacity_seek);
+            buttonStyleContainer = itemView.findViewById(R.id.config_button_style_container);
+            btnStyleNative = itemView.findViewById(R.id.btn_style_native);
+            btnStylePng = itemView.findViewById(R.id.btn_style_png);
             zoomContainer = itemView.findViewById(R.id.config_zoom_container);
             zoomSeek = itemView.findViewById(R.id.seekbar_zoom_level);
             zoomText = itemView.findViewById(R.id.text_zoom_level);

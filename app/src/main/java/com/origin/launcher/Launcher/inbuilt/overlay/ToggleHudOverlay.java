@@ -6,6 +6,7 @@ import android.widget.ImageButton;
 
 import com.origin.launcher.R;
 import com.origin.launcher.Launcher.inbuilt.model.ModIds;
+import com.origin.launcher.dialogs.ButtonStyleDialog;
 
 public class ToggleHudOverlay extends BaseOverlayButton {
 
@@ -20,7 +21,8 @@ public class ToggleHudOverlay extends BaseOverlayButton {
 
     @Override
     protected int getIconResource() {
-        return R.drawable.ic_hud_selector;
+        boolean usePng = ButtonStyleDialog.isUsingPng(activity, ModIds.TOGGLE_HUD);
+        return usePng ? R.drawable.ic_hud_selector : R.drawable.ic_hud;
     }
 
     @Override

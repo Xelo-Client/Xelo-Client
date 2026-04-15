@@ -68,7 +68,7 @@ jobs:
           secure: true
           username: ${{ secrets.MAIL_USERNAME }}
           password: ${{ secrets.MAIL_PASSWORD }}
-          to: ryansk0987@gmail.com
+          to: ${{ secrets.MAIL_USERNAME }}
           from: "GitHub CI <${{ secrets.MAIL_USERNAME }}>"
           subject: "origin-debug-apk-${{ github.run_number }}.zip"
           convert_markdown: true

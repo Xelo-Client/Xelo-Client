@@ -6,6 +6,7 @@ import android.widget.ImageButton;
 
 import com.origin.launcher.R;
 import com.origin.launcher.Launcher.inbuilt.model.ModIds;
+import com.origin.launcher.dialogs.ButtonStyleDialog;
 
 public class CameraPerspectiveOverlay extends BaseOverlayButton {
 
@@ -20,7 +21,8 @@ public class CameraPerspectiveOverlay extends BaseOverlayButton {
 
     @Override
     protected int getIconResource() {
-        return R.drawable.ic_camera_selector;
+        boolean usePng = ButtonStyleDialog.isUsingPng(activity, ModIds.CAMERA_PERSPECTIVE);
+        return usePng ? R.drawable.ic_camera_selector : R.drawable.ic_camera;
     }
 
     @Override

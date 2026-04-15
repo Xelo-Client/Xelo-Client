@@ -147,8 +147,8 @@ public class DashboardFragment extends BaseThemedFragment {
 
     private void showBackupSourceDialog() {
         float dp = requireContext().getResources().getDisplayMetrics().density;
-        int colorPrimary    = ContextCompat.getColor(requireContext(), R.color.primary);
-        int colorOnPrimary  = ContextCompat.getColor(requireContext(), R.color.onPrimary);
+        int colorPrimary    = ContextCompat.getColor(requireContext(), R.color.onPrimary);
+        int colorOnPrimary  = ContextCompat.getColor(requireContext(), R.color.primary);
         int colorOutline    = ContextCompat.getColor(requireContext(), R.color.outline);
         int colorOnSurface  = ContextCompat.getColor(requireContext(), R.color.onSurface);
         int colorSurfVar    = ContextCompat.getColor(requireContext(), R.color.surfaceVariant);
@@ -307,8 +307,8 @@ public class DashboardFragment extends BaseThemedFragment {
 
     private void showImportDestinationDialog() {
         float dp = requireContext().getResources().getDisplayMetrics().density;
-        int colorPrimary    = ContextCompat.getColor(requireContext(), R.color.primary);
-        int colorOnPrimary  = ContextCompat.getColor(requireContext(), R.color.onPrimary);
+        int colorPrimary    = ContextCompat.getColor(requireContext(), R.color.onPrimary);
+        int colorOnPrimary  = ContextCompat.getColor(requireContext(), R.color.primary);
         int colorOutline    = ContextCompat.getColor(requireContext(), R.color.outline);
         int colorOnSurface  = ContextCompat.getColor(requireContext(), R.color.onSurface);
         int colorSurfVar    = ContextCompat.getColor(requireContext(), R.color.surfaceVariant);

@@ -9,6 +9,7 @@ import android.widget.ImageButton;
 
 import com.origin.launcher.R;
 import com.origin.launcher.Launcher.inbuilt.model.ModIds;
+import com.origin.launcher.dialogs.ButtonStyleDialog;
 
 public class QuickDropOverlay extends BaseOverlayButton {
 
@@ -34,7 +35,8 @@ public class QuickDropOverlay extends BaseOverlayButton {
 
     @Override
     protected int getIconResource() {
-        return R.drawable.ic_quick_drop_selector;
+        boolean usePng = ButtonStyleDialog.isUsingPng(activity, ModIds.QUICK_DROP);
+        return usePng ? R.drawable.ic_quick_drop_selector : R.drawable.ic_quick_drop;
     }
 
     @Override

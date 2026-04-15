@@ -5,6 +5,7 @@ import android.widget.ImageButton;
 
 import com.origin.launcher.R;
 import com.origin.launcher.Launcher.inbuilt.model.ModIds;
+import com.origin.launcher.dialogs.ButtonStyleDialog;
 
 public class AutoSprintOverlay extends BaseOverlayButton {
 
@@ -23,7 +24,8 @@ public class AutoSprintOverlay extends BaseOverlayButton {
 
     @Override
     protected int getIconResource() {
-        return R.drawable.ic_sprint_selector;
+        boolean usePng = ButtonStyleDialog.isUsingPng(activity, ModIds.AUTO_SPRINT);
+        return usePng ? R.drawable.ic_sprint_selector : R.drawable.ic_sprint;
     }
 
     @Override
@@ -63,15 +65,15 @@ public class AutoSprintOverlay extends BaseOverlayButton {
         }
         super.hide();
     }
-    
+
     private int tickCount = 0;
-    
+
     @Override
     public void tick() {
         if (!isActive) return;
-        
+
         tickCount++;
-        if (tickCount >= 20) { 
+        if (tickCount >= 20) {
             tickCount = 0;
             sendKeyDown(sprintKey);
         }

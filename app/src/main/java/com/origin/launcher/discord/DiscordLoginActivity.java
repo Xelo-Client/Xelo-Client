@@ -15,16 +15,6 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.biometric.BiometricManager;
-import androidx.biometric.BiometricPrompt;
-import androidx.core.content.ContextCompat;
-import androidx.credentials.CredentialManager;
-import androidx.credentials.CredentialManagerCallback;
-import androidx.credentials.GetCredentialRequest;
-import androidx.credentials.GetCredentialResponse;
-import androidx.credentials.GetPublicKeyCredentialOption;
-import androidx.credentials.PublicKeyCredential;
-import androidx.credentials.exceptions.GetCredentialException;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import java.io.BufferedReader;
 import java.io.File;
@@ -46,27 +36,12 @@ public class DiscordLoginActivity extends BaseThemedActivity {
     private static final String TAG = "DiscordLoginActivity";
     public static final int DISCORD_LOGIN_REQUEST_CODE = 1001;
 
-    // biometric api
-    private static final int BIOMETRIC_STRONG_OR_DEVICE = BiometricManager.Authenticators.BIOMETRIC_STRONG
-            | BiometricManager.Authenticators.DEVICE_CREDENTIAL;
-
     private WebView webView;
     private ProgressBar progressBar;
     private ExtendedFloatingActionButton backButton;
-
-    // biometric api
-    private ExtendedFloatingActionButton biometricButton;
-
     private ExecutorService executor;
     private Handler mainHandler;
     private boolean isTokenExtractionInProgress = false;
-
-    // biometric api
-    private BiometricPrompt biometricPrompt;
-    private BiometricPrompt.PromptInfo biometricPromptInfo;
-
-    // credential manager api
-    private CredentialManager credentialManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,13 +54,6 @@ public class DiscordLoginActivity extends BaseThemedActivity {
         setupToolbar();
         initializeViews();
         setupWebView();
-
-        // biometric api
-        setupBiometricAuth();
-
-        // credential manager api
-        setupCredentialManager();
-
         loadDiscordLogin();
     }
 
@@ -105,9 +73,6 @@ public class DiscordLoginActivity extends BaseThemedActivity {
         progressBar = findViewById(R.id.progress_bar);
         backButton = findViewById(R.id.back_button);
 
-        // biometric api
-        biometricButton = findViewById(R.id.biometric_button);
-
         if (webView == null) {
             Log.e(TAG, "WebView not found in layout");
             finishWithError("WebView initialization failed");
@@ -116,206 +81,6 @@ public class DiscordLoginActivity extends BaseThemedActivity {
 
         if (backButton != null) {
             backButton.setOnClickListener(v -> onBackPressed());
-        }
-
-        // biometric api
-        if (biometricButton != null) {
-            biometricButton.setOnClickListener(v -> showAuthOptions());
-        }
-    }
-
-    // biometric api
-    private void setupBiometricAuth() {
-        BiometricManager biometricManager = BiometricManager.from(this);
-        int canAuthenticate = biometricManager.canAuthenticate(BIOMETRIC_STRONG_OR_DEVICE);
-
-        if (canAuthenticate == BiometricManager.BIOMETRIC_SUCCESS) {
-            biometricPromptInfo = new BiometricPrompt.PromptInfo.Builder()
-                    .setTitle("Login to Discord")
-                    .setSubtitle("Use your fingerprint or screen lock to continue")
-                    .setAllowedAuthenticators(BIOMETRIC_STRONG_OR_DEVICE)
-                    .build();
-
-            biometricPrompt = new BiometricPrompt(this,
-                    ContextCompat.getMainExecutor(this),
-                    new BiometricPrompt.AuthenticationCallback() {
-                        @Override
-                        public void onAuthenticationError(int errorCode, CharSequence errString) {
-                            super.onAuthenticationError(errorCode, errString);
-                            Log.e(TAG, "Biometric auth error: " + errString);
-                            if (errorCode != BiometricPrompt.ERROR_USER_CANCELED
-                                    && errorCode != BiometricPrompt.ERROR_NEGATIVE_BUTTON) {
-                                Toast.makeText(DiscordLoginActivity.this,
-                                        "Authentication error: " + errString, Toast.LENGTH_SHORT).show();
-                            }
-                        }
-
-                        @Override
-                        public void onAuthenticationSucceeded(BiometricPrompt.AuthenticationResult result) {
-                            super.onAuthenticationSucceeded(result);
-                            Log.d(TAG, "Biometric authentication succeeded");
-                            onBiometricAuthSuccess();
-                        }
-
-                        @Override
-                        public void onAuthenticationFailed() {
-                            super.onAuthenticationFailed();
-                            Log.w(TAG, "Biometric authentication failed");
-                            Toast.makeText(DiscordLoginActivity.this,
-                                    "Authentication failed. Try again.", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-
-            if (biometricButton != null) {
-                biometricButton.setVisibility(View.VISIBLE);
-            }
-        } else {
-            Log.w(TAG, "Biometric authentication not available: " + canAuthenticate);
-            if (biometricButton != null) {
-                biometricButton.setVisibility(View.GONE);
-            }
-        }
-    }
-
-    // credential manager api
-    private void setupCredentialManager() {
-        credentialManager = CredentialManager.create(this);
-    }
-
-    // biometric api
-    private void showAuthOptions() {
-        BiometricManager biometricManager = BiometricManager.from(this);
-        boolean hasBiometric = biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG)
-                == BiometricManager.BIOMETRIC_SUCCESS;
-
-        if (hasBiometric) {
-            showBiometricPrompt();
-        } else {
-            // credential manager api
-            launchPasskeyAuth();
-        }
-    }
-
-    // biometric api
-    private void showBiometricPrompt() {
-        if (biometricPrompt != null && biometricPromptInfo != null) {
-            biometricPrompt.authenticate(biometricPromptInfo);
-        }
-    }
-
-    // biometric api
-    private void onBiometricAuthSuccess() {
-        String savedToken = new DiscordManager(this).getStoredToken();
-        if (savedToken != null && !savedToken.isEmpty()) {
-            Log.d(TAG, "Biometric auth success, found saved token, validating...");
-            mainHandler.post(() -> {
-                progressBar.setVisibility(View.VISIBLE);
-                if (backButton != null) {
-                    backButton.setEnabled(false);
-                }
-                if (biometricButton != null) {
-                    biometricButton.setEnabled(false);
-                }
-            });
-            executor.execute(() -> validateTokenAndGetUserInfo(savedToken));
-        } else {
-            Log.d(TAG, "Biometric auth success but no saved token, proceeding with WebView login");
-            Toast.makeText(this,
-                    "No saved session found. Please log in with your credentials first.",
-                    Toast.LENGTH_LONG).show();
-        }
-    }
-
-    // credential manager api
-    private void launchPasskeyAuth() {
-        try {
-            String requestJson = buildPasskeyRequestJson();
-
-            GetPublicKeyCredentialOption passkeyOption =
-                    new GetPublicKeyCredentialOption(requestJson);
-
-            GetCredentialRequest request = new GetCredentialRequest.Builder()
-                    .addCredentialOption(passkeyOption)
-                    .build();
-
-            credentialManager.getCredentialAsync(
-                    this,
-                    request,
-                    null,
-                    ContextCompat.getMainExecutor(this),
-                    new CredentialManagerCallback<GetCredentialResponse, GetCredentialException>() {
-                        @Override
-                        public void onResult(GetCredentialResponse result) {
-                            handlePasskeyResult(result);
-                        }
-
-                        @Override
-                        public void onError(GetCredentialException e) {
-                            Log.e(TAG, "Passkey authentication failed", e);
-                            Toast.makeText(DiscordLoginActivity.this,
-                                    "Passkey authentication failed: " + e.getMessage(),
-                                    Toast.LENGTH_SHORT).show();
-                        }
-                    });
-
-        } catch (Exception e) {
-            Log.e(TAG, "Error launching passkey auth", e);
-            Toast.makeText(this, "Passkey not supported on this device", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    // credential manager api
-    private String buildPasskeyRequestJson() {
-        try {
-            JSONObject allowCredentials = new JSONObject();
-
-            JSONObject publicKey = new JSONObject();
-            publicKey.put("rpId", "discord.com");
-            publicKey.put("timeout", 60000);
-            publicKey.put("userVerification", "required");
-            publicKey.put("allowCredentials", new org.json.JSONArray());
-
-            JSONObject requestJson = new JSONObject();
-            requestJson.put("publicKey", publicKey);
-
-            return requestJson.toString();
-        } catch (Exception e) {
-            Log.e(TAG, "Error building passkey request JSON", e);
-            return "{\"publicKey\":{\"rpId\":\"discord.com\",\"timeout\":60000,\"userVerification\":\"required\",\"allowCredentials\":[]}}";
-        }
-    }
-
-    // credential manager api
-    private void handlePasskeyResult(GetCredentialResponse result) {
-        try {
-            if (result.getCredential() instanceof PublicKeyCredential) {
-                PublicKeyCredential publicKeyCredential = (PublicKeyCredential) result.getCredential();
-                String responseJson = publicKeyCredential.getAuthenticationResponseJson();
-
-                Log.d(TAG, "Passkey credential obtained, injecting into WebView...");
-
-                mainHandler.post(() -> {
-                    String js = "javascript:(function() {"
-                            + "try {"
-                            + "  var passkeyResponse = " + responseJson + ";"
-                            + "  if (window.discordPasskeyHandler) {"
-                            + "    window.discordPasskeyHandler(passkeyResponse);"
-                            + "  } else {"
-                            + "    console.log('XeloClient passkey response ready:', JSON.stringify(passkeyResponse));"
-                            + "  }"
-                            + "} catch(e) { console.error('Passkey inject error:', e); }"
-                            + "})();";
-                    webView.loadUrl(js);
-                    Toast.makeText(DiscordLoginActivity.this,
-                            "Passkey verified. Completing login...", Toast.LENGTH_SHORT).show();
-                });
-            } else {
-                Log.w(TAG, "Unexpected credential type: " + result.getCredential().getClass().getName());
-                Toast.makeText(this, "Unsupported credential type", Toast.LENGTH_SHORT).show();
-            }
-        } catch (Exception e) {
-            Log.e(TAG, "Error handling passkey result", e);
-            Toast.makeText(this, "Error processing passkey: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -398,8 +163,8 @@ public class DiscordLoginActivity extends BaseThemedActivity {
                 Log.e(TAG, "WebView error: " + description + " for URL: " + failingUrl + " (Code: " + errorCode + ")");
                 progressBar.setVisibility(View.GONE);
 
-                Toast.makeText(DiscordLoginActivity.this,
-                        "Error loading page: " + description, Toast.LENGTH_LONG).show();
+                Toast.makeText(DiscordLoginActivity.this, 
+                    "Error loading page: " + description, Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -517,13 +282,13 @@ public class DiscordLoginActivity extends BaseThemedActivity {
         // Test the token with Discord Gateway (similar to your friend's validation)
         try {
             OkHttpClient client = new OkHttpClient.Builder()
-                    .connectTimeout(10, java.util.concurrent.TimeUnit.SECONDS)
-                    .readTimeout(10, java.util.concurrent.TimeUnit.SECONDS)
-                    .build();
+                .connectTimeout(10, java.util.concurrent.TimeUnit.SECONDS)
+                .readTimeout(10, java.util.concurrent.TimeUnit.SECONDS)
+                .build();
 
             Request request = new Request.Builder()
-                    .url("wss://gateway.discord.gg/?v=10&encoding=json")
-                    .build();
+                .url("wss://gateway.discord.gg/?v=10&encoding=json")
+                .build();
 
             WebSocket webSocket = client.newWebSocket(request, new WebSocketListener() {
                 private boolean identificationSent = false;
@@ -571,8 +336,8 @@ public class DiscordLoginActivity extends BaseThemedActivity {
 
                                     Log.d(TAG, "Token validation successful for user: " + username);
 
-                                    mainHandler.post(() ->
-                                            finishWithSuccess(token, userId, username, discriminator, avatarUrl)
+                                    mainHandler.post(() -> 
+                                        finishWithSuccess(token, userId, username, discriminator, avatarUrl)
                                     );
 
                                     webSocket.close(1000, "Validation complete");

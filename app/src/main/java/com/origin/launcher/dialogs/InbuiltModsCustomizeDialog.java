@@ -31,6 +31,7 @@ import com.origin.launcher.Adapter.InbuiltCustomizeAdapter;
 import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModManager;
 import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModSizeStore;
 import com.origin.launcher.Launcher.inbuilt.overlay.InbuiltOverlayManager;
+import com.origin.launcher.dialogs.ButtonStyleDialog;
 import com.origin.launcher.Launcher.inbuilt.model.ModIds;
 import com.origin.launcher.manager.ThemeManager;
 import com.origin.launcher.R;
@@ -471,6 +472,20 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
     @Override
     public void onModMenuOpacityChanged(String id, int opacity) {
         InbuiltModManager.getInstance(getContext()).setModMenuOpacity(opacity);
+    }
+
+    @Override
+    public boolean getButtonStyle(String id) {
+        return ButtonStyleDialog.isUsingPng(getContext(), id);
+    }
+
+    @Override
+    public void onButtonStyleChanged(String id, boolean usePng) {
+        ButtonStyleDialog.setPng(getContext(), id, usePng);
+        View btn = modButtons.get(id);
+        if (btn instanceof ImageButton) {
+            InbuiltOverlayManager overlayManager = InbuiltOverlayManager.getInstance();
+        }
     }
 
     @Override
