@@ -76,7 +76,7 @@ public abstract class BaseOverlayButton {
         Bitmap pressed = ThemeManager.getInstance().getOverlayButtonPressedBitmap(getModId());
 
         if (normal != null && pressed != null) {
-            // Build a StateListDrawable matching the selector pattern: activated/pressed → pressed bitmap, default → normal bitmap
+            // Build a StateListDrawable matching the selector pattern: activated/pressed â†’ pressed bitmap, default â†’ normal bitmap
             StateListDrawable stateDrawable = new StateListDrawable();
             stateDrawable.addState(new int[]{android.R.attr.state_activated}, new BitmapDrawable(activity.getResources(), pressed));
             stateDrawable.addState(new int[]{android.R.attr.state_pressed}, new BitmapDrawable(activity.getResources(), pressed));
@@ -85,6 +85,16 @@ public abstract class BaseOverlayButton {
         } else {
             btn.setImageResource(getIconResource());
         }
+    }
+
+    public void refreshStyle() {
+        if (overlayView == null) return;
+        ImageButton btn = (ImageButton) overlayView;
+        activity.runOnUiThread(() -> {
+            applyThemedIcon(btn);
+            btn.setAlpha(getButtonAlpha());
+            onOverlayViewCreated(btn);
+        });
     }
 
     private void showInternal(int startX, int startY) {

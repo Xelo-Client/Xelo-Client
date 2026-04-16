@@ -50,6 +50,10 @@ public class HotbarNineOverlay extends BaseOverlayButton {
     @Override
     protected void onOverlayViewCreated(ImageButton btn) {
         handler.removeCallbacks(pausePoller);
+        lastPauseState = PauseScreenNative.isPauseVisible();
+        if (lastPauseState) {
+            hideDuringPause();
+        }
         handler.post(pausePoller);
     }
 

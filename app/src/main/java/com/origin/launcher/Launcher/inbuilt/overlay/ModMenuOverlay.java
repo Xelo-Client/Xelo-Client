@@ -49,6 +49,10 @@ public class ModMenuOverlay extends BaseOverlayButton {
     protected void onOverlayViewCreated(ImageButton btn) {
         btn.setBackgroundResource(R.drawable.round_button_bg);
         hideOverlay();
+        lastPauseState = PauseScreenNative.isPauseVisible();
+        if (lastPauseState) {
+            showOverlay();
+        }
         handler.post(pausePoller);
     }
 

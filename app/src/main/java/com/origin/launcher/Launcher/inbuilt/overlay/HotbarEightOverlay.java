@@ -13,7 +13,6 @@ import com.origin.launcher.Launcher.inbuilt.XeloOverlay.nativemod.PauseScreenNat
 
 public class HotbarEightOverlay extends BaseOverlayButton {
 
-    private final Handler handler = new Handler(Looper.getMainLooper());
     private boolean lastPauseState = false;
 
     private final Runnable pausePoller = new Runnable() {
@@ -32,6 +31,8 @@ public class HotbarEightOverlay extends BaseOverlayButton {
         }
     };
 
+    private final Handler handler = new Handler(Looper.getMainLooper());
+
     public HotbarEightOverlay(Activity activity) {
         super(activity);
     }
@@ -49,6 +50,10 @@ public class HotbarEightOverlay extends BaseOverlayButton {
     @Override
     protected void onOverlayViewCreated(ImageButton btn) {
         handler.removeCallbacks(pausePoller);
+        lastPauseState = PauseScreenNative.isPauseVisible();
+        if (lastPauseState) {
+            hideDuringPause();
+        }
         handler.post(pausePoller);
     }
 

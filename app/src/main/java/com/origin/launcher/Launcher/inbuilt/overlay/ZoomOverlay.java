@@ -168,7 +168,12 @@ public class ZoomOverlay extends BaseOverlayButton {
 
     @Override
     protected void onOverlayViewCreated(ImageButton btn) {
+        applyIconPadding(btn);
         handler.removeCallbacks(pausePoller);
+        lastPauseState = PauseScreenNative.isPauseVisible();
+        if (lastPauseState) {
+            hideDuringPause();
+        }
         handler.post(pausePoller);
     }
 
@@ -207,12 +212,29 @@ public class ZoomOverlay extends BaseOverlayButton {
         }
     }
 
+    private void applyIconPadding(ImageButton btn) {
+        boolean usePng = ButtonStyleDialog.isUsingPng(activity, ModIds.ZOOM);
+        int p = usePng ? 0 : dpToPx(6);
+        btn.setPadding(p, p, p, p);
+    }
+
+    private int dpToPx(int dp) {
+        return Math.round(dp * activity.getResources().getDisplayMetrics().density);
+    }
+
     private void updateButtonState(boolean active) {
-        if (overlayView instanceof ImageButton) {
-            ImageButton btn = (ImageButton) overlayView;
-            btn.setActivated(active);
-            btn.setAlpha(getButtonAlpha() * (active ? 1.1f : 1.0f));
-            btn.setBackgroundResource(active ? R.drawable.bg_overlay_button_active : R.drawable.bg_overlay_button);
+        if (overlayView != null) {
+            ImageButton btn = overlayView.findViewById(R.id.mod_overlay_button);
+            if (btn != null) {
+                boolean usePng = ButtonStyleDialog.isUsingPng(activity, ModIds.ZOOM);
+                btn.setActivated(active);
+                btn.setAlpha(getButtonAlpha() * (active ? 1.1f : 1.0f));
+                if (usePng) {
+                    btn.setBackgroundResource(R.drawable.bg_overlay_button_png);
+                } else {
+                    btn.setBackgroundResource(active ? R.drawable.bg_overlay_button_active : R.drawable.bg_overlay_button);
+                }
+            }
         }
     }
 
