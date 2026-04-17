@@ -2,6 +2,8 @@ package com.origin.launcher.Adapter;
 
 import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.materialswitch.MaterialSwitch;
 import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModManager;
 import com.origin.launcher.Launcher.inbuilt.overlay.InbuiltOverlayManager;
+import com.origin.launcher.Launcher.inbuilt.overlay.ModMenuOverlay;
 import com.origin.launcher.R;
 import com.origin.launcher.manager.ThemeManager;
 
@@ -32,6 +35,7 @@ public class ModMenuAdapter extends RecyclerView.Adapter<ModMenuAdapter.ViewHold
 
     private final List<ModEntry> mods;
     private final InbuiltModManager modManager;
+    private final Handler handler = new Handler(Looper.getMainLooper());
 
     public ModMenuAdapter(List<ModEntry> mods, InbuiltModManager modManager) {
         this.mods = mods;
@@ -87,7 +91,9 @@ public class ModMenuAdapter extends RecyclerView.Adapter<ModMenuAdapter.ViewHold
             applySwitchTheme(holder.modSwitch, checked);
             InbuiltOverlayManager overlayManager = InbuiltOverlayManager.getInstance();
             if (overlayManager != null) {
+                ModMenuOverlay.setModToggleInProgress(true);
                 overlayManager.showEnabledOverlays();
+                handler.post(() -> ModMenuOverlay.setModToggleInProgress(false));
             }
         });
     }

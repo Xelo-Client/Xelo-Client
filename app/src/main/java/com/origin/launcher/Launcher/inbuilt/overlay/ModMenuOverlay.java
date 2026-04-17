@@ -15,6 +15,12 @@ public class ModMenuOverlay extends BaseOverlayButton {
     private final Handler handler = new Handler(Looper.getMainLooper());
     private boolean lastPauseState = false;
 
+    private static volatile boolean sModToggleInProgress = false;
+
+    public static void setModToggleInProgress(boolean inProgress) {
+        sModToggleInProgress = inProgress;
+    }
+
     private final Runnable pausePoller = new Runnable() {
         @Override
         public void run() {
@@ -81,7 +87,7 @@ public class ModMenuOverlay extends BaseOverlayButton {
         if (btn != null) {
             activity.runOnUiThread(() -> {
                 btn.setVisibility(View.GONE);
-                if (dialog != null && dialog.isShowing()) {
+                if (!sModToggleInProgress && dialog != null && dialog.isShowing()) {
                     dialog.hide();
                 }
             });

@@ -22,6 +22,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 
 import com.origin.launcher.R;
+import com.origin.launcher.dialogs.ButtonStyleDialog;
 import com.origin.launcher.manager.ThemeManager;
 import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModManager;
 import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModSizeStore;
@@ -70,13 +71,11 @@ public abstract class BaseOverlayButton {
         handler.post(() -> showInternal(startX, startY));
     }
 
-    // Applies themed pressed/unpressed bitmaps if available, otherwise falls back to the default selector drawable
     private void applyThemedIcon(ImageButton btn) {
         Bitmap normal = ThemeManager.getInstance().getOverlayButtonBitmap(getModId());
         Bitmap pressed = ThemeManager.getInstance().getOverlayButtonPressedBitmap(getModId());
 
         if (normal != null && pressed != null) {
-            // Build a StateListDrawable matching the selector pattern: activated/pressed â†’ pressed bitmap, default â†’ normal bitmap
             StateListDrawable stateDrawable = new StateListDrawable();
             stateDrawable.addState(new int[]{android.R.attr.state_activated}, new BitmapDrawable(activity.getResources(), pressed));
             stateDrawable.addState(new int[]{android.R.attr.state_pressed}, new BitmapDrawable(activity.getResources(), pressed));
@@ -87,11 +86,17 @@ public abstract class BaseOverlayButton {
         }
     }
 
+    private void applyBackground(ImageButton btn) {
+        boolean usePng = ButtonStyleDialog.isUsingPng(activity, getModId());
+        btn.setBackgroundResource(usePng ? R.drawable.bg_overlay_button_png : R.drawable.bg_overlay_button);
+    }
+
     public void refreshStyle() {
         if (overlayView == null) return;
         ImageButton btn = (ImageButton) overlayView;
         activity.runOnUiThread(() -> {
             applyThemedIcon(btn);
+            applyBackground(btn);
             btn.setAlpha(getButtonAlpha());
             onOverlayViewCreated(btn);
         });
@@ -103,6 +108,7 @@ public abstract class BaseOverlayButton {
             overlayView = LayoutInflater.from(activity).inflate(R.layout.overlay_mod_button, null);
             ImageButton btn = (ImageButton) overlayView;
             applyThemedIcon(btn);
+            applyBackground(btn);
 
             int buttonSize = getButtonSizePx();
             btn.setScaleType(ImageButton.ScaleType.FIT_CENTER);
@@ -140,16 +146,14 @@ public abstract class BaseOverlayButton {
         overlayView = LayoutInflater.from(activity).inflate(R.layout.overlay_mod_button, null);
         ImageButton btn = (ImageButton) overlayView;
         applyThemedIcon(btn);
+        applyBackground(btn);
 
         int buttonSize = getButtonSizePx();
         btn.setScaleType(ImageButton.ScaleType.FIT_CENTER);
         btn.setAlpha(getButtonAlpha());
         onOverlayViewCreated(btn);
 
-        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
-                buttonSize,
-                buttonSize
-        );
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(buttonSize, buttonSize);
         params.gravity = Gravity.TOP | Gravity.START;
         params.leftMargin = startX;
         params.topMargin = startY;

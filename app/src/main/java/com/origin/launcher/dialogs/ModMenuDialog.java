@@ -50,9 +50,9 @@ public class ModMenuDialog {
     private void dismissWithAnimation() {
         View animTarget = dialog.getWindow().getDecorView();
         ScaleAnimation scale = new ScaleAnimation(
-        1f, 0.85f, 1f, 0.85f,
-        Animation.RELATIVE_TO_SELF, 0.5f,
-        Animation.RELATIVE_TO_SELF, 0.5f
+            1f, 0.85f, 1f, 0.85f,
+            Animation.RELATIVE_TO_SELF, 0.5f,
+            Animation.RELATIVE_TO_SELF, 0.5f
         );
         AlphaAnimation alpha = new AlphaAnimation(1f, 0f);
         android.view.animation.AnimationSet set = new android.view.animation.AnimationSet(true);
@@ -62,10 +62,9 @@ public class ModMenuDialog {
         set.setFillAfter(true);
         set.setInterpolator(new android.view.animation.AccelerateInterpolator());
         animTarget.startAnimation(set);
-
         animTarget.postDelayed(() -> {
-        if (dialog != null && dialog.isShowing()) {
-            dialog.dismiss();
+            if (dialog != null && dialog.isShowing()) {
+                dialog.dismiss();
             }
         }, 180);
     }
@@ -117,11 +116,11 @@ public class ModMenuDialog {
         if (btnWrench != null) btnWrench.setColorFilter(onSurfaceVariantColor);
 
         if (btnBack != null) {
-        btnBack.setColorFilter(onSurfaceColor);
-        btnBack.setOnClickListener(v -> {
-        animatePop(btnBack);
-        btnBack.postDelayed(this::dismissWithAnimation, 150);
-                });
+            btnBack.setColorFilter(onSurfaceColor);
+            btnBack.setOnClickListener(v -> {
+                animatePop(btnBack);
+                btnBack.postDelayed(this::dismissWithAnimation, 150);
+            });
         }
 
         btnWrench.setOnClickListener(v -> {
@@ -140,26 +139,18 @@ public class ModMenuDialog {
         utilityMods = new ArrayList<>();
         utilityMods.add(new ModMenuAdapter.ModEntry(ModIds.QUICK_DROP, activity.getString(R.string.inbuilt_mod_quick_drop)));
         utilityMods.add(new ModMenuAdapter.ModEntry(ModIds.HOTBAR_ONE, activity.getString(R.string.inbuilt_mod_hotbarone)));
-        utilityMods.add(new ModMenuAdapter.ModEntry(ModIds.HOTBAR_TWO,   activity.getString(R.string.inbuilt_mod_hotbartwo)));
+        utilityMods.add(new ModMenuAdapter.ModEntry(ModIds.HOTBAR_TWO, activity.getString(R.string.inbuilt_mod_hotbartwo)));
         utilityMods.add(new ModMenuAdapter.ModEntry(ModIds.HOTBAR_THREE, activity.getString(R.string.inbuilt_mod_hotbarthree)));
-        utilityMods.add(new ModMenuAdapter.ModEntry(ModIds.HOTBAR_FOUR,  activity.getString(R.string.inbuilt_mod_hotbarfour)));
-        utilityMods.add(new ModMenuAdapter.ModEntry(ModIds.HOTBAR_FIVE,  activity.getString(R.string.inbuilt_mod_hotbarfive)));
-        utilityMods.add(new ModMenuAdapter.ModEntry(ModIds.HOTBAR_SIX,   activity.getString(R.string.inbuilt_mod_hotbarsix)));
+        utilityMods.add(new ModMenuAdapter.ModEntry(ModIds.HOTBAR_FOUR, activity.getString(R.string.inbuilt_mod_hotbarfour)));
+        utilityMods.add(new ModMenuAdapter.ModEntry(ModIds.HOTBAR_FIVE, activity.getString(R.string.inbuilt_mod_hotbarfive)));
+        utilityMods.add(new ModMenuAdapter.ModEntry(ModIds.HOTBAR_SIX, activity.getString(R.string.inbuilt_mod_hotbarsix)));
         utilityMods.add(new ModMenuAdapter.ModEntry(ModIds.HOTBAR_SEVEN, activity.getString(R.string.inbuilt_mod_hotbarseven)));
         utilityMods.add(new ModMenuAdapter.ModEntry(ModIds.HOTBAR_EIGHT, activity.getString(R.string.inbuilt_mod_hotbareight)));
-        utilityMods.add(new ModMenuAdapter.ModEntry(ModIds.HOTBAR_NINE,  activity.getString(R.string.inbuilt_mod_hotbarnine)));
+        utilityMods.add(new ModMenuAdapter.ModEntry(ModIds.HOTBAR_NINE, activity.getString(R.string.inbuilt_mod_hotbarnine)));
         utilityMods.add(new ModMenuAdapter.ModEntry(ModIds.CAMERA_PERSPECTIVE, activity.getString(R.string.inbuilt_mod_camera)));
         utilityMods.add(new ModMenuAdapter.ModEntry(ModIds.TOGGLE_HUD, activity.getString(R.string.inbuilt_mod_hud)));
         utilityMods.add(new ModMenuAdapter.ModEntry(ModIds.AUTO_SPRINT, activity.getString(R.string.inbuilt_mod_autosprint)));
         utilityMods.add(new ModMenuAdapter.ModEntry(ModIds.ZOOM, activity.getString(R.string.inbuilt_mod_zoom)));
-        // Resource pack / visual utility mods
-        /*utilityMods.add(new ModMenuAdapter.ModEntry("custom_cross_hair", "Custom CrossHair"));
-        utilityMods.add(new ModMenuAdapter.ModEntry("white_block_outline", "White Block Outline"));
-        utilityMods.add(new ModMenuAdapter.ModEntry("java_clouds", "Java Fancy Clouds"));
-        utilityMods.add(new ModMenuAdapter.ModEntry("java_cubemap", "Java Cubemap"));
-        utilityMods.add(new ModMenuAdapter.ModEntry("classic_skins", "Classic Vanilla Skins"));
-        utilityMods.add(new ModMenuAdapter.ModEntry("xelo_title", "Xelo Title"));
-        utilityMods.add(new ModMenuAdapter.ModEntry("double_tppview", "2x TPP View")); */
 
         statsMods = new ArrayList<>();
         statsMods.add(new ModMenuAdapter.ModEntry(ModIds.FPS_DISPLAY, activity.getString(R.string.inbuilt_mod_fps_display)));
@@ -167,19 +158,6 @@ public class ModMenuDialog {
 
         qolMods = new ArrayList<>();
         qolMods.add(new ModMenuAdapter.ModEntry(ModIds.THIRD_PERSON_NAMETAG, activity.getString(R.string.inbuilt_mod_nametag)));
-        // Performance / visual QoL mods
-        /*qolMods.add(new ModMenuAdapter.ModEntry("Nohurtcam", "No Hurt Cam"));
-        qolMods.add(new ModMenuAdapter.ModEntry("Nofog", "No Fog"));
-        qolMods.add(new ModMenuAdapter.ModEntry("better_brightness", "Better Brightness"));
-        qolMods.add(new ModMenuAdapter.ModEntry("particles_disabler", "Particles Disabler"));
-        qolMods.add(new ModMenuAdapter.ModEntry("no_flipbook_animations", "No Flipbook Animations"));
-        qolMods.add(new ModMenuAdapter.ModEntry("no_shadows", "No Shadows"));
-        qolMods.add(new ModMenuAdapter.ModEntry("no_pumpkin_overlay", "No Pumpkin Overlay"));
-        qolMods.add(new ModMenuAdapter.ModEntry("no_spyglass_overlay", "No Spyglass Overlay"));
-        qolMods.add(new ModMenuAdapter.ModEntry("no_eating_animation", "No Eating Animation"));
-        qolMods.add(new ModMenuAdapter.ModEntry("no_bow_animation", "No Bow Animation"));
-        qolMods.add(new ModMenuAdapter.ModEntry("portal_optimizer", "Portal Optimizer"));
-        qolMods.add(new ModMenuAdapter.ModEntry("psm", "Particle Single Mapping"));*/
 
         recyclerView = dialog.findViewById(R.id.mod_recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(activity));

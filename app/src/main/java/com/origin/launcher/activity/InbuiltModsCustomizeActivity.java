@@ -2,8 +2,10 @@ package com.origin.launcher.activity;
 
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.drawable.GradientDrawable;
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.LayerDrawable;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -18,6 +20,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.app.AlertDialog;
@@ -77,22 +80,30 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity implements 
         return d;
     }
 
-    private void applyCyanHighlight(View v) {
-        GradientDrawable highlight = new GradientDrawable();
-        highlight.setShape(GradientDrawable.RECTANGLE);
-        highlight.setColor(Color.TRANSPARENT);
-        highlight.setStroke(dpToPx(2), Color.CYAN);
-        highlight.setCornerRadius(dpToPx(8));
-        v.setBackground(highlight);
+    private int getButtonBgRes(String id) {
+        return ButtonStyleDialog.isUsingPng(this, id)
+                ? R.drawable.bg_overlay_button_png
+                : R.drawable.bg_overlay_button;
+    }
+
+    private void applyCyanHighlight(View v, String id) {
+        Drawable base = ContextCompat.getDrawable(this, getButtonBgRes(id));
+        GradientDrawable stroke = new GradientDrawable();
+        stroke.setShape(GradientDrawable.RECTANGLE);
+        stroke.setColor(Color.TRANSPARENT);
+        stroke.setStroke(dpToPx(2), Color.CYAN);
+        stroke.setCornerRadius(dpToPx(8));
+        LayerDrawable layered = new LayerDrawable(new Drawable[]{base, stroke});
+        v.setBackground(layered);
     }
 
     private void selectButton(View v, String id) {
         if (lastSelectedButton != null && lastSelectedButton != v) {
-            lastSelectedButton.setBackgroundResource(R.drawable.bg_overlay_button);
+            lastSelectedButton.setBackgroundResource(getButtonBgRes(lastSelectedId));
         }
         lastSelectedButton = v;
         lastSelectedId = id;
-        applyCyanHighlight(v);
+        applyCyanHighlight(v, id);
         boolean locked = InbuiltModSizeStore.getInstance().isLocked(id);
         isLocked = locked;
         lockButton.setText(locked ? "Locked" : "Lock");
@@ -205,8 +216,8 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity implements 
         View rootTouch = findViewById(R.id.customize_background);
         rootTouch.setOnTouchListener((v, event) -> {
             if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                if (lastSelectedButton != null) {
-                    lastSelectedButton.setBackgroundResource(R.drawable.bg_overlay_button);
+                if (lastSelectedButton != null && lastSelectedId != null) {
+                    lastSelectedButton.setBackgroundResource(getButtonBgRes(lastSelectedId));
                     lastSelectedButton = null;
                 }
                 lastSelectedId = null;
@@ -228,20 +239,13 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity implements 
         if (gridManager.isModAdded(ModIds.TOGGLE_HUD)) addModButton(grid, getInitialIconForMod(ModIds.TOGGLE_HUD), ModIds.TOGGLE_HUD);
         if (gridManager.isModAdded(ModIds.HOTBAR_ONE)) addModButton(grid, getInitialIconForMod(ModIds.HOTBAR_ONE), ModIds.HOTBAR_ONE);
         if (gridManager.isModAdded(ModIds.HOTBAR_TWO)) addModButton(grid, getInitialIconForMod(ModIds.HOTBAR_TWO), ModIds.HOTBAR_TWO);
-        if (gridManager.isModAdded(ModIds.HOTBAR_THREE))
-            addModButton(grid, getInitialIconForMod(ModIds.HOTBAR_THREE), ModIds.HOTBAR_THREE);
-        if (gridManager.isModAdded(ModIds.HOTBAR_FOUR))
-            addModButton(grid, getInitialIconForMod(ModIds.HOTBAR_FOUR), ModIds.HOTBAR_FOUR);
-        if (gridManager.isModAdded(ModIds.HOTBAR_FIVE))
-            addModButton(grid, getInitialIconForMod(ModIds.HOTBAR_FIVE), ModIds.HOTBAR_FIVE);
-        if (gridManager.isModAdded(ModIds.HOTBAR_SIX))
-            addModButton(grid, getInitialIconForMod(ModIds.HOTBAR_SIX), ModIds.HOTBAR_SIX);
-        if (gridManager.isModAdded(ModIds.HOTBAR_SEVEN))
-            addModButton(grid, getInitialIconForMod(ModIds.HOTBAR_SEVEN), ModIds.HOTBAR_SEVEN);
-        if (gridManager.isModAdded(ModIds.HOTBAR_EIGHT))
-            addModButton(grid, getInitialIconForMod(ModIds.HOTBAR_EIGHT), ModIds.HOTBAR_EIGHT);
-        if (gridManager.isModAdded(ModIds.HOTBAR_NINE))
-            addModButton(grid, getInitialIconForMod(ModIds.HOTBAR_NINE), ModIds.HOTBAR_NINE);
+        if (gridManager.isModAdded(ModIds.HOTBAR_THREE)) addModButton(grid, getInitialIconForMod(ModIds.HOTBAR_THREE), ModIds.HOTBAR_THREE);
+        if (gridManager.isModAdded(ModIds.HOTBAR_FOUR)) addModButton(grid, getInitialIconForMod(ModIds.HOTBAR_FOUR), ModIds.HOTBAR_FOUR);
+        if (gridManager.isModAdded(ModIds.HOTBAR_FIVE)) addModButton(grid, getInitialIconForMod(ModIds.HOTBAR_FIVE), ModIds.HOTBAR_FIVE);
+        if (gridManager.isModAdded(ModIds.HOTBAR_SIX)) addModButton(grid, getInitialIconForMod(ModIds.HOTBAR_SIX), ModIds.HOTBAR_SIX);
+        if (gridManager.isModAdded(ModIds.HOTBAR_SEVEN)) addModButton(grid, getInitialIconForMod(ModIds.HOTBAR_SEVEN), ModIds.HOTBAR_SEVEN);
+        if (gridManager.isModAdded(ModIds.HOTBAR_EIGHT)) addModButton(grid, getInitialIconForMod(ModIds.HOTBAR_EIGHT), ModIds.HOTBAR_EIGHT);
+        if (gridManager.isModAdded(ModIds.HOTBAR_NINE)) addModButton(grid, getInitialIconForMod(ModIds.HOTBAR_NINE), ModIds.HOTBAR_NINE);
         if (gridManager.isModAdded(ModIds.CAMERA_PERSPECTIVE)) addModButton(grid, getInitialIconForMod(ModIds.CAMERA_PERSPECTIVE), ModIds.CAMERA_PERSPECTIVE);
         if (gridManager.isModAdded(ModIds.ZOOM)) addModButton(grid, getInitialIconForMod(ModIds.ZOOM), ModIds.ZOOM);
 
@@ -338,20 +342,13 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity implements 
         if (manager.isModAdded(ModIds.TOGGLE_HUD)) list.add(new InbuiltCustomizeAdapter.Item(ModIds.TOGGLE_HUD, getInitialIconForMod(ModIds.TOGGLE_HUD)));
         if (manager.isModAdded(ModIds.HOTBAR_ONE)) list.add(new InbuiltCustomizeAdapter.Item(ModIds.HOTBAR_ONE, getInitialIconForMod(ModIds.HOTBAR_ONE)));
         if (manager.isModAdded(ModIds.HOTBAR_TWO)) list.add(new InbuiltCustomizeAdapter.Item(ModIds.HOTBAR_TWO, getInitialIconForMod(ModIds.HOTBAR_TWO)));
-        if (manager.isModAdded(ModIds.HOTBAR_THREE))
-            list.add(new InbuiltCustomizeAdapter.Item(ModIds.HOTBAR_THREE, getInitialIconForMod(ModIds.HOTBAR_THREE)));
-        if (manager.isModAdded(ModIds.HOTBAR_FOUR))
-            list.add(new InbuiltCustomizeAdapter.Item(ModIds.HOTBAR_FOUR, getInitialIconForMod(ModIds.HOTBAR_FOUR)));
-        if (manager.isModAdded(ModIds.HOTBAR_FIVE))
-            list.add(new InbuiltCustomizeAdapter.Item(ModIds.HOTBAR_FIVE, getInitialIconForMod(ModIds.HOTBAR_FIVE)));
-        if (manager.isModAdded(ModIds.HOTBAR_SIX))
-            list.add(new InbuiltCustomizeAdapter.Item(ModIds.HOTBAR_SIX, getInitialIconForMod(ModIds.HOTBAR_SIX)));
-        if (manager.isModAdded(ModIds.HOTBAR_SEVEN))
-            list.add(new InbuiltCustomizeAdapter.Item(ModIds.HOTBAR_SEVEN, getInitialIconForMod(ModIds.HOTBAR_SEVEN)));
-        if (manager.isModAdded(ModIds.HOTBAR_EIGHT))
-            list.add(new InbuiltCustomizeAdapter.Item(ModIds.HOTBAR_EIGHT, getInitialIconForMod(ModIds.HOTBAR_EIGHT)));
-        if (manager.isModAdded(ModIds.HOTBAR_NINE))
-            list.add(new InbuiltCustomizeAdapter.Item(ModIds.HOTBAR_NINE, getInitialIconForMod(ModIds.HOTBAR_NINE)));
+        if (manager.isModAdded(ModIds.HOTBAR_THREE)) list.add(new InbuiltCustomizeAdapter.Item(ModIds.HOTBAR_THREE, getInitialIconForMod(ModIds.HOTBAR_THREE)));
+        if (manager.isModAdded(ModIds.HOTBAR_FOUR)) list.add(new InbuiltCustomizeAdapter.Item(ModIds.HOTBAR_FOUR, getInitialIconForMod(ModIds.HOTBAR_FOUR)));
+        if (manager.isModAdded(ModIds.HOTBAR_FIVE)) list.add(new InbuiltCustomizeAdapter.Item(ModIds.HOTBAR_FIVE, getInitialIconForMod(ModIds.HOTBAR_FIVE)));
+        if (manager.isModAdded(ModIds.HOTBAR_SIX)) list.add(new InbuiltCustomizeAdapter.Item(ModIds.HOTBAR_SIX, getInitialIconForMod(ModIds.HOTBAR_SIX)));
+        if (manager.isModAdded(ModIds.HOTBAR_SEVEN)) list.add(new InbuiltCustomizeAdapter.Item(ModIds.HOTBAR_SEVEN, getInitialIconForMod(ModIds.HOTBAR_SEVEN)));
+        if (manager.isModAdded(ModIds.HOTBAR_EIGHT)) list.add(new InbuiltCustomizeAdapter.Item(ModIds.HOTBAR_EIGHT, getInitialIconForMod(ModIds.HOTBAR_EIGHT)));
+        if (manager.isModAdded(ModIds.HOTBAR_NINE)) list.add(new InbuiltCustomizeAdapter.Item(ModIds.HOTBAR_NINE, getInitialIconForMod(ModIds.HOTBAR_NINE)));
         if (manager.isModAdded(ModIds.CAMERA_PERSPECTIVE)) list.add(new InbuiltCustomizeAdapter.Item(ModIds.CAMERA_PERSPECTIVE, getInitialIconForMod(ModIds.CAMERA_PERSPECTIVE)));
         if (manager.isModAdded(ModIds.ZOOM)) {
             list.add(new InbuiltCustomizeAdapter.Item(ModIds.ZOOM, getInitialIconForMod(ModIds.ZOOM)));
@@ -432,26 +429,24 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity implements 
 
     @Override
     public void onButtonStyleChanged(String id, boolean usePng) {
-        ButtonStyleDialog.setPng(this, id, usePng);
-
-        // Update grid preview button
-        View btn = modButtons.get(id);
-        if (btn instanceof ImageButton) {
-            Bitmap themedBitmap = ThemeManager.getInstance().getOverlayButtonBitmap(id);
-            if (themedBitmap != null && usePng) {
-                ((ImageButton) btn).setImageBitmap(themedBitmap);
-            } else {
-                ((ImageButton) btn).setImageResource(usePng ? getPngIconForMod(id) : getNativeIconForMod(id));
+        ButtonStyleDialog.show(this, id, selected -> {
+            View btn = modButtons.get(id);
+            if (btn instanceof ImageButton) {
+                Bitmap themedBitmap = ThemeManager.getInstance().getOverlayButtonBitmap(id);
+                if (themedBitmap != null && selected) {
+                    ((ImageButton) btn).setImageBitmap(themedBitmap);
+                } else {
+                    ((ImageButton) btn).setImageResource(selected ? getPngIconForMod(id) : getNativeIconForMod(id));
+                }
+                btn.setBackgroundResource(getButtonBgRes(id));
             }
-        }
-
-        // Update adapter panel — preserve in-memory zoom state across list rebuild
-        Map<String, Integer> savedZoomLevels = new HashMap<>(modZoomLevels);
-        Map<String, Integer> savedZoomKeybinds = new HashMap<>(modZoomKeybinds);
-        adapter.submitList(null);
-        adapter.submitList(getEnabledMods());
-        modZoomLevels.putAll(savedZoomLevels);
-        modZoomKeybinds.putAll(savedZoomKeybinds);
+            Map<String, Integer> savedZoomLevels = new HashMap<>(modZoomLevels);
+            Map<String, Integer> savedZoomKeybinds = new HashMap<>(modZoomKeybinds);
+            adapter.submitList(null);
+            adapter.submitList(getEnabledMods());
+            modZoomLevels.putAll(savedZoomLevels);
+            modZoomKeybinds.putAll(savedZoomKeybinds);
+        });
     }
 
     private int getInitialIconForMod(String id) {
@@ -548,7 +543,7 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity implements 
         btn.setImageResource(iconResId);
         Bitmap themedBitmap = ThemeManager.getInstance().getOverlayButtonBitmap(id);
         if (themedBitmap != null) btn.setImageBitmap(themedBitmap);
-        btn.setBackgroundResource(R.drawable.bg_overlay_button);
+        btn.setBackgroundResource(getButtonBgRes(id));
         btn.setPadding(0, 0, 0, 0);
         btn.setPaddingRelative(0, 0, 0, 0);
         btn.setMinimumWidth(0);
@@ -619,14 +614,15 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity implements 
     private void resetAll(FrameLayout grid) {
         int defaultSizeDp = clampSize(DEFAULT_SIZE_DP);
         int defaultSizePx = dpToPx(defaultSizeDp);
-        for (int i = 0; i < grid.getChildCount(); i++) {
-            View c = grid.getChildAt(i);
+        for (Map.Entry<String, View> e : modButtons.entrySet()) {
+            View c = e.getValue();
+            String id = e.getKey();
             FrameLayout.LayoutParams flp = (FrameLayout.LayoutParams) c.getLayoutParams();
             flp.width = defaultSizePx;
             flp.height = defaultSizePx;
             flp.leftMargin = flp.topMargin = flp.rightMargin = flp.bottomMargin = 0;
             c.setLayoutParams(flp);
-            c.setBackgroundResource(R.drawable.bg_overlay_button);
+            c.setBackgroundResource(getButtonBgRes(id));
             c.setMinimumWidth(0);
             c.setMinimumHeight(0);
             ((ImageButton) c).setScaleType(ImageView.ScaleType.FIT_CENTER);
