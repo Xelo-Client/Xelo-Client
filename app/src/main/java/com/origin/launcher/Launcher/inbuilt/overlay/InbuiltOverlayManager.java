@@ -129,7 +129,7 @@ public class InbuiltOverlayManager {
         if (modManager.isModAdded(ModIds.MOD_MENU)) {
             if (modMenuOverlay == null) modMenuOverlay = new ModMenuOverlay(activity);
             int[] menuPos = getStartPosition(ModIds.MOD_MENU, START_X, 10);
-            modMenuOverlay.show(menuPos[0], menuPos[1]);
+            modMenuOverlay.showImmediate(menuPos[0], menuPos[1]);
             overlays.add(modMenuOverlay);
             nextY += SPACING;
         }
@@ -137,21 +137,21 @@ public class InbuiltOverlayManager {
         if (modManager.isModAdded(ModIds.QUICK_DROP)) {
             int[] pos = getStartPosition(ModIds.QUICK_DROP, START_X, nextY);
             if (quickDropOverlay == null) quickDropOverlay = new QuickDropOverlay(activity);
-            quickDropOverlay.show(pos[0], pos[1]);
+            quickDropOverlay.showImmediate(pos[0], pos[1]);
             overlays.add(quickDropOverlay);
             nextY += SPACING;
         }
         if (modManager.isModAdded(ModIds.CAMERA_PERSPECTIVE)) {
             int[] pos = getStartPosition(ModIds.CAMERA_PERSPECTIVE, START_X, nextY);
             if (cameraPerspectiveOverlay == null) cameraPerspectiveOverlay = new CameraPerspectiveOverlay(activity);
-            cameraPerspectiveOverlay.show(pos[0], pos[1]);
+            cameraPerspectiveOverlay.showImmediate(pos[0], pos[1]);
             overlays.add(cameraPerspectiveOverlay);
             nextY += SPACING;
         }
         if (modManager.isModAdded(ModIds.TOGGLE_HUD)) {
             int[] pos = getStartPosition(ModIds.TOGGLE_HUD, START_X, nextY);
             if (toggleHudOverlay == null) toggleHudOverlay = new ToggleHudOverlay(activity);
-            toggleHudOverlay.show(pos[0], pos[1]);
+            toggleHudOverlay.showImmediate(pos[0], pos[1]);
             overlays.add(toggleHudOverlay);
             nextY += SPACING;
         }
@@ -161,7 +161,7 @@ public class InbuiltOverlayManager {
             if (hotbarOneOverlay == null)
                 hotbarOneOverlay = new HotbarOneOverlay(activity);
             
-            hotbarOneOverlay.show(pos[0], pos[1]);
+            hotbarOneOverlay.showImmediate(pos[0], pos[1]);
             overlays.add(hotbarOneOverlay);
             nextY += SPACING;
         }
@@ -169,63 +169,63 @@ public class InbuiltOverlayManager {
 if (modManager.isModAdded(ModIds.HOTBAR_TWO)) {
     int[] pos = getStartPosition(ModIds.HOTBAR_TWO, START_X, nextY);
     if (hotbarTwoOverlay == null) hotbarTwoOverlay = new HotbarTwoOverlay(activity);
-    hotbarTwoOverlay.show(pos[0], pos[1]);
+    hotbarTwoOverlay.showImmediate(pos[0], pos[1]);
     overlays.add(hotbarTwoOverlay);
     nextY += SPACING;
 }
 if (modManager.isModAdded(ModIds.HOTBAR_THREE)) {
     int[] pos = getStartPosition(ModIds.HOTBAR_THREE, START_X, nextY);
     if (hotbarThreeOverlay == null) hotbarThreeOverlay = new HotbarThreeOverlay(activity);
-    hotbarThreeOverlay.show(pos[0], pos[1]);
+    hotbarThreeOverlay.showImmediate(pos[0], pos[1]);
     overlays.add(hotbarThreeOverlay);
     nextY += SPACING;
 }
 if (modManager.isModAdded(ModIds.HOTBAR_FOUR)) {
     int[] pos = getStartPosition(ModIds.HOTBAR_FOUR, START_X, nextY);
     if (hotbarFourOverlay == null) hotbarFourOverlay = new HotbarFourOverlay(activity);
-    hotbarFourOverlay.show(pos[0], pos[1]);
+    hotbarFourOverlay.showImmediate(pos[0], pos[1]);
     overlays.add(hotbarFourOverlay);
     nextY += SPACING;
 }
 if (modManager.isModAdded(ModIds.HOTBAR_FIVE)) {
     int[] pos = getStartPosition(ModIds.HOTBAR_FIVE, START_X, nextY);
     if (hotbarFiveOverlay == null) hotbarFiveOverlay = new HotbarFiveOverlay(activity);
-    hotbarFiveOverlay.show(pos[0], pos[1]);
+    hotbarFiveOverlay.showImmediate(pos[0], pos[1]);
     overlays.add(hotbarFiveOverlay);
     nextY += SPACING;
 }
 if (modManager.isModAdded(ModIds.HOTBAR_SIX)) {
     int[] pos = getStartPosition(ModIds.HOTBAR_SIX, START_X, nextY);
     if (hotbarSixOverlay == null) hotbarSixOverlay = new HotbarSixOverlay(activity);
-    hotbarSixOverlay.show(pos[0], pos[1]);
+    hotbarSixOverlay.showImmediate(pos[0], pos[1]);
     overlays.add(hotbarSixOverlay);
     nextY += SPACING;
 }
 if (modManager.isModAdded(ModIds.HOTBAR_SEVEN)) {
     int[] pos = getStartPosition(ModIds.HOTBAR_SEVEN, START_X, nextY);
     if (hotbarSevenOverlay == null) hotbarSevenOverlay = new HotbarSevenOverlay(activity);
-    hotbarSevenOverlay.show(pos[0], pos[1]);
+    hotbarSevenOverlay.showImmediate(pos[0], pos[1]);
     overlays.add(hotbarSevenOverlay);
     nextY += SPACING;
 }
 if (modManager.isModAdded(ModIds.HOTBAR_EIGHT)) {
     int[] pos = getStartPosition(ModIds.HOTBAR_EIGHT, START_X, nextY);
     if (hotbarEightOverlay == null) hotbarEightOverlay = new HotbarEightOverlay(activity);
-    hotbarEightOverlay.show(pos[0], pos[1]);
+    hotbarEightOverlay.showImmediate(pos[0], pos[1]);
     overlays.add(hotbarEightOverlay);
     nextY += SPACING;
 }
 if (modManager.isModAdded(ModIds.HOTBAR_NINE)) {
     int[] pos = getStartPosition(ModIds.HOTBAR_NINE, START_X, nextY);
     if (hotbarNineOverlay == null) hotbarNineOverlay = new HotbarNineOverlay(activity);
-    hotbarNineOverlay.show(pos[0], pos[1]);
+    hotbarNineOverlay.showImmediate(pos[0], pos[1]);
     overlays.add(hotbarNineOverlay);
     nextY += SPACING;
 }
         if (modManager.isModAdded(ModIds.AUTO_SPRINT)) {
             int[] pos = getStartPosition(ModIds.AUTO_SPRINT, START_X, nextY);
             if (autoSprintOverlay == null) autoSprintOverlay = new AutoSprintOverlay(activity, modManager.getAutoSprintKey());
-            autoSprintOverlay.show(pos[0], pos[1]);
+            autoSprintOverlay.showImmediate(pos[0], pos[1]);
             overlays.add(autoSprintOverlay);
             nextY += SPACING;
         }
@@ -233,21 +233,21 @@ if (modManager.isModAdded(ModIds.HOTBAR_NINE)) {
             if (zoomOverlay == null) zoomOverlay = new ZoomOverlay(activity);
             zoomOverlay.initializeForKeyboard();
             int[] pos = getStartPosition(ModIds.ZOOM, START_X, nextY);
-            zoomOverlay.show(pos[0], pos[1]);
+            zoomOverlay.showImmediate(pos[0], pos[1]);
             overlays.add(zoomOverlay);
             nextY += SPACING;
         }
         if (modManager.isModAdded(ModIds.FPS_DISPLAY)) {
             int[] pos = getStartPosition(ModIds.FPS_DISPLAY, START_X, nextY);
             if (fpsDisplayOverlay == null) fpsDisplayOverlay = new FpsDisplayOverlay(activity);
-            fpsDisplayOverlay.show(pos[0], pos[1]);
+            fpsDisplayOverlay.showImmediate(pos[0], pos[1]);
             overlays.add(fpsDisplayOverlay);
             nextY += SPACING;
         }
         if (modManager.isModAdded(ModIds.CPS_DISPLAY)) {
             int[] pos = getStartPosition(ModIds.CPS_DISPLAY, START_X, nextY);
             if (cpsDisplayOverlay == null) cpsDisplayOverlay = new CpsDisplayOverlay(activity);
-            cpsDisplayOverlay.show(pos[0], pos[1]);
+            cpsDisplayOverlay.showImmediate(pos[0], pos[1]);
             overlays.add(cpsDisplayOverlay);
             nextY += SPACING;
         }

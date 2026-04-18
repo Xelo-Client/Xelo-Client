@@ -18,17 +18,20 @@ public class ButtonStyleDialog {
         boolean currentlyPng = isUsingPng(context, modId);
 
         String[] options = {
-            "Native  —  Uses vector drawable icon. Cannot be changed with .xtheme themes And Quality won't decrease with size",
-            "PNG based  —  Uses PNG icons. Texture can be replaced with .xtheme themes And may become blurry with size changes"
+            "Native  —  Uses vector drawable icon. Cannot be changed with .xtheme And Quality won't decrease with size changes",
+            "PNG based  —  Uses PNG icons. Texture can be replaced with .xtheme And may become blurry with size changes"
         };
 
-        int checkedItem = currentlyPng ? 1 : 0;
+        int[] selectedIndex = {currentlyPng ? 1 : 0};
 
         new MaterialAlertDialogBuilder(context, com.google.android.material.R.style.ThemeOverlay_Material3_MaterialAlertDialog)
                 .setTitle("Button Icon Style")
                 .setIcon(R.drawable.ic_palette)
-                .setSingleChoiceItems(options, checkedItem, (dialog, which) -> {
-                    boolean usePng = which == 1;
+                .setSingleChoiceItems(options, selectedIndex[0], (dialog, which) -> {
+                    selectedIndex[0] = which;
+                })
+                .setPositiveButton("OK", (dialog, which) -> {
+                    boolean usePng = selectedIndex[0] == 1;
                     setPng(context, modId, usePng);
                     if (listener != null) listener.onSelected(usePng);
                     dialog.dismiss();

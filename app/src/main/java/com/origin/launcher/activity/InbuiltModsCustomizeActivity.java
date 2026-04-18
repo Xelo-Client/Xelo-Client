@@ -481,15 +481,15 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity implements 
             case ModIds.TOGGLE_HUD: return R.drawable.ic_hud;
             case ModIds.CAMERA_PERSPECTIVE: return R.drawable.ic_camera;
             case ModIds.ZOOM: return R.drawable.ic_zoom;
-            case ModIds.HOTBAR_ONE:
-            case ModIds.HOTBAR_TWO:
-            case ModIds.HOTBAR_THREE:
-            case ModIds.HOTBAR_FOUR:
-            case ModIds.HOTBAR_FIVE:
-            case ModIds.HOTBAR_SIX:
-            case ModIds.HOTBAR_SEVEN:
-            case ModIds.HOTBAR_EIGHT:
-            case ModIds.HOTBAR_NINE: return R.drawable.ic_hud;
+            case ModIds.HOTBAR_ONE: return R.drawable.h1_unpress;
+            case ModIds.HOTBAR_TWO: return R.drawable.h2_unpress;
+            case ModIds.HOTBAR_THREE:return R.drawable.h3_unpress;
+            case ModIds.HOTBAR_FOUR: return R.drawable.h4_unpress;
+            case ModIds.HOTBAR_FIVE: return R.drawable.h5_unpress;
+            case ModIds.HOTBAR_SIX: return R.drawable.h6_unpress;
+            case ModIds.HOTBAR_SEVEN: return R.drawable.h7_unpress;
+            case ModIds.HOTBAR_EIGHT:return R.drawable.h8_unpress;
+            case ModIds.HOTBAR_NINE: return R.drawable.h9_unpress;
             default: return R.drawable.ic_sprint;
         }
     }

@@ -70,6 +70,11 @@ public abstract class BaseOverlayButton {
         if (isShowing) return;
         handler.post(() -> showInternal(startX, startY));
     }
+    
+    public void showImmediate(int startX, int startY) {
+        if (isShowing) return;
+            showInternal(startX, startY);
+    }
 
     private void applyThemedIcon(ImageButton btn) {
         Bitmap normal = ThemeManager.getInstance().getOverlayButtonBitmap(getModId());
