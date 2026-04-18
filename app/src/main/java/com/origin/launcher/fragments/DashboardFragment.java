@@ -8,50 +8,29 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.Settings;
-import android.text.Editable;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.TextWatcher;
-import android.text.style.BackgroundColorSpan;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.graphics.Typeface;
-import android.view.Gravity;
-import android.widget.ImageView;
 import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
-import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
-import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
-import com.google.android.material.materialswitch.MaterialSwitch;
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
-import org.json.JSONException;
-import org.json.JSONObject;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Stack;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -64,32 +43,24 @@ import com.origin.launcher.manager.ThemeManager;
 import com.origin.launcher.utils.ThemeUtils;
 import com.origin.launcher.discord.DiscordRPCHelper;
 import com.origin.launcher.R;
+import com.origin.launcher.versions.VersionManager;
+import com.origin.launcher.versions.GameVersion;
 
 public class DashboardFragment extends BaseThemedFragment {
     private File currentRootDir = null; // Store the found root directory
     private static final int IMPORT_REQUEST_CODE = 1002;
     private static final int EXPORT_REQUEST_CODE = 1003;
-    
-    // Options.txt editor variables
-    private File optionsFile;
-    private String originalOptionsContent = "";
-    private Stack<String> undoStack = new Stack<>();
-    private Stack<String> redoStack = new Stack<>();
-    private EditText optionsTextEditor;
-    private LinearLayout optionsEditorLayout;
-    private TextInputLayout searchInputLayout;
-    private TextInputEditText searchEditText;
+
+    private static final int SOURCE_INTERNAL = 0;
+    private static final int SOURCE_EXTERNAL = 1;
+    private static final int SOURCE_VERSION_ISOLATION = 2;
+
     private MaterialButton editOptionsButton;
-    
-    // Search functionality variables
-    private String currentSearchTerm = "";
-    private List<Integer> searchMatches = new ArrayList<>();
-    private int currentMatchIndex = -1;
-    
+
     // Modules navigation button
     private LinearLayout modulesButton;
     private LinearLayout resourceButton;
-    
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_dashboard, container, false);
@@ -97,7 +68,7 @@ public class DashboardFragment extends BaseThemedFragment {
         RecyclerView folderRecyclerView = view.findViewById(R.id.folderRecyclerView);
         MaterialButton backupButton = view.findViewById(R.id.backupButton);
         MaterialButton importButton = view.findViewById(R.id.importButton);
-        
+
         if (folderRecyclerView != null) {
             folderRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
@@ -108,23 +79,20 @@ public class DashboardFragment extends BaseThemedFragment {
                 "/storage/emulated/0/Android/data/com.mojang.minecraftpe/files/games/com.mojang/",
                 getContext().getExternalFilesDir(null) + "/games/com.mojang/"
             };
-            
+
             File rootDir = null;
-            String rootPath = null;
-            
             for (String path : possiblePaths) {
                 File testDir = new File(path);
                 if (testDir.exists() && testDir.isDirectory()) {
                     File[] testFiles = testDir.listFiles();
                     if (testFiles != null && testFiles.length > 0) {
                         rootDir = testDir;
-                        rootPath = path;
                         currentRootDir = testDir; // Store for later use
                         break;
                     }
                 }
             }
-            
+
             List<String> folderNames = new ArrayList<>();
             if (rootDir != null && rootDir.exists() && rootDir.isDirectory()) {
                 File[] files = rootDir.listFiles();
@@ -147,11 +115,7 @@ public class DashboardFragment extends BaseThemedFragment {
             ThemeUtils.applyThemeToButton(backupButton, requireContext());
             backupButton.setOnClickListener(v -> {
                 if (hasStoragePermission()) {
-                    if (currentRootDir != null) {
-                        openSaveLocationChooser();
-                    } else {
-                        Toast.makeText(requireContext(), "No Minecraft data found to backup", Toast.LENGTH_LONG).show();
-                    }
+                    showBackupSourceDialog();
                 } else {
                     requestStoragePermissions();
                 }
@@ -163,7 +127,7 @@ public class DashboardFragment extends BaseThemedFragment {
             ThemeUtils.applyThemeToButton(importButton, requireContext());
             importButton.setOnClickListener(v -> {
                 if (hasStoragePermission()) {
-                    openFileChooser();
+                    showImportDestinationDialog();
                 } else {
                     requestStoragePermissions();
                 }
@@ -172,28 +136,359 @@ public class DashboardFragment extends BaseThemedFragment {
 
         // Initialize modules navigation button
         initializeModulesButton(view);
-        
+
         initializeResourceButton(view);
-        
+
         // Initialize options.txt editor
         initializeOptionsEditor(view);
 
         return view;
     }
-    
+
+    private void showBackupSourceDialog() {
+        float dp = requireContext().getResources().getDisplayMetrics().density;
+        int colorPrimary    = ContextCompat.getColor(requireContext(), R.color.onPrimary);
+        int colorOnPrimary  = ContextCompat.getColor(requireContext(), R.color.primary);
+        int colorOutline    = ContextCompat.getColor(requireContext(), R.color.outline);
+        int colorOnSurface  = ContextCompat.getColor(requireContext(), R.color.onSurface);
+        int colorSurfVar    = ContextCompat.getColor(requireContext(), R.color.surfaceVariant);
+
+        android.widget.LinearLayout root = new android.widget.LinearLayout(requireContext());
+        root.setOrientation(android.widget.LinearLayout.VERTICAL);
+        root.setPadding((int)(24*dp), (int)(28*dp), (int)(24*dp), (int)(20*dp));
+
+        android.graphics.drawable.GradientDrawable dialogBg = new android.graphics.drawable.GradientDrawable();
+        dialogBg.setColor(colorPrimary);
+        dialogBg.setCornerRadius(28 * dp);
+        dialogBg.setStroke((int)(1.5f * dp), colorOutline);
+        root.setBackground(dialogBg);
+
+        android.widget.TextView title = new android.widget.TextView(requireContext());
+        title.setText("Create Backup");
+        title.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 20);
+        title.setTypeface(null, android.graphics.Typeface.BOLD);
+        title.setTextColor(colorOnPrimary);
+        android.widget.LinearLayout.LayoutParams titleParams = new android.widget.LinearLayout.LayoutParams(
+            android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
+            android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+        titleParams.bottomMargin = (int)(6 * dp);
+        root.addView(title, titleParams);
+
+        android.widget.TextView subtitle = new android.widget.TextView(requireContext());
+        subtitle.setText("Choose the source folder to backup");
+        subtitle.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 14);
+        subtitle.setTextColor(colorOnPrimary);
+        subtitle.setAlpha(0.7f);
+        android.widget.LinearLayout.LayoutParams subParams = new android.widget.LinearLayout.LayoutParams(
+            android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
+            android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+        subParams.bottomMargin = (int)(16 * dp);
+        root.addView(subtitle, subParams);
+
+        android.graphics.drawable.GradientDrawable optionBg = new android.graphics.drawable.GradientDrawable();
+        optionBg.setColor(colorSurfVar);
+        optionBg.setCornerRadius(50 * dp);
+        optionBg.setStroke((int)(1 * dp), colorOutline);
+
+        android.graphics.drawable.GradientDrawable optionBgExternal = new android.graphics.drawable.GradientDrawable();
+        optionBgExternal.setColor(colorOnPrimary);
+        optionBgExternal.setCornerRadius(50 * dp);
+
+        android.graphics.drawable.GradientDrawable optionBgIsolation = new android.graphics.drawable.GradientDrawable();
+        optionBgIsolation.setColor(colorSurfVar);
+        optionBgIsolation.setCornerRadius(50 * dp);
+        optionBgIsolation.setStroke((int)(1 * dp), colorOutline);
+
+        android.widget.LinearLayout.LayoutParams optionParams = new android.widget.LinearLayout.LayoutParams(
+            android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+            android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+        optionParams.bottomMargin = (int)(8 * dp);
+
+        android.widget.Button btnInternal = new android.widget.Button(requireContext());
+        btnInternal.setText("Internal");
+        btnInternal.setTextColor(colorOnSurface);
+        btnInternal.setBackground(optionBg);
+        btnInternal.setAllCaps(false);
+        btnInternal.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 14);
+        btnInternal.setPadding((int)(16*dp), (int)(10*dp), (int)(16*dp), (int)(10*dp));
+
+        android.widget.Button btnExternal = new android.widget.Button(requireContext());
+        btnExternal.setText("External");
+        btnExternal.setTextColor(colorPrimary);
+        btnExternal.setBackground(optionBgExternal);
+        btnExternal.setAllCaps(false);
+        btnExternal.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 14);
+        btnExternal.setTypeface(null, android.graphics.Typeface.BOLD);
+        btnExternal.setPadding((int)(16*dp), (int)(10*dp), (int)(16*dp), (int)(10*dp));
+
+        android.widget.Button btnVersionIsolation = new android.widget.Button(requireContext());
+        btnVersionIsolation.setText("Version Isolation");
+        btnVersionIsolation.setTextColor(colorOnSurface);
+        btnVersionIsolation.setBackground(optionBgIsolation);
+        btnVersionIsolation.setAllCaps(false);
+        btnVersionIsolation.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 14);
+        btnVersionIsolation.setPadding((int)(16*dp), (int)(10*dp), (int)(16*dp), (int)(10*dp));
+
+        root.addView(btnInternal, optionParams);
+        root.addView(btnExternal, optionParams);
+
+        android.widget.LinearLayout.LayoutParams isolationParams = new android.widget.LinearLayout.LayoutParams(
+            android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+            android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+        isolationParams.bottomMargin = (int)(16 * dp);
+        root.addView(btnVersionIsolation, isolationParams);
+
+        android.graphics.drawable.GradientDrawable cancelBg = new android.graphics.drawable.GradientDrawable();
+        cancelBg.setColor(android.graphics.Color.TRANSPARENT);
+        cancelBg.setCornerRadius(50 * dp);
+        cancelBg.setStroke((int)(1 * dp), colorOutline);
+
+        android.widget.LinearLayout cancelRow = new android.widget.LinearLayout(requireContext());
+        cancelRow.setOrientation(android.widget.LinearLayout.HORIZONTAL);
+        cancelRow.setGravity(android.view.Gravity.END);
+
+        android.widget.Button btnCancel = new android.widget.Button(requireContext());
+        btnCancel.setText("Cancel");
+        btnCancel.setTextColor(colorOnPrimary);
+        btnCancel.setBackground(cancelBg);
+        btnCancel.setAllCaps(false);
+        btnCancel.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 14);
+        btnCancel.setPadding((int)(16*dp), (int)(10*dp), (int)(16*dp), (int)(10*dp));
+
+        cancelRow.addView(btnCancel);
+        root.addView(cancelRow);
+
+        AlertDialog dialog = new AlertDialog.Builder(requireContext())
+            .setView(root)
+            .create();
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(
+                new android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT));
+        }
+
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+
+        btnInternal.setOnClickListener(v -> {
+            dialog.dismiss();
+            File dir = resolveBackupDir(SOURCE_INTERNAL);
+            if (dir != null) {
+                currentRootDir = dir;
+                openSaveLocationChooser();
+            } else {
+                Toast.makeText(requireContext(), "Internal app folder not found", Toast.LENGTH_LONG).show();
+            }
+        });
+
+        btnExternal.setOnClickListener(v -> {
+            dialog.dismiss();
+            File dir = resolveBackupDir(SOURCE_EXTERNAL);
+            if (dir != null) {
+                currentRootDir = dir;
+                openSaveLocationChooser();
+            } else {
+                Toast.makeText(requireContext(), "External app folder not found", Toast.LENGTH_LONG).show();
+            }
+        });
+
+        btnVersionIsolation.setOnClickListener(v -> {
+            dialog.dismiss();
+            File dir = resolveBackupDir(SOURCE_VERSION_ISOLATION);
+            if (dir != null) {
+                currentRootDir = dir;
+                openSaveLocationChooser();
+            } else {
+                Toast.makeText(requireContext(), "Version isolation folder not found", Toast.LENGTH_LONG).show();
+            }
+        });
+
+        dialog.show();
+    }
+
+    private void showImportDestinationDialog() {
+        float dp = requireContext().getResources().getDisplayMetrics().density;
+        int colorPrimary    = ContextCompat.getColor(requireContext(), R.color.onPrimary);
+        int colorOnPrimary  = ContextCompat.getColor(requireContext(), R.color.primary);
+        int colorOutline    = ContextCompat.getColor(requireContext(), R.color.outline);
+        int colorOnSurface  = ContextCompat.getColor(requireContext(), R.color.onSurface);
+        int colorSurfVar    = ContextCompat.getColor(requireContext(), R.color.surfaceVariant);
+
+        android.widget.LinearLayout root = new android.widget.LinearLayout(requireContext());
+        root.setOrientation(android.widget.LinearLayout.VERTICAL);
+        root.setPadding((int)(24*dp), (int)(28*dp), (int)(24*dp), (int)(20*dp));
+
+        android.graphics.drawable.GradientDrawable dialogBg = new android.graphics.drawable.GradientDrawable();
+        dialogBg.setColor(colorPrimary);
+        dialogBg.setCornerRadius(28 * dp);
+        dialogBg.setStroke((int)(1.5f * dp), colorOutline);
+        root.setBackground(dialogBg);
+
+        android.widget.TextView title = new android.widget.TextView(requireContext());
+        title.setText("Import Backup");
+        title.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 20);
+        title.setTypeface(null, android.graphics.Typeface.BOLD);
+        title.setTextColor(colorOnPrimary);
+        android.widget.LinearLayout.LayoutParams titleParams = new android.widget.LinearLayout.LayoutParams(
+            android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
+            android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+        titleParams.bottomMargin = (int)(6 * dp);
+        root.addView(title, titleParams);
+
+        android.widget.TextView subtitle = new android.widget.TextView(requireContext());
+        subtitle.setText("Choose the destination folder to import into");
+        subtitle.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 14);
+        subtitle.setTextColor(colorOnPrimary);
+        subtitle.setAlpha(0.7f);
+        android.widget.LinearLayout.LayoutParams subParams = new android.widget.LinearLayout.LayoutParams(
+            android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
+            android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+        subParams.bottomMargin = (int)(16 * dp);
+        root.addView(subtitle, subParams);
+
+        android.graphics.drawable.GradientDrawable optionBg = new android.graphics.drawable.GradientDrawable();
+        optionBg.setColor(colorSurfVar);
+        optionBg.setCornerRadius(50 * dp);
+        optionBg.setStroke((int)(1 * dp), colorOutline);
+
+        android.graphics.drawable.GradientDrawable optionBgExternal = new android.graphics.drawable.GradientDrawable();
+        optionBgExternal.setColor(colorOnPrimary);
+        optionBgExternal.setCornerRadius(50 * dp);
+
+        android.graphics.drawable.GradientDrawable optionBgIsolation = new android.graphics.drawable.GradientDrawable();
+        optionBgIsolation.setColor(colorSurfVar);
+        optionBgIsolation.setCornerRadius(50 * dp);
+        optionBgIsolation.setStroke((int)(1 * dp), colorOutline);
+
+        android.widget.LinearLayout.LayoutParams optionParams = new android.widget.LinearLayout.LayoutParams(
+            android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+            android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+        optionParams.bottomMargin = (int)(8 * dp);
+
+        android.widget.Button btnInternal = new android.widget.Button(requireContext());
+        btnInternal.setText("Internal");
+        btnInternal.setTextColor(colorOnSurface);
+        btnInternal.setBackground(optionBg);
+        btnInternal.setAllCaps(false);
+        btnInternal.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 14);
+        btnInternal.setPadding((int)(16*dp), (int)(10*dp), (int)(16*dp), (int)(10*dp));
+
+        android.widget.Button btnExternal = new android.widget.Button(requireContext());
+        btnExternal.setText("External");
+        btnExternal.setTextColor(colorPrimary);
+        btnExternal.setBackground(optionBgExternal);
+        btnExternal.setAllCaps(false);
+        btnExternal.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 14);
+        btnExternal.setTypeface(null, android.graphics.Typeface.BOLD);
+        btnExternal.setPadding((int)(16*dp), (int)(10*dp), (int)(16*dp), (int)(10*dp));
+
+        android.widget.Button btnVersionIsolation = new android.widget.Button(requireContext());
+        btnVersionIsolation.setText("Version Isolation");
+        btnVersionIsolation.setTextColor(colorOnSurface);
+        btnVersionIsolation.setBackground(optionBgIsolation);
+        btnVersionIsolation.setAllCaps(false);
+        btnVersionIsolation.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 14);
+        btnVersionIsolation.setPadding((int)(16*dp), (int)(10*dp), (int)(16*dp), (int)(10*dp));
+
+        root.addView(btnInternal, optionParams);
+        root.addView(btnExternal, optionParams);
+
+        android.widget.LinearLayout.LayoutParams isolationParams = new android.widget.LinearLayout.LayoutParams(
+            android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+            android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+        isolationParams.bottomMargin = (int)(16 * dp);
+        root.addView(btnVersionIsolation, isolationParams);
+
+        android.graphics.drawable.GradientDrawable cancelBg = new android.graphics.drawable.GradientDrawable();
+        cancelBg.setColor(android.graphics.Color.TRANSPARENT);
+        cancelBg.setCornerRadius(50 * dp);
+        cancelBg.setStroke((int)(1 * dp), colorOutline);
+
+        android.widget.LinearLayout cancelRow = new android.widget.LinearLayout(requireContext());
+        cancelRow.setOrientation(android.widget.LinearLayout.HORIZONTAL);
+        cancelRow.setGravity(android.view.Gravity.END);
+
+        android.widget.Button btnCancel = new android.widget.Button(requireContext());
+        btnCancel.setText("Cancel");
+        btnCancel.setTextColor(colorOnPrimary);
+        btnCancel.setBackground(cancelBg);
+        btnCancel.setAllCaps(false);
+        btnCancel.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 14);
+        btnCancel.setPadding((int)(16*dp), (int)(10*dp), (int)(16*dp), (int)(10*dp));
+
+        cancelRow.addView(btnCancel);
+        root.addView(cancelRow);
+
+        AlertDialog dialog = new AlertDialog.Builder(requireContext())
+            .setView(root)
+            .create();
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(
+                new android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT));
+        }
+
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+
+        btnInternal.setOnClickListener(v -> {
+            dialog.dismiss();
+            currentRootDir = resolveBackupDir(SOURCE_INTERNAL);
+            openFileChooser();
+        });
+
+        btnExternal.setOnClickListener(v -> {
+            dialog.dismiss();
+            currentRootDir = resolveBackupDir(SOURCE_EXTERNAL);
+            openFileChooser();
+        });
+
+        btnVersionIsolation.setOnClickListener(v -> {
+            dialog.dismiss();
+            currentRootDir = resolveBackupDir(SOURCE_VERSION_ISOLATION);
+            openFileChooser();
+        });
+
+        dialog.show();
+    }
+
+    private File resolveBackupDir(int sourceType) {
+        switch (sourceType) {
+            case SOURCE_INTERNAL: {
+                File dir = new File(requireContext().getFilesDir(), "games/com.mojang");
+                if (!dir.exists()) dir.mkdirs();
+                return dir;
+            }
+            case SOURCE_EXTERNAL: {
+                File extBase = requireContext().getExternalFilesDir(null);
+                if (extBase == null) return null;
+                File dir = new File(extBase, "games/com.mojang");
+                if (!dir.exists()) dir.mkdirs();
+                return dir;
+            }
+            case SOURCE_VERSION_ISOLATION: {
+                GameVersion v = VersionManager.get(requireContext()).getSelectedVersion();
+                if (v == null) return null;
+                File dir = new File(v.versionDir, "games/com.mojang");
+                if (!dir.exists()) dir.mkdirs();
+                return dir;
+            }
+            default:
+                return null;
+        }
+    }
+
     private void initializeModulesButton(View view) {
     modulesButton = view.findViewById(R.id.modules_button);
-    
+
     if (modulesButton != null) {
         modulesButton.setOnClickListener(v -> {
             try {
                 requireActivity().getSupportFragmentManager()
                     .beginTransaction()
                     .setCustomAnimations(
-                        R.anim.slide_fade_in_right,  
-                        R.anim.slide_out_right, 
-                        R.anim.slide_in_left,   
-                        R.anim.slide_out_left 
+                        R.anim.slide_fade_in_right,
+                        R.anim.slide_out_right,
+                        R.anim.slide_in_left,
+                        R.anim.slide_out_left
                     )
                     .replace(R.id.fragment_container, new ModulesFragment())
                     .addToBackStack(null)
@@ -205,21 +500,22 @@ public class DashboardFragment extends BaseThemedFragment {
         });
     }
 }
+
     private void initializeResourceButton(View view) {
         resourceButton = view.findViewById(R.id.resource_button);
-        
+
         if (resourceButton != null) {
             resourceButton.setOnClickListener(v -> {
                 try {
                     requireActivity().getSupportFragmentManager()
                         .beginTransaction()
                         .setCustomAnimations(
-                            R.anim.slide_fade_in_right,  
-                            R.anim.slide_out_right, 
-                            R.anim.slide_in_left,   
-                            R.anim.slide_out_left 
+                            R.anim.slide_fade_in_right,
+                            R.anim.slide_out_right,
+                            R.anim.slide_in_left,
+                            R.anim.slide_out_left
                         )
-                    .replace(R.id.fragment_container, new ResourceFragment())
+                        .replace(R.id.fragment_container, new ResourceFragment())
                         .addToBackStack(null)
                         .commit();
                 } catch (Exception e) {
@@ -229,7 +525,7 @@ public class DashboardFragment extends BaseThemedFragment {
             });
         }
     }
-    
+
     /**
      * Refresh folder themes when theme changes
      */
@@ -239,29 +535,29 @@ public class DashboardFragment extends BaseThemedFragment {
             if (folderRecyclerView != null && folderRecyclerView.getAdapter() != null) {
                 // Force refresh of all folder items with animation
                 folderRecyclerView.getAdapter().notifyDataSetChanged();
-                
+
                 // Apply animated theme changes to existing folder items
                 for (int i = 0; i < folderRecyclerView.getChildCount(); i++) {
                     View child = folderRecyclerView.getChildAt(i);
                     if (child instanceof MaterialCardView) {
                         MaterialCardView card = (MaterialCardView) child;
-                        
+
                         // Get current colors
                         int currentBackground = card.getCardBackgroundColor().getDefaultColor();
                         int currentStroke = card.getStrokeColor();
-                        
+
                         // Get target colors
                         int targetBackground = ThemeManager.getInstance().getColor("surfaceVariant");
                         int targetStroke = ThemeManager.getInstance().getColor("outline");
-                        
+
                         // Animate color transitions
                         ThemeUtils.animateBackgroundColorTransition(card, currentBackground, targetBackground, 300);
-                        ThemeUtils.animateColorTransition(currentStroke, targetStroke, 300, 
+                        ThemeUtils.animateColorTransition(currentStroke, targetStroke, 300,
                             va -> {
                                 int animated = (int) va.getAnimatedValue();
                                 card.setStrokeColor(animated);
                             });
-                        
+
                         // Ensure corner radius is preserved
                         card.setRadius(12 * getResources().getDisplayMetrics().density);
                     }
@@ -271,7 +567,7 @@ public class DashboardFragment extends BaseThemedFragment {
             // Handle error gracefully
         }
     }
-    
+
     @Override
     protected void onApplyTheme() {
         // Apply theme to the root view background with animation
@@ -287,9 +583,9 @@ public class DashboardFragment extends BaseThemedFragment {
                         // Use default if we can't get current color
                     }
                 }
-                
+
                 int targetBackground = ThemeManager.getInstance().getColor("background");
-                
+
                 // Animate background color transition
                 ThemeUtils.animateBackgroundColorTransition(rootView, currentBackground, targetBackground, 300);
             } catch (Exception e) {
@@ -297,19 +593,19 @@ public class DashboardFragment extends BaseThemedFragment {
                 rootView.setBackgroundColor(ThemeManager.getInstance().getColor("background"));
             }
         }
-        
+
         // Refresh button themes with animation
         refreshButtonThemesWithAnimation();
-        
+
         // Refresh all ripple effects in the entire view hierarchy
         if (rootView != null) {
             ThemeUtils.refreshRippleEffects(rootView);
         }
-        
+
         // Refresh folder themes
         refreshFolderThemes();
     }
-    
+
     /**
      * Refresh button themes with animation when theme changes
      */
@@ -320,7 +616,7 @@ public class DashboardFragment extends BaseThemedFragment {
                 // Refresh backup and import buttons with animation
                 MaterialButton backupButton = view.findViewById(R.id.backupButton);
                 MaterialButton importButton = view.findViewById(R.id.importButton);
-                
+
                 if (backupButton != null) {
                     ThemeUtils.applyThemeToButtonWithAnimation(backupButton, requireContext(), 300);
                 }
@@ -337,343 +633,38 @@ public class DashboardFragment extends BaseThemedFragment {
     // (All the existing methods for options editor, file management, etc.)
 
     private void initializeOptionsEditor(View view) {
-        // Initialize options.txt file path
-        optionsFile = new File("/storage/emulated/0/Android/data/com.origin.launcher/files/games/com.mojang/minecraftpe/options.txt");
-        
         // Get UI elements
         editOptionsButton = view.findViewById(R.id.editOptionsButton);
         TextView optionsNotFoundText = view.findViewById(R.id.optionsNotFoundText);
-        optionsEditorLayout = view.findViewById(R.id.optionsEditorLayout);
-        optionsTextEditor = view.findViewById(R.id.optionsTextEditor);
-        searchInputLayout = view.findViewById(R.id.searchInputLayout);
-        searchEditText = view.findViewById(R.id.searchEditText);
-        
-        MaterialButton saveOptionsButton = view.findViewById(R.id.saveOptionsButton);
-        MaterialButton undoOptionsButton = view.findViewById(R.id.undoOptionsButton);
-        MaterialButton redoOptionsButton = view.findViewById(R.id.redoOptionsButton);
-        MaterialButton searchOptionsButton = view.findViewById(R.id.searchOptionsButton);
-        MaterialButton closeEditorButton = view.findViewById(R.id.closeEditorButton);
-        
-        // Check if options.txt exists
-        if (optionsFile.exists()) {
-            editOptionsButton.setVisibility(View.VISIBLE);
-            optionsNotFoundText.setVisibility(View.GONE);
-            
-            editOptionsButton.setOnClickListener(v -> {
-                if (hasStoragePermission()) {
-                    openOptionsEditor();
-                } else {
-                    requestStoragePermissions();
-                }
-            });
-        } else {
-            editOptionsButton.setVisibility(View.GONE);
-            optionsNotFoundText.setVisibility(View.VISIBLE);
-        }
-        
-        // Set up editor buttons
-        if (saveOptionsButton != null) {
-            saveOptionsButton.setOnClickListener(v -> saveOptionsFile());
-        }
-        
-        if (undoOptionsButton != null) {
-            undoOptionsButton.setOnClickListener(v -> undoChanges());
-        }
-        
-        if (redoOptionsButton != null) {
-            redoOptionsButton.setOnClickListener(v -> redoChanges());
-        }
-        
-        if (searchOptionsButton != null) {
-            searchOptionsButton.setOnClickListener(v -> {
-                if (searchInputLayout.getVisibility() == View.GONE) {
-                    toggleSearch();
-                } else {
-                    // If search is already open, cycle through matches
-                    String searchTerm = searchEditText.getText().toString().trim();
-                    if (!searchTerm.isEmpty()) {
-                        findNextMatch(searchTerm);
-                    }
-                }
-            });
-        }
-        
-        if (closeEditorButton != null) {
-            closeEditorButton.setOnClickListener(v -> closeOptionsEditor());
-        }
-        
-        // Set up search functionality
-        if (searchEditText != null) {
-            searchEditText.addTextChangedListener(new TextWatcher() {
-                @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-                
-                @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    String searchTerm = s.toString().trim();
-                    if (!searchTerm.isEmpty()) {
-                        searchInText(searchTerm);
-                    } else {
-                        // Clear search results when search term is empty
-                        clearSearchResults();
-                    }
-                }
-                
-                @Override
-                public void afterTextChanged(Editable s) {}
-            });
-            
-            // Handle Enter key in search
-            searchEditText.setOnEditorActionListener((v, actionId, event) -> {
-                if (actionId == EditorInfo.IME_ACTION_SEARCH || 
-                    (event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER && event.getAction() == KeyEvent.ACTION_DOWN)) {
-                    String searchTerm = searchEditText.getText().toString().trim();
-                    if (!searchTerm.isEmpty()) {
-                        findNextMatch(searchTerm);
-                    }
-                    return true;
-                }
-                return false;
-            });
-        }
-        
-        // Set up text change listener for undo/redo
-        if (optionsTextEditor != null) {
-            optionsTextEditor.addTextChangedListener(new TextWatcher() {
-                @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-                
-                @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {}
-                
-                @Override
-                public void afterTextChanged(Editable s) {
-                    // Add to undo stack when text changes
-                    String currentText = s.toString();
-                    if (!currentText.equals(originalOptionsContent) && !undoStack.isEmpty() && !currentText.equals(undoStack.peek())) {
-                        undoStack.push(currentText);
-                        redoStack.clear(); // Clear redo stack when new changes are made
-                    }
-                }
-            });
-            
-            // Handle touch events to ensure proper focus
-            optionsTextEditor.setOnTouchListener((v, event) -> {
-                v.requestFocus();
-                v.getParent().requestDisallowInterceptTouchEvent(true);
-                return false;
-            });
-        }
-    }
 
-    private void openOptionsEditor() {
-        try {
-            // Read the options.txt file
-            StringBuilder content = new StringBuilder();
-            try (BufferedReader reader = new BufferedReader(new FileReader(optionsFile))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    content.append(line).append("\n");
-                }
+        editOptionsButton.setVisibility(View.VISIBLE);
+        if (optionsNotFoundText != null) optionsNotFoundText.setVisibility(View.GONE);
+
+        editOptionsButton.setOnClickListener(v -> {
+            if (hasStoragePermission()) {
+                openOptionsEditorFragment();
+            } else {
+                requestStoragePermissions();
             }
-            
-            originalOptionsContent = content.toString();
-            optionsTextEditor.setText(originalOptionsContent);
-            
-            // Initialize undo stack
-            undoStack.clear();
-            redoStack.clear();
-            undoStack.push(originalOptionsContent);
-            
-            // Show editor and disable edit button
-            optionsEditorLayout.setVisibility(View.GONE);
-            editOptionsButton.setEnabled(false);
-            editOptionsButton.setText("Editor Open");
-            
-            Toast.makeText(requireContext(), "Options.txt loaded successfully", Toast.LENGTH_SHORT).show();
-            
-        } catch (IOException e) {
-            Toast.makeText(requireContext(), "Failed to load options.txt: " + e.getMessage(), Toast.LENGTH_LONG).show();
-            e.printStackTrace();
-        }
+        });
     }
 
-    private void saveOptionsFile() {
+    private void openOptionsEditorFragment() {
         try {
-            String content = optionsTextEditor.getText().toString();
-            try (FileWriter writer = new FileWriter(optionsFile)) {
-                writer.write(content);
-            }
-            
-            originalOptionsContent = content;
-            Toast.makeText(requireContext(), "Options.txt saved successfully", Toast.LENGTH_SHORT).show();
-            
-        } catch (IOException e) {
-            Toast.makeText(requireContext(), "Failed to save options.txt: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            requireActivity().getSupportFragmentManager()
+                .beginTransaction()
+                .setCustomAnimations(
+                    R.anim.slide_fade_in_right,
+                    R.anim.slide_out_right,
+                    R.anim.slide_in_left,
+                    R.anim.slide_out_left
+                )
+                .replace(R.id.fragment_container, new OptionsEditorFragment())
+                .addToBackStack(null)
+                .commit();
+        } catch (Exception e) {
+            Toast.makeText(requireContext(), "Failed to open options editor", Toast.LENGTH_SHORT).show();
             e.printStackTrace();
-        }
-    }
-
-    private void undoChanges() {
-        if (undoStack.size() > 1) {
-            int currentCursorPosition = optionsTextEditor.getSelectionStart();
-            String currentText = optionsTextEditor.getText().toString();
-            redoStack.push(currentText);
-            undoStack.pop(); // Remove current state
-            String previousText = undoStack.peek();
-            optionsTextEditor.setText(previousText);
-            
-            // Maintain cursor position or set to safe position
-            int safePosition = Math.min(currentCursorPosition, previousText.length());
-            optionsTextEditor.setSelection(safePosition);
-        } else {
-            Toast.makeText(requireContext(), "Nothing to undo", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private void redoChanges() {
-        if (!redoStack.isEmpty()) {
-            int currentCursorPosition = optionsTextEditor.getSelectionStart();
-            String redoText = redoStack.pop();
-            undoStack.push(redoText);
-            optionsTextEditor.setText(redoText);
-            
-            // Maintain cursor position or set to safe position
-            int safePosition = Math.min(currentCursorPosition, redoText.length());
-            optionsTextEditor.setSelection(safePosition);
-        } else {
-            Toast.makeText(requireContext(), "Nothing to redo", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private void toggleSearch() {
-        if (searchInputLayout.getVisibility() == View.GONE) {
-            searchInputLayout.setVisibility(View.VISIBLE);
-            searchEditText.requestFocus();
-        } else {
-            searchInputLayout.setVisibility(View.GONE);
-            // Clear search results and highlighting
-            clearSearchResults();
-        }
-    }
-
-    private void searchInText(String searchTerm) {
-        if (searchTerm.isEmpty()) {
-            clearSearchResults();
-            return;
-        }
-        
-        // Update current search term and find all matches
-        currentSearchTerm = searchTerm;
-        findAllMatches(searchTerm);
-        
-        String text = optionsTextEditor.getText().toString();
-        SpannableString spannable = new SpannableString(text);
-        
-        // Highlight all matches
-        for (int matchIndex : searchMatches) {
-            spannable.setSpan(
-                new BackgroundColorSpan(0xFFFFFF00), // Yellow highlight color
-                matchIndex,
-                matchIndex + searchTerm.length(),
-                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-            );
-        }
-        
-        optionsTextEditor.setText(spannable);
-        
-        // Reset match index when search term changes
-        currentMatchIndex = -1;
-    }
-
-    private void findAllMatches(String searchTerm) {
-        searchMatches.clear();
-        String text = optionsTextEditor.getText().toString();
-        String lowerText = text.toLowerCase();
-        String lowerSearchTerm = searchTerm.toLowerCase();
-        
-        int index = lowerText.indexOf(lowerSearchTerm);
-        while (index >= 0) {
-            searchMatches.add(index);
-            index = lowerText.indexOf(lowerSearchTerm, index + 1);
-        }
-    }
-
-    private void clearSearchResults() {
-        searchMatches.clear();
-        currentMatchIndex = -1;
-        currentSearchTerm = "";
-        // Clear highlighting by resetting text
-        String plainText = optionsTextEditor.getText().toString();
-        optionsTextEditor.setText(plainText);
-    }
-
-    private void closeOptionsEditor() {
-        optionsEditorLayout.setVisibility(View.GONE);
-        searchInputLayout.setVisibility(View.GONE);
-        
-        // Re-enable edit button
-        editOptionsButton.setEnabled(true);
-        editOptionsButton.setText("Edit options.txt");
-        
-        // Clear undo/redo stacks
-        undoStack.clear();
-        redoStack.clear();
-        
-        Toast.makeText(requireContext(), "Editor closed", Toast.LENGTH_SHORT).show();
-    }
-
-    private void findNextMatch(String searchTerm) {
-        // If search term changed, find all matches first
-        if (!searchTerm.equals(currentSearchTerm)) {
-            currentSearchTerm = searchTerm;
-            findAllMatches(searchTerm);
-            currentMatchIndex = -1;
-        }
-        
-        if (searchMatches.isEmpty()) {
-            Toast.makeText(requireContext(), "No matches found", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        
-        // Move to next match
-        currentMatchIndex++;
-        if (currentMatchIndex >= searchMatches.size()) {
-            currentMatchIndex = 0; // Wrap around to first match
-        }
-        
-        int matchPosition = searchMatches.get(currentMatchIndex);
-        
-        // Select the found text
-        optionsTextEditor.setSelection(matchPosition, matchPosition + searchTerm.length());
-        optionsTextEditor.requestFocus();
-        
-        // Scroll to make the selection visible
-        scrollToPosition(matchPosition);
-        
-        // Show current match info
-        String message = "Match " + (currentMatchIndex + 1) + " of " + searchMatches.size();
-        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
-    }
-
-    private void scrollToPosition(int position) {
-        // Get the layout of the EditText
-        android.text.Layout layout = optionsTextEditor.getLayout();
-        if (layout != null) {
-            // Get the line number for the position
-            int line = layout.getLineForOffset(position);
-            
-            // Get the Y coordinate of the line
-            int lineTop = layout.getLineTop(line);
-            int lineBottom = layout.getLineBottom(line);
-            int lineHeight = lineBottom - lineTop;
-            
-            // Calculate scroll position to center the line in view
-            int editorHeight = optionsTextEditor.getHeight();
-            int scrollY = Math.max(0, lineTop - (editorHeight / 2) + (lineHeight / 2));
-            
-            // Scroll to the calculated position
-            optionsTextEditor.scrollTo(0, scrollY);
         }
     }
 
@@ -710,9 +701,11 @@ public class DashboardFragment extends BaseThemedFragment {
 
     private void importBackup(Uri zipUri) {
         try {
-            // Use the specific target directory
-            File targetDir = new File("/storage/emulated/0/Android/data/com.origin.launcher/files/games/com.mojang/");
-            
+            // Use the target directory selected by the user in showImportDestinationDialog
+            File targetDir = currentRootDir != null
+                ? currentRootDir
+                : new File(requireContext().getFilesDir(), "games/com.mojang");
+
             // Create directory if it doesn't exist
             if (!targetDir.exists()) {
                 boolean created = targetDir.mkdirs();
@@ -721,24 +714,24 @@ public class DashboardFragment extends BaseThemedFragment {
                     return;
                 }
             }
-            
+
             // Check if we can write to the directory
             if (!targetDir.canWrite()) {
                 Toast.makeText(requireContext(), "Cannot write to target directory: " + targetDir.getAbsolutePath(), Toast.LENGTH_LONG).show();
                 return;
             }
-            
+
             Toast.makeText(requireContext(), "Importing backup to: " + targetDir.getAbsolutePath(), Toast.LENGTH_SHORT).show();
-            
+
             InputStream inputStream = requireContext().getContentResolver().openInputStream(zipUri);
             if (inputStream != null) {
                 extractZip(inputStream, targetDir);
-                
+
                 // Update currentRootDir to the new location
                 currentRootDir = targetDir;
-                
+
                 Toast.makeText(requireContext(), "Backup imported successfully!", Toast.LENGTH_LONG).show();
-                
+
                 // Refresh the folder list
                 refreshFolderList();
             } else {
@@ -754,17 +747,17 @@ public class DashboardFragment extends BaseThemedFragment {
         try (ZipInputStream zis = new ZipInputStream(zipInputStream)) {
             ZipEntry zipEntry;
             byte[] buffer = new byte[4096]; // Increased buffer size
-            
+
             while ((zipEntry = zis.getNextEntry()) != null) {
                 String fileName = zipEntry.getName();
-                
+
                 // Security check: prevent directory traversal
                 if (fileName.contains("..")) {
                     continue;
                 }
-                
+
                 File newFile = new File(targetDir, fileName);
-                
+
                 if (zipEntry.isDirectory()) {
                     // Create directory
                     if (!newFile.exists()) {
@@ -783,7 +776,7 @@ public class DashboardFragment extends BaseThemedFragment {
                             continue;
                         }
                     }
-                    
+
                     // Extract file
                     try (FileOutputStream fos = new FileOutputStream(newFile)) {
                         int len;
@@ -810,7 +803,7 @@ public class DashboardFragment extends BaseThemedFragment {
                 "/storage/emulated/0/Android/data/com.mojang.minecraftpe/files/games/com.mojang/",
                 getContext().getExternalFilesDir(null) + "/games/com.mojang/"
             };
-            
+
             File rootDir = null;
             for (String path : possiblePaths) {
                 File testDir = new File(path);
@@ -823,7 +816,7 @@ public class DashboardFragment extends BaseThemedFragment {
                     }
                 }
             }
-            
+
             List<String> folderNames = new ArrayList<>();
             if (rootDir != null && rootDir.exists() && rootDir.isDirectory()) {
                 File[] files = rootDir.listFiles();
@@ -892,21 +885,21 @@ public class DashboardFragment extends BaseThemedFragment {
                 Toast.makeText(requireContext(), "Minecraft data directory not found: " + rootDir.getAbsolutePath(), Toast.LENGTH_LONG).show();
                 return;
             }
-            
+
             File[] files = rootDir.listFiles();
             if (files == null || files.length == 0) {
                 Toast.makeText(requireContext(), "No files found to backup in: " + rootDir.getAbsolutePath(), Toast.LENGTH_LONG).show();
                 return;
             }
-            
+
             Toast.makeText(requireContext(), "Creating backup...", Toast.LENGTH_SHORT).show();
-            
+
             // Create backup directly to the chosen location
             try (ZipOutputStream zos = new ZipOutputStream(requireContext().getContentResolver().openOutputStream(saveUri))) {
                 zipDirectoryToStream(rootDir, rootDir.getAbsolutePath(), zos);
                 Toast.makeText(requireContext(), "Backup saved successfully!", Toast.LENGTH_SHORT).show();
             }
-            
+
         } catch (Exception e) {
             Toast.makeText(requireContext(), "Backup failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
             e.printStackTrace();
@@ -928,17 +921,17 @@ public class DashboardFragment extends BaseThemedFragment {
             }
             return;
         }
-        
+
         // Skip files that can't be read
         if (!fileToZip.canRead()) {
             return;
         }
-        
+
         String zipEntryName = fileToZip.getAbsolutePath().replace(basePath, "").replaceFirst("^/", "");
         if (zipEntryName.isEmpty()) {
             zipEntryName = fileToZip.getName();
         }
-        
+
         try (FileInputStream fis = new FileInputStream(fileToZip)) {
             ZipEntry zipEntry = new ZipEntry(zipEntryName);
             zos.putNextEntry(zipEntry);
@@ -965,7 +958,7 @@ public class DashboardFragment extends BaseThemedFragment {
                     break;
                 }
             }
-            
+
             if (granted) {
                 if (currentRootDir != null) {
                     openSaveLocationChooser();
@@ -982,46 +975,46 @@ public class DashboardFragment extends BaseThemedFragment {
     private static class FolderAdapter extends RecyclerView.Adapter<FolderViewHolder> {
         private final List<String> folders;
         private final Context context;
-        
-        FolderAdapter(List<String> folders, Context context) { 
-            this.folders = folders; 
+
+        FolderAdapter(List<String> folders, Context context) {
+            this.folders = folders;
             this.context = context;
         }
-        
+
         @NonNull
         @Override
         public FolderViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_folder, parent, false);
             return new FolderViewHolder(view);
         }
-        
+
         @Override
         public void onBindViewHolder(@NonNull FolderViewHolder holder, int position) {
             holder.bind(folders.get(position));
             // Apply theme to the folder item
             holder.applyTheme();
         }
-        
+
         @Override
         public int getItemCount() { return folders.size(); }
     }
-    
+
     private static class FolderViewHolder extends RecyclerView.ViewHolder {
         private final android.widget.TextView textView;
         private final MaterialCardView cardView;
         private final ImageView iconView;
-        
+
         FolderViewHolder(@NonNull View itemView) {
             super(itemView);
             textView = itemView.findViewById(R.id.folderNameText);
             cardView = (MaterialCardView) itemView;
             iconView = itemView.findViewById(R.id.folderIcon);
         }
-        
+
         void bind(String folderName) {
             textView.setText(folderName);
         }
-        
+
         void applyTheme() {
             try {
                 ThemeManager themeManager = ThemeManager.getInstance();
@@ -1031,16 +1024,16 @@ public class DashboardFragment extends BaseThemedFragment {
                     cardView.setStrokeColor(themeManager.getColor("outline"));
                     cardView.setStrokeWidth((int) (1 * itemView.getContext().getResources().getDisplayMetrics().density));
                     cardView.setCardElevation(2 * itemView.getContext().getResources().getDisplayMetrics().density);
-                    
+
                     // Ensure corner radius is preserved
                     cardView.setRadius(12 * itemView.getContext().getResources().getDisplayMetrics().density);
-                    
+
                     // Apply theme to the text
                     textView.setTextColor(themeManager.getColor("onSurface"));
-                    
+
                     // Apply theme to the icon
                     iconView.setColorFilter(themeManager.getColor("primary"));
-                    
+
                     // Add ripple effect
                     RippleDrawable ripple = new RippleDrawable(
                         ColorStateList.valueOf(ThemeUtils.createOptimizedRippleColor("onSurface", "card")),

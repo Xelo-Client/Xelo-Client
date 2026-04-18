@@ -18,13 +18,6 @@ jobs:
         with:
           fetch-depth: 0
           submodules: "recursive"
-      - name: Update submodules (retry)
-        run: |
-          for i in 1 2 3; do
-            git submodule update --init --recursive && break
-            echo "Retry $i..."
-            sleep 10
-          done
 
       - name: Set up JDK 21
         uses: actions/setup-java@v4
@@ -62,13 +55,35 @@ jobs:
           echo "Debug APK files generated:"
           find app/build/outputs/apk/debug -name "*.apk" -type f || echo "No APK files found"
 
-      - name: Upload Debug APK
-        uses: actions/upload-artifact@v4
+      - name: Zip Debug APK
+        run: |
+          cp app/build/outputs/apk/debug/app-debug.apk app-debug.bin
+          zip origin-debug-apk-${{ github.run_number }}.zip app-debug.bin
+
+      - name: Send Debug APK to Gmail
+        uses: dawidd6/action-send-mail@v3
         with:
-          name: origin-debug-apk-${{ github.run_number }}
-          path: app/build/outputs/apk/debug/*.apk
-          retention-days: 14
-          if-no-files-found: error
+          server_address: smtp.gmail.com
+          server_port: 465
+          secure: true
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          to: ${{ secrets.MAIL_USERNAME }}
+          from: "GitHub CI <${{ secrets.MAIL_USERNAME }}>"
+          subject: "origin-debug-apk-${{ github.run_number }}.zip"
+          convert_markdown: true
+          body: |
+            ## 📦 Build #${{ github.run_number }} Ready
+
+            | Field   | Value |
+            |---------|-------|
+            | Repo    | `${{ github.repository }}` |
+            | Branch  | `${{ github.ref_name }}` |
+            | Commit  | `${{ github.sha }}` |
+            | By      | `${{ github.actor }}` |
+
+            ⚠️ Rename `app-debug.bin` → `app-debug.apk` after extracting.
+          attachments: origin-debug-apk-${{ github.run_number }}.zip
 
       - name: Upload Test Results
         uses: actions/upload-artifact@v4
