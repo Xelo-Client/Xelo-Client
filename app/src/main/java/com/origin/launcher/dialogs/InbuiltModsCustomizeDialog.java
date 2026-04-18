@@ -478,7 +478,7 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
 
     @Override
     public void onButtonStyleChanged(String id, boolean usePng) {
-        ButtonStyleDialog.show(getContext(), id, selected -> {
+        ButtonStyleDialog.show(getContext(), id, usePng, selected -> {
             View btn = modButtons.get(id);
             if (btn instanceof ImageButton) {
                 Bitmap themedBitmap = ThemeManager.getInstance().getOverlayButtonBitmap(id);

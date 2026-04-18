@@ -429,7 +429,7 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity implements 
 
     @Override
     public void onButtonStyleChanged(String id, boolean usePng) {
-        ButtonStyleDialog.show(this, id, selected -> {
+        ButtonStyleDialog.show(this, id, usePng, selected -> {
             View btn = modButtons.get(id);
             if (btn instanceof ImageButton) {
                 Bitmap themedBitmap = ThemeManager.getInstance().getOverlayButtonBitmap(id);

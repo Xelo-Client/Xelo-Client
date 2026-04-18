@@ -1,6 +1,11 @@
 package com.origin.launcher.dialogs;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
+import android.graphics.drawable.GradientDrawable;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.origin.launcher.R;
@@ -14,30 +19,61 @@ public class ButtonStyleDialog {
     public static final String PREF_NAME = "button_icon_style_prefs";
     public static final String KEY_PREFIX = "use_png_";
 
-    public static void show(Context context, String modId, OnStyleSelectedListener listener) {
-        boolean currentlyPng = isUsingPng(context, modId);
+    public static void show(Context context, String modId, boolean usePng, OnStyleSelectedListener listener) {
+        String title = usePng ? "PNG Icon Mode" : "Native Icon Mode";
+        String message = usePng
+                ? "PNG based — Uses PNG icons. Texture can be replaced with .xtheme, May become blurry with size changes."
+                : "Native — Uses vector drawable icon. Cannot be changed with .xtheme, Quality won't decrease with size changes.";
 
-        String[] options = {
-            "Native  —  Uses vector drawable icon. Cannot be changed with .xtheme And Quality won't decrease with size changes",
-            "PNG based  —  Uses PNG icons. Texture can be replaced with .xtheme And may become blurry with size changes"
-        };
+        int bgColor = ContextCompat.getColor(context, R.color.background);
+        int onBgColor = ContextCompat.getColor(context, R.color.onBackground);
 
-        int[] selectedIndex = {currentlyPng ? 1 : 0};
-
-        new MaterialAlertDialogBuilder(context, com.google.android.material.R.style.ThemeOverlay_Material3_MaterialAlertDialog)
-                .setTitle("Button Icon Style")
+        AlertDialog dialog = new MaterialAlertDialogBuilder(context, com.google.android.material.R.style.ThemeOverlay_Material3_MaterialAlertDialog)
+                .setTitle(title)
+                .setMessage(message)
                 .setIcon(R.drawable.ic_palette)
-                .setSingleChoiceItems(options, selectedIndex[0], (dialog, which) -> {
-                    selectedIndex[0] = which;
-                })
-                .setPositiveButton("OK", (dialog, which) -> {
-                    boolean usePng = selectedIndex[0] == 1;
+                .setPositiveButton("Apply", (d, which) -> {
                     setPng(context, modId, usePng);
                     if (listener != null) listener.onSelected(usePng);
-                    dialog.dismiss();
+                    d.dismiss();
                 })
                 .setNegativeButton(R.string.dialog_negative_cancel, null)
-                .show();
+                .create();
+
+        dialog.show();
+
+        GradientDrawable bg = new GradientDrawable();
+        bg.setShape(GradientDrawable.RECTANGLE);
+        bg.setColor(bgColor);
+        bg.setStroke(2, onBgColor);
+        bg.setCornerRadius(28f);
+        dialog.getWindow().setBackgroundDrawable(bg);
+
+        dialog.getWindow().getDecorView().post(() -> {
+            android.widget.TextView titleView = dialog.getWindow().getDecorView()
+                    .findViewWithTag("alertTitle");
+            applyColorToViews(dialog.getWindow().getDecorView(), onBgColor);
+            applyButtonColors(dialog, onBgColor);
+        });
+    }
+
+    private static void applyColorToViews(android.view.View view, int color) {
+        if (view instanceof android.widget.TextView) {
+            ((android.widget.TextView) view).setTextColor(color);
+        }
+        if (view instanceof android.view.ViewGroup) {
+            android.view.ViewGroup vg = (android.view.ViewGroup) view;
+            for (int i = 0; i < vg.getChildCount(); i++) {
+                applyColorToViews(vg.getChildAt(i), color);
+            }
+        }
+    }
+
+    private static void applyButtonColors(AlertDialog dialog, int color) {
+        android.widget.Button positive = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+        android.widget.Button negative = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+        if (positive != null) positive.setTextColor(color);
+        if (negative != null) negative.setTextColor(color);
     }
 
     public static boolean isUsingPng(Context context, String modId) {
