@@ -240,14 +240,14 @@ if (modManager.isModAdded(ModIds.HOTBAR_NINE)) {
         if (modManager.isModAdded(ModIds.FPS_DISPLAY)) {
             int[] pos = getStartPosition(ModIds.FPS_DISPLAY, START_X, nextY);
             if (fpsDisplayOverlay == null) fpsDisplayOverlay = new FpsDisplayOverlay(activity);
-            fpsDisplayOverlay.showImmediate(pos[0], pos[1]);
+            fpsDisplayOverlay.show(pos[0], pos[1]);
             overlays.add(fpsDisplayOverlay);
             nextY += SPACING;
         }
         if (modManager.isModAdded(ModIds.CPS_DISPLAY)) {
             int[] pos = getStartPosition(ModIds.CPS_DISPLAY, START_X, nextY);
             if (cpsDisplayOverlay == null) cpsDisplayOverlay = new CpsDisplayOverlay(activity);
-            cpsDisplayOverlay.showImmediate(pos[0], pos[1]);
+            cpsDisplayOverlay.show(pos[0], pos[1]);
             overlays.add(cpsDisplayOverlay);
             nextY += SPACING;
         }
