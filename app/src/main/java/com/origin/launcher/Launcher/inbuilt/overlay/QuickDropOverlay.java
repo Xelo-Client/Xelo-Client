@@ -32,7 +32,7 @@ public class QuickDropOverlay extends BaseOverlayButton {
     private final Runnable worldPoller = new Runnable() {
         @Override
         public void run() {
-            boolean inWorld = XeloCore.isInWorld();
+            boolean inWorld = XeloCore.isHudClear();
             if (inWorld != lastInWorldState) {
                 lastInWorldState = inWorld;
                 if (inWorld) {
@@ -64,7 +64,7 @@ public class QuickDropOverlay extends BaseOverlayButton {
     protected void onOverlayViewCreated(ImageButton btn) {
         applyIconPadding(btn);
         handler.removeCallbacks(worldPoller);
-        lastInWorldState = XeloCore.isInWorld();
+        lastInWorldState = XeloCore.isHudClear();
         if (!lastInWorldState) {
             hideOutOfWorld();
         }

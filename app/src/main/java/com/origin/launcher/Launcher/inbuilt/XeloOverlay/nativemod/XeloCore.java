@@ -9,4 +9,6 @@ public class XeloCore {
     public static native boolean isPauseVisible();
 
     public static native boolean isInWorld();
+
+    public static native boolean isHudClear();
 }
