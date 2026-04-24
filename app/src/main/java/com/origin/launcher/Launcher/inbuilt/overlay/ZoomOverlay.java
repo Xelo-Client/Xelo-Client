@@ -10,19 +10,20 @@ import android.widget.ImageButton;
 
 import com.origin.launcher.R;
 import com.origin.launcher.Launcher.inbuilt.model.ModIds;
-import com.origin.launcher.Launcher.inbuilt.XeloOverlay.nativemod.PauseScreenNative;
+import com.origin.launcher.Launcher.inbuilt.XeloOverlay.nativemod.XeloCore;
 import com.origin.launcher.Launcher.inbuilt.XeloOverlay.nativemod.ZoomMod;
 import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModManager;
 import com.origin.launcher.dialogs.ButtonStyleDialog;
 
 public class ZoomOverlay extends BaseOverlayButton {
+
     private static final String TAG = "ZoomOverlay";
     private static final long HOLD_THRESHOLD_MS = 150;
 
     private boolean isZooming = false;
     private boolean initialized = false;
     private boolean isHolding = false;
-    private boolean lastPauseState = false;
+    private boolean lastInWorldState = false;
 
     private final Handler handler = new Handler(Looper.getMainLooper());
 
@@ -36,16 +37,16 @@ public class ZoomOverlay extends BaseOverlayButton {
         }
     };
 
-    private final Runnable pausePoller = new Runnable() {
+    private final Runnable worldPoller = new Runnable() {
         @Override
         public void run() {
-            boolean paused = PauseScreenNative.isPauseVisible();
-            if (paused != lastPauseState) {
-                lastPauseState = paused;
-                if (paused) {
-                    hideDuringPause();
+            boolean inWorld = XeloCore.isInWorld();
+            if (inWorld != lastInWorldState) {
+                lastInWorldState = inWorld;
+                if (inWorld) {
+                    showInWorld();
                 } else {
-                    showAfterPause();
+                    hideOutOfWorld();
                 }
             }
             handler.postDelayed(this, 50);
@@ -169,12 +170,12 @@ public class ZoomOverlay extends BaseOverlayButton {
     @Override
     protected void onOverlayViewCreated(ImageButton btn) {
         applyIconPadding(btn);
-        handler.removeCallbacks(pausePoller);
-        lastPauseState = PauseScreenNative.isPauseVisible();
-        if (lastPauseState) {
-            hideDuringPause();
+        handler.removeCallbacks(worldPoller);
+        lastInWorldState = XeloCore.isInWorld();
+        if (!lastInWorldState) {
+            hideOutOfWorld();
         }
-        handler.post(pausePoller);
+        handler.post(worldPoller);
     }
 
     public void onKeyDown() {
@@ -238,7 +239,7 @@ public class ZoomOverlay extends BaseOverlayButton {
         }
     }
 
-    private void hideDuringPause() {
+    private void hideOutOfWorld() {
         if (overlayView == null) return;
         activity.runOnUiThread(() -> {
             overlayView.setVisibility(View.GONE);
@@ -252,7 +253,7 @@ public class ZoomOverlay extends BaseOverlayButton {
         });
     }
 
-    private void showAfterPause() {
+    private void showInWorld() {
         if (overlayView == null) return;
         activity.runOnUiThread(() -> overlayView.setVisibility(View.VISIBLE));
     }
@@ -275,7 +276,7 @@ public class ZoomOverlay extends BaseOverlayButton {
 
     public void destroy() {
         handler.removeCallbacks(holdRunnable);
-        handler.removeCallbacks(pausePoller);
+        handler.removeCallbacks(worldPoller);
         hide();
     }
 

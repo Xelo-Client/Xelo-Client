@@ -5,7 +5,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
 import android.widget.ImageButton;
-import com.origin.launcher.Launcher.inbuilt.XeloOverlay.nativemod.PauseScreenNative;
+import com.origin.launcher.Launcher.inbuilt.XeloOverlay.nativemod.XeloCore;
 import com.origin.launcher.dialogs.ModMenuDialog;
 import com.origin.launcher.R;
 
@@ -24,7 +24,7 @@ public class ModMenuOverlay extends BaseOverlayButton {
     private final Runnable pausePoller = new Runnable() {
         @Override
         public void run() {
-            boolean paused = PauseScreenNative.isPauseVisible();
+            boolean paused = XeloCore.isPauseVisible();
             if (paused != lastPauseState) {
                 lastPauseState = paused;
                 if (paused) {
@@ -55,7 +55,7 @@ public class ModMenuOverlay extends BaseOverlayButton {
     protected void onOverlayViewCreated(ImageButton btn) {
         btn.setBackgroundResource(R.drawable.round_button_bg);
         hideOverlay();
-        lastPauseState = PauseScreenNative.isPauseVisible();
+        lastPauseState = XeloCore.isPauseVisible();
         if (lastPauseState) {
             showOverlay();
         }

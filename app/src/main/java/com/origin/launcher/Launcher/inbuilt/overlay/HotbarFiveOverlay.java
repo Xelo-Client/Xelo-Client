@@ -9,29 +9,29 @@ import android.widget.ImageButton;
 
 import com.origin.launcher.R;
 import com.origin.launcher.Launcher.inbuilt.model.ModIds;
-import com.origin.launcher.Launcher.inbuilt.XeloOverlay.nativemod.PauseScreenNative;
+import com.origin.launcher.Launcher.inbuilt.XeloOverlay.nativemod.XeloCore;
 
 public class HotbarFiveOverlay extends BaseOverlayButton {
 
-    private boolean lastPauseState = false;
+    private boolean lastInWorldState = false;
 
-    private final Runnable pausePoller = new Runnable() {
+    private final Handler handler = new Handler(Looper.getMainLooper());
+
+    private final Runnable worldPoller = new Runnable() {
         @Override
         public void run() {
-            boolean paused = PauseScreenNative.isPauseVisible();
-            if (paused != lastPauseState) {
-                lastPauseState = paused;
-                if (paused) {
-                    hideDuringPause();
+            boolean inWorld = XeloCore.isInWorld();
+            if (inWorld != lastInWorldState) {
+                lastInWorldState = inWorld;
+                if (inWorld) {
+                    showInWorld();
                 } else {
-                    showAfterPause();
+                    hideOutOfWorld();
                 }
             }
             handler.postDelayed(this, 50);
         }
     };
-
-    private final Handler handler = new Handler(Looper.getMainLooper());
 
     public HotbarFiveOverlay(Activity activity) {
         super(activity);
@@ -49,12 +49,12 @@ public class HotbarFiveOverlay extends BaseOverlayButton {
 
     @Override
     protected void onOverlayViewCreated(ImageButton btn) {
-        handler.removeCallbacks(pausePoller);
-        lastPauseState = PauseScreenNative.isPauseVisible();
-        if (lastPauseState) {
-            hideDuringPause();
+        handler.removeCallbacks(worldPoller);
+        lastInWorldState = XeloCore.isInWorld();
+        if (!lastInWorldState) {
+            hideOutOfWorld();
         }
-        handler.post(pausePoller);
+        handler.post(worldPoller);
     }
 
     @Override
@@ -78,7 +78,7 @@ public class HotbarFiveOverlay extends BaseOverlayButton {
         }
     }
 
-    private void hideDuringPause() {
+    private void hideOutOfWorld() {
         if (overlayView == null) return;
         ImageButton btn = overlayView.findViewById(R.id.mod_overlay_button);
         if (btn != null) {
@@ -86,7 +86,7 @@ public class HotbarFiveOverlay extends BaseOverlayButton {
         }
     }
 
-    private void showAfterPause() {
+    private void showInWorld() {
         if (overlayView == null) return;
         ImageButton btn = overlayView.findViewById(R.id.mod_overlay_button);
         if (btn != null) {
@@ -95,7 +95,7 @@ public class HotbarFiveOverlay extends BaseOverlayButton {
     }
 
     public void destroy() {
-        handler.removeCallbacks(pausePoller);
+        handler.removeCallbacks(worldPoller);
         hide();
     }
 }

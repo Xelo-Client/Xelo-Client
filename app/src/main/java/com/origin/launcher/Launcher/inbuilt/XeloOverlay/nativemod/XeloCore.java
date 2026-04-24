@@ -1,6 +1,6 @@
 package com.origin.launcher.Launcher.inbuilt.XeloOverlay.nativemod;
 
-public class PauseScreenNative {
+public class XeloCore {
 
     static {
         System.loadLibrary("xelocore");
@@ -8,5 +8,5 @@ public class PauseScreenNative {
 
     public static native boolean isPauseVisible();
 
-    public static native boolean isHudVisible();
+    public static native boolean isInWorld();
 }

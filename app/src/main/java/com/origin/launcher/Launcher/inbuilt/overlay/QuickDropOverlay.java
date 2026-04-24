@@ -10,7 +10,7 @@ import android.widget.ImageButton;
 
 import com.origin.launcher.R;
 import com.origin.launcher.Launcher.inbuilt.model.ModIds;
-import com.origin.launcher.Launcher.inbuilt.XeloOverlay.nativemod.PauseScreenNative;
+import com.origin.launcher.Launcher.inbuilt.XeloOverlay.nativemod.XeloCore;
 import com.origin.launcher.dialogs.ButtonStyleDialog;
 
 public class QuickDropOverlay extends BaseOverlayButton {
@@ -18,7 +18,7 @@ public class QuickDropOverlay extends BaseOverlayButton {
     private static final long HOLD_THRESHOLD_MS = 300;
 
     private boolean isHolding = false;
-    private boolean lastPauseState = false;
+    private boolean lastInWorldState = false;
 
     private final Handler handler = new Handler(Looper.getMainLooper());
 
@@ -29,16 +29,16 @@ public class QuickDropOverlay extends BaseOverlayButton {
         updateButtonState(true);
     };
 
-    private final Runnable pausePoller = new Runnable() {
+    private final Runnable worldPoller = new Runnable() {
         @Override
         public void run() {
-            boolean paused = PauseScreenNative.isPauseVisible();
-            if (paused != lastPauseState) {
-                lastPauseState = paused;
-                if (paused) {
-                    hideDuringPause();
+            boolean inWorld = XeloCore.isInWorld();
+            if (inWorld != lastInWorldState) {
+                lastInWorldState = inWorld;
+                if (inWorld) {
+                    showInWorld();
                 } else {
-                    showAfterPause();
+                    hideOutOfWorld();
                 }
             }
             handler.postDelayed(this, 50);
@@ -63,12 +63,12 @@ public class QuickDropOverlay extends BaseOverlayButton {
     @Override
     protected void onOverlayViewCreated(ImageButton btn) {
         applyIconPadding(btn);
-        handler.removeCallbacks(pausePoller);
-        lastPauseState = PauseScreenNative.isPauseVisible();
-        if (lastPauseState) {
-            hideDuringPause();
+        handler.removeCallbacks(worldPoller);
+        lastInWorldState = XeloCore.isInWorld();
+        if (!lastInWorldState) {
+            hideOutOfWorld();
         }
-        handler.post(pausePoller);
+        handler.post(worldPoller);
     }
 
     @Override
@@ -152,7 +152,7 @@ public class QuickDropOverlay extends BaseOverlayButton {
         }
     }
 
-    private void hideDuringPause() {
+    private void hideOutOfWorld() {
         if (overlayView == null) return;
         ImageButton btn = overlayView.findViewById(R.id.mod_overlay_button);
         if (btn != null) {
@@ -169,7 +169,7 @@ public class QuickDropOverlay extends BaseOverlayButton {
         }
     }
 
-    private void showAfterPause() {
+    private void showInWorld() {
         if (overlayView == null) return;
         ImageButton btn = overlayView.findViewById(R.id.mod_overlay_button);
         if (btn != null) {
@@ -179,7 +179,7 @@ public class QuickDropOverlay extends BaseOverlayButton {
 
     public void destroy() {
         handler.removeCallbacks(holdRunnable);
-        handler.removeCallbacks(pausePoller);
+        handler.removeCallbacks(worldPoller);
         hide();
     }
 }

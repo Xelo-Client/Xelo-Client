@@ -8,7 +8,7 @@ import android.widget.ImageButton;
 
 import com.origin.launcher.R;
 import com.origin.launcher.Launcher.inbuilt.model.ModIds;
-import com.origin.launcher.Launcher.inbuilt.XeloOverlay.nativemod.PauseScreenNative;
+import com.origin.launcher.Launcher.inbuilt.XeloOverlay.nativemod.XeloCore;
 import com.origin.launcher.dialogs.ButtonStyleDialog;
 
 public class AutoSprintOverlay extends BaseOverlayButton {
@@ -17,18 +17,18 @@ public class AutoSprintOverlay extends BaseOverlayButton {
     private int sprintKey;
 
     private final Handler handler = new Handler(Looper.getMainLooper());
-    private boolean lastPauseState = false;
+    private boolean lastInWorldState = false;
 
-    private final Runnable pausePoller = new Runnable() {
+    private final Runnable worldPoller = new Runnable() {
         @Override
         public void run() {
-            boolean paused = PauseScreenNative.isPauseVisible();
-            if (paused != lastPauseState) {
-                lastPauseState = paused;
-                if (paused) {
-                    hideDuringPause();
+            boolean inWorld = XeloCore.isInWorld();
+            if (inWorld != lastInWorldState) {
+                lastInWorldState = inWorld;
+                if (inWorld) {
+                    showInWorld();
                 } else {
-                    showAfterPause();
+                    hideOutOfWorld();
                 }
             }
             handler.postDelayed(this, 50);
@@ -54,12 +54,12 @@ public class AutoSprintOverlay extends BaseOverlayButton {
     @Override
     protected void onOverlayViewCreated(ImageButton btn) {
         applyIconPadding(btn);
-        handler.removeCallbacks(pausePoller);
-        lastPauseState = PauseScreenNative.isPauseVisible();
-        if (lastPauseState) {
-            hideDuringPause();
+        handler.removeCallbacks(worldPoller);
+        lastInWorldState = XeloCore.isInWorld();
+        if (!lastInWorldState) {
+            hideOutOfWorld();
         }
-        handler.post(pausePoller);
+        handler.post(worldPoller);
     }
 
     @Override
@@ -100,7 +100,7 @@ public class AutoSprintOverlay extends BaseOverlayButton {
         }
     }
 
-    private void hideDuringPause() {
+    private void hideOutOfWorld() {
         if (overlayView == null) return;
         ImageButton btn = overlayView.findViewById(R.id.mod_overlay_button);
         if (btn != null) {
@@ -115,7 +115,7 @@ public class AutoSprintOverlay extends BaseOverlayButton {
         }
     }
 
-    private void showAfterPause() {
+    private void showInWorld() {
         if (overlayView == null) return;
         ImageButton btn = overlayView.findViewById(R.id.mod_overlay_button);
         if (btn != null) {
@@ -133,7 +133,7 @@ public class AutoSprintOverlay extends BaseOverlayButton {
     }
 
     public void destroy() {
-        handler.removeCallbacks(pausePoller);
+        handler.removeCallbacks(worldPoller);
         hide();
     }
 
@@ -142,7 +142,6 @@ public class AutoSprintOverlay extends BaseOverlayButton {
     @Override
     public void tick() {
         if (!isActive) return;
-
         tickCount++;
         if (tickCount >= 20) {
             tickCount = 0;
