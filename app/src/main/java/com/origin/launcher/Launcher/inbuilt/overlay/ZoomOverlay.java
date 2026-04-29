@@ -5,22 +5,28 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.View;
 import android.widget.ImageButton;
 
 import com.origin.launcher.R;
 import com.origin.launcher.Launcher.inbuilt.model.ModIds;
+import com.origin.launcher.Launcher.inbuilt.XeloOverlay.nativemod.XeloCore;
 import com.origin.launcher.Launcher.inbuilt.XeloOverlay.nativemod.ZoomMod;
 import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModManager;
+import com.origin.launcher.dialogs.ButtonStyleDialog;
 
 public class ZoomOverlay extends BaseOverlayButton {
+
     private static final String TAG = "ZoomOverlay";
-    private static final long HOLD_THRESHOLD_MS = 300;
+    private static final long HOLD_THRESHOLD_MS = 150;
 
     private boolean isZooming = false;
     private boolean initialized = false;
     private boolean isHolding = false;
+    private boolean lastInWorldState = false;
 
     private final Handler handler = new Handler(Looper.getMainLooper());
+
     private final Runnable holdRunnable = () -> {
         isHolding = true;
         if (!isZooming) {
@@ -28,6 +34,22 @@ public class ZoomOverlay extends BaseOverlayButton {
             applyZoomLevel();
             ZoomMod.nativeOnKeyDown();
             updateButtonState(true);
+        }
+    };
+
+    private final Runnable worldPoller = new Runnable() {
+        @Override
+        public void run() {
+            boolean inWorld = XeloCore.isHudClear();
+            if (inWorld != lastInWorldState) {
+                lastInWorldState = inWorld;
+                if (inWorld) {
+                    showInWorld();
+                } else {
+                    hideOutOfWorld();
+                }
+            }
+            handler.postDelayed(this, 50);
         }
     };
 
@@ -42,7 +64,8 @@ public class ZoomOverlay extends BaseOverlayButton {
 
     @Override
     protected int getIconResource() {
-        return R.drawable.ic_zoom_selector;
+        boolean usePng = ButtonStyleDialog.isUsingPng(activity, ModIds.ZOOM);
+        return usePng ? R.drawable.ic_zoom_selector : R.drawable.ic_zoom;
     }
 
     @Override
@@ -145,7 +168,15 @@ public class ZoomOverlay extends BaseOverlayButton {
     }
 
     @Override
-    protected void onOverlayViewCreated(ImageButton btn) {}
+    protected void onOverlayViewCreated(ImageButton btn) {
+        applyIconPadding(btn);
+        handler.removeCallbacks(worldPoller);
+        lastInWorldState = XeloCore.isHudClear();
+        if (!lastInWorldState) {
+            hideOutOfWorld();
+        }
+        handler.post(worldPoller);
+    }
 
     public void onKeyDown() {
         if (!initialized) {
@@ -182,13 +213,49 @@ public class ZoomOverlay extends BaseOverlayButton {
         }
     }
 
+    private void applyIconPadding(ImageButton btn) {
+        boolean usePng = ButtonStyleDialog.isUsingPng(activity, ModIds.ZOOM);
+        int p = usePng ? 0 : dpToPx(6);
+        btn.setPadding(p, p, p, p);
+    }
+
+    private int dpToPx(int dp) {
+        return Math.round(dp * activity.getResources().getDisplayMetrics().density);
+    }
+
     private void updateButtonState(boolean active) {
-        if (overlayView instanceof ImageButton) {
-            ImageButton btn = (ImageButton) overlayView;
-            btn.setActivated(active);
-            btn.setAlpha(getButtonAlpha() * (active ? 1.1f : 1.0f));
-            btn.setBackgroundResource(active ? R.drawable.bg_overlay_button_active : R.drawable.bg_overlay_button);
+        if (overlayView != null) {
+            ImageButton btn = overlayView.findViewById(R.id.mod_overlay_button);
+            if (btn != null) {
+                boolean usePng = ButtonStyleDialog.isUsingPng(activity, ModIds.ZOOM);
+                btn.setActivated(active);
+                btn.setAlpha(getButtonAlpha() * (active ? 1.1f : 1.0f));
+                if (usePng) {
+                    btn.setBackgroundResource(R.drawable.bg_overlay_button_png);
+                } else {
+                    btn.setBackgroundResource(active ? R.drawable.bg_overlay_button_active : R.drawable.bg_overlay_button);
+                }
+            }
         }
+    }
+
+    private void hideOutOfWorld() {
+        if (overlayView == null) return;
+        activity.runOnUiThread(() -> {
+            overlayView.setVisibility(View.GONE);
+            handler.removeCallbacks(holdRunnable);
+            if (isZooming && initialized) {
+                isZooming = false;
+                ZoomMod.nativeOnKeyUp();
+                updateButtonState(false);
+            }
+            isHolding = false;
+        });
+    }
+
+    private void showInWorld() {
+        if (overlayView == null) return;
+        activity.runOnUiThread(() -> overlayView.setVisibility(View.VISIBLE));
     }
 
     public void onScroll(float delta) {
@@ -205,6 +272,12 @@ public class ZoomOverlay extends BaseOverlayButton {
         }
         handler.removeCallbacks(holdRunnable);
         super.hide();
+    }
+
+    public void destroy() {
+        handler.removeCallbacks(holdRunnable);
+        handler.removeCallbacks(worldPoller);
+        hide();
     }
 
     public boolean isZooming() {

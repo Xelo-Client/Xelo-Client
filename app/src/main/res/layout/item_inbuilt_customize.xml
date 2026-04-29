@@ -102,6 +102,52 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/config_button_style_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Icon Style"
+                    android:textSize="14sp"
+                    android:textColor="@android:color/white"
+                    android:alpha="0.8"
+                    android:layout_marginBottom="8dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <Button
+                        android:id="@+id/btn_style_native"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Native"
+                        android:textSize="12sp"
+                        android:layout_marginEnd="8dp"
+                        android:minHeight="36dp" />
+
+                    <Button
+                        android:id="@+id/btn_style_png"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="PNG"
+                        android:textSize="12sp"
+                        android:minHeight="36dp" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
                 android:id="@+id/config_mod_menu_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

@@ -30,7 +30,6 @@ class GamePackageManager private constructor(private val context: Context, priva
 
     private val requiredLibs = arrayOf(
         "libc++_shared.so",
-        "libfmod.so",
         "libMediaDecoders_Android.so",
         "libHttpClient.Android.so",
         "libminecraftpe.so",
@@ -40,6 +39,7 @@ class GamePackageManager private constructor(private val context: Context, priva
         "libpairipcore.so",
         "libPlayFabMultiplayer.so",
         "libmaesdk.so",
+        "libfmod.so",
         "libmtbinloader2.so",
     )
 

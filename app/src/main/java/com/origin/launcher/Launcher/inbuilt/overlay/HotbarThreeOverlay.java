@@ -1,13 +1,37 @@
 package com.origin.launcher.Launcher.inbuilt.overlay;
 
 import android.app.Activity;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.KeyEvent;
+import android.view.View;
 import android.widget.ImageButton;
 
 import com.origin.launcher.R;
 import com.origin.launcher.Launcher.inbuilt.model.ModIds;
+import com.origin.launcher.Launcher.inbuilt.XeloOverlay.nativemod.XeloCore;
 
 public class HotbarThreeOverlay extends BaseOverlayButton {
+
+    private boolean lastInWorldState = false;
+
+    private final Handler handler = new Handler(Looper.getMainLooper());
+
+    private final Runnable worldPoller = new Runnable() {
+        @Override
+        public void run() {
+            boolean inWorld = XeloCore.isHudClear();
+            if (inWorld != lastInWorldState) {
+                lastInWorldState = inWorld;
+                if (inWorld) {
+                    showInWorld();
+                } else {
+                    hideOutOfWorld();
+                }
+            }
+            handler.postDelayed(this, 50);
+        }
+    };
 
     public HotbarThreeOverlay(Activity activity) {
         super(activity);
@@ -24,7 +48,14 @@ public class HotbarThreeOverlay extends BaseOverlayButton {
     }
 
     @Override
-    protected void onOverlayViewCreated(ImageButton btn) {}
+    protected void onOverlayViewCreated(ImageButton btn) {
+        handler.removeCallbacks(worldPoller);
+        lastInWorldState = XeloCore.isHudClear();
+        if (!lastInWorldState) {
+            hideOutOfWorld();
+        }
+        handler.post(worldPoller);
+    }
 
     @Override
     protected void onButtonClick() {
@@ -45,5 +76,26 @@ public class HotbarThreeOverlay extends BaseOverlayButton {
                 );
             }
         }
+    }
+
+    private void hideOutOfWorld() {
+        if (overlayView == null) return;
+        ImageButton btn = overlayView.findViewById(R.id.mod_overlay_button);
+        if (btn != null) {
+            activity.runOnUiThread(() -> btn.setVisibility(View.GONE));
+        }
+    }
+
+    private void showInWorld() {
+        if (overlayView == null) return;
+        ImageButton btn = overlayView.findViewById(R.id.mod_overlay_button);
+        if (btn != null) {
+            activity.runOnUiThread(() -> btn.setVisibility(View.VISIBLE));
+        }
+    }
+
+    public void destroy() {
+        handler.removeCallbacks(worldPoller);
+        hide();
     }
 }

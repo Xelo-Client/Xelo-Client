@@ -331,6 +331,9 @@ public class HomeFragment extends BaseThemedFragment {
                 Toast.makeText(getContext(), "Unable to open themes", Toast.LENGTH_SHORT).show();
             }
         });
+        
+        // temporarily disabled
+        versions_button.setVisibility(View.GONE);
 
         // Set initial log text
         listener.setText("Ready to launch Minecraft");
