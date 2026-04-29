@@ -539,6 +539,15 @@ public class MainActivity extends GameActivity implements View.OnKeyListener, Fi
             return 0L;
         }
     }
+    
+    public long getTotalSpace(String str) {
+        try {
+            return new File(str).getTotalSpace();
+        } catch (SecurityException e) {
+            Log.e("MCPE", "SecurityException while attempting to get total space\n" + e.toString());
+            return 0L;
+        }
+    }
 
     public void initializeMulticast() {
         WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
